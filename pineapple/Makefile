@@ -14,6 +14,7 @@ TEST := $(subst /,., $(JNI_CLASSES))
 all : pineapple
 headergen: #generate jni headers
 	@ \
+	rm -rf obj/local; \
 	echo 'Creating JNI Headers'; \
 	cd bin/classes/; \
 	javah -jni -d ../../jni/include $(subst /,., $(JNI_CLASSES)) 

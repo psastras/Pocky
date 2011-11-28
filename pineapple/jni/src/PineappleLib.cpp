@@ -1,12 +1,13 @@
 #include "../include/pineapple_libs_PineappleLib.h"
-#include "../include/common.h"
-
+#include "../extern/common.h"
+#include "../extern/PineappleGLSurface.h"
 JNIEXPORT void JNICALL Java_pineapple_libs_PineappleLib_init
   (JNIEnv *, jclass) {
-	LOGI("TESTING!");
+	LOGI("Pineapple Library Initialized");
+
 }
 
 JNIEXPORT void JNICALL Java_pineapple_libs_PineappleLib_test
   (JNIEnv *, jclass) {
-	LOGI("HELLO WORLD");
+
 }

@@ -1,13 +1,19 @@
 package pocky.main;
 
 import pineapple.main.PineappleActivity;
+import pocky.libs.Pocky;
 import android.os.Bundle;
 
 public class PockyActivity extends PineappleActivity {
-	/** Called when the activity is first created. */
+
+	static {
+		System.loadLibrary("pocky");
+	}
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
+		Pocky.startup();
 	}
 }

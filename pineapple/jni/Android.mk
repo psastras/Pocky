@@ -18,7 +18,7 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE    := pineapple
 LOCAL_CFLAGS    := -Werror
-LOCAL_SRC_FILES := src/*.cpp
+LOCAL_SRC_FILES := src/PineappleGLSurface.cpp src/PineappleLib.cpp  #$(wildcard src/*.cpp)
 LOCAL_LDLIBS    := -llog -lGLESv2
 
 include $(BUILD_SHARED_LIBRARY)
