@@ -32,7 +32,12 @@ androidmk : #generate the android.mk file
 	'LOCAL_SRC_FILES :=$(subst jni/, '', $(wildcard $(SRCDIR)/src/*.cpp))\n'\
 	'LOCAL_LDLIBS    := -llog -lGLESv2  -L../pineapple -lpineapple\n'\
 	'include $$(BUILD_SHARED_LIBRARY)' > $(SRCDIR)/Android.mk
-pocky : pineapple headergen androidmk #compile
+rebuildassets : #need to refresh the assets to avoid segfaulting (not sure why)
+	@ \
+	echo '\nRefreshing Android Assets'; \
+	find assets -type f -follow -print|xargs echo; \
+	find assets -type f -follow -print|xargs touch
+pocky : pineapple headergen rebuildassets androidmk  #compile
 	@ \
 	echo '\nCompiling'; \
 	echo '$(CC) $(wildcard $(SRCDIR)/src/*.cpp)\n'; \

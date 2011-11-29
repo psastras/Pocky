@@ -17,7 +17,8 @@
 namespace Pineapple {
 
 	GL::GL() {
-
+		width_ = 1;
+		height_ = 1;
 	}
 
 	GL::GL(int w, int h) {
@@ -40,4 +41,16 @@ namespace Pineapple {
 	void GL::test() {
 		LOGI("ASDASDASD");
 	}
+
+	void GL::ortho() {
+		VSML::instance()->loadIdentity(VSML::PROJECTION);
+		VSML::instance()->ortho(0.f,(float)width_,(float)height_,0.f);
+		VSML::instance()->loadIdentity(VSML::MODELVIEW);
+	}
+
+	void GL::perspective(float fov, float near, float far) {
+		VSML::instance()->perspective(fov, width_ / (float)height_, near, far);
+		VSML::instance()->loadIdentity(VSML::MODELVIEW);
+	}
+
 }

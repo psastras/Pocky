@@ -52,14 +52,15 @@ namespace Pineapple {
 			   return 0 ;
 			}
 
-
 			struct zip_stat info;
 			zip_stat(file->za, filename, ZIP_FL_NOCASE, &info);
 			if(info.size <= 0)
 				return 0;
 
 			char *buffer = new char[info.size];
+			memset(buffer, 0, sizeof(char)*info.size);
 			zip_fread(file, buffer, info.size);
+			LOGI("SIZE: %d", info.size);
 			zip_fclose(file);
 			return buffer;
 	}

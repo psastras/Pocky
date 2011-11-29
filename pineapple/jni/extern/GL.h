@@ -10,6 +10,7 @@
 #include "Common.h"
 #include "GLPrimitive.h"
 #include "GLShaderProgram.h"
+#include "GLFramebufferObject.h"
 #include "VSML.h"
 
 namespace Pineapple {
@@ -30,6 +31,8 @@ class GL {
 		void test();
 
 		void initializeGL(int w, int h);
+		void ortho();
+		void perspective(float fov, float near, float far);
 	protected:
 		int width_, height_;
 	};

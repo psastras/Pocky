@@ -1,4 +1,6 @@
 #include "../extern/GLPrimitive.h"
+#include "../extern/GLShaderProgram.h"
+#include "../extern/VSML.h"
 #include "../extern/Common.h"
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
@@ -13,6 +15,7 @@ GLPrimitive::~GLPrimitive() {
 }
 
 void GLPrimitive::draw(GLShaderProgram *program, int instances) {
+	program->bind(VSML::instance());
     glBindBuffer(GL_ARRAY_BUFFER, vertexId_);
     GLint ids[3] = {
 		program->getAttributeLocation("in_Position"),
@@ -35,10 +38,12 @@ void GLPrimitive::draw(GLShaderProgram *program, int instances) {
     if(ids[0] >= 0) glDisableVertexAttribArray(ids[0]);
     if(ids[1] >= 0) glDisableVertexAttribArray(ids[1]);
     if(ids[2] >= 0) glDisableVertexAttribArray(ids[2]);
+    program->release();
 }
 
 void GLPrimitive::draw(GLShaderProgram *program) {
-    glBindBuffer(GL_ARRAY_BUFFER, vertexId_);
+	program->bind(VSML::instance());
+	glBindBuffer(GL_ARRAY_BUFFER, vertexId_);
 
     GLint ids[3] = {
 	program->getAttributeLocation("in_Position"),
@@ -67,6 +72,7 @@ void GLPrimitive::draw(GLShaderProgram *program) {
     if(ids[0] >= 0) glDisableVertexAttribArray(ids[0]);
     if(ids[1] >= 0) glDisableVertexAttribArray(ids[1]);
     if(ids[2] >= 0) glDisableVertexAttribArray(ids[2]);
+    program->release();
 }
 
 

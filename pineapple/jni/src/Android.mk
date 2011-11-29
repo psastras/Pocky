@@ -5,6 +5,6 @@ include $(CLEAR_VARS)
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/../libzip/
 LOCAL_STATIC_LIBRARIES := libzip 
 LOCAL_MODULE    := pineapple 
-LOCAL_SRC_FILES :=  Engine.cpp  GL.cpp  GLPrimitive.cpp  GLShader.cpp  GLShaderProgram.cpp  PineappleLib.cpp  Scene.cpp  SceneObject.cpp  VSML.cpp
+LOCAL_SRC_FILES :=  Engine.cpp  GL.cpp  GLFramebufferObject.cpp  GLPrimitive.cpp  GLShader.cpp  GLShaderProgram.cpp  PineappleLib.cpp  Scene.cpp  SceneObject.cpp  VSML.cpp
 LOCAL_LDLIBS    := -llog -lGLESv2 -ldl -lz
 include $(BUILD_SHARED_LIBRARY)
