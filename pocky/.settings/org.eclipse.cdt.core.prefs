@@ -1,0 +1,6 @@
+eclipse.preferences.version=1
+environment/project/0.120375442/PATH/delimiter=\:
+environment/project/0.120375442/PATH/operation=append
+environment/project/0.120375442/PATH/value=/contrib/projects/globus/bin\:/contrib/projects/globus/sbin\:/course/cs195n/bin\:/course/cs032/bin\:/usr/local/bin\:/bin\:/usr/bin\:/usr/X11R6/bin\:/local/bin\:/usr/games\:/contrib/bin\:/course/cs143/bin\:/course/cs143/tabin\:/course/cs022/bin\:/course/cs129/bin\:/gpfs/main/research/hays_lab/people/psastras/3rdparty/imagemagick/bin\:/local/bin/\:/contrib/projects/sqlite/current/bin\:/contrib/projects/cuda-toolkit/cuda/bin\:/contrib/projects/cloc\:/contrib/projects/glew/lib\:/contrib/projects/fftw/bin\:/contrib/projects/eclipse-android-ndk/eclipse\:/contrib/projects/eclipse-android-ndk/android-ndk-r7\:/contrib/projects/eclipse-android-ndk/android-ndk-r7/prebuilt/linux-x86/bin
+environment/project/0.120375442/append=true
+environment/project/0.120375442/appendContributed=false
