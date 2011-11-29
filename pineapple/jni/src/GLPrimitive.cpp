@@ -1,5 +1,5 @@
 #include "../extern/GLPrimitive.h"
-
+#include "../extern/Common.h"
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
 GLPrimitive::GLPrimitive(Float3 &tess, Float3 &translate, Float3 &scale) : vertexId_(0), indexId_(0) {
@@ -15,9 +15,9 @@ GLPrimitive::~GLPrimitive() {
 void GLPrimitive::draw(GLShaderProgram *program, int instances) {
     glBindBuffer(GL_ARRAY_BUFFER, vertexId_);
     GLint ids[3] = {
-	program->getAttributeLocation("in_Position"),
-	program->getAttributeLocation("in_Normal"),
-	program->getAttributeLocation("in_TexCoord")
+		program->getAttributeLocation("in_Position"),
+		program->getAttributeLocation("in_Normal"),
+		program->getAttributeLocation("in_TexCoord")
     };
     if(ids[0] >= 0)
 	glVertexAttribPointer(ids[0], 3, GL_FLOAT, GL_FALSE, sizeof(GLVertex), (GLvoid *)vOffset_);
@@ -45,6 +45,8 @@ void GLPrimitive::draw(GLShaderProgram *program) {
 	program->getAttributeLocation("in_Normal"),
 	program->getAttributeLocation("in_TexCoord")
     };
+
+    //LOGI("%d, %d, %d",ids[0], ids[1], ids[2]);
     if(ids[0] >= 0)
 	glVertexAttribPointer(ids[0], 3, GL_FLOAT, GL_FALSE, sizeof(GLVertex), (GLvoid *)vOffset_);
     if(ids[1] >= 0)

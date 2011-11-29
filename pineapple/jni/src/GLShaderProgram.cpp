@@ -27,28 +27,23 @@ void printLog(GLuint obj) {
 	else
 		glGetProgramInfoLog(obj, 1024, &infologLength, infoLog);
     if (infologLength > 0)
-		printf("%s\n", infoLog);
+		LOGE(infoLog);
     fflush(stdout);
 }
-
+void GLShaderProgram::loadShaderFromData(GLenum type, char *data) {
+	stringstream ss;
+	ss << data;
+	this->loadShaderFromSource(type, ss.str());
+}
 void GLShaderProgram::loadShaderFromSource(GLenum type, std::string source) {
 
     stringstream ss;
+    ss << "#version 100 core" << endl;
     if(type == GL_FRAGMENT_SHADER)
 	ss << "#define _FRAGMENT_" << endl;
     else if(type == GL_VERTEX_SHADER)
 	ss << "#define _VERTEX_" << endl;
-    ifstream file(source.c_str());
-    string line;
-    if (file.is_open()) {
-       while (file.good()) {
-	 getline(file, line);
-	 ss << line << endl;
-      }
-      file.close();
-    } else {
-	return;
-    }
+    ss << source;
     std::string str = ss.str();
     int length = str.length();
     const char *data = str.c_str();

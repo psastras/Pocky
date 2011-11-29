@@ -34,10 +34,10 @@ JNIEXPORT void JNICALL Java_pocky_libs_Pocky_resize
 /*
  * Class:     pocky_libs_Pocky
  * Method:    draw
- * Signature: ()V
+ * Signature: (I)V
  */
 JNIEXPORT void JNICALL Java_pocky_libs_Pocky_draw
-  (JNIEnv *, jclass);
+  (JNIEnv *, jclass, jint);
 
 #ifdef __cplusplus
 }

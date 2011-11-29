@@ -19,8 +19,6 @@ struct timespec returnTime;
 
 void* run(void*) {
 
-
-
 	while(gIsRunning)
 	{
 		pthread_mutex_lock(&mutex);
@@ -39,10 +37,31 @@ namespace Pineapple {
 		thread_ = 0;
 		sleepTime.tv_sec = 0;
 		sleepTime.tv_nsec = 33333333;
+		s_APKArchive = 0;
 	}
 
 	Engine::~Engine() {
 		// TODO Auto-generated destructor stub
+	}
+
+	char *Engine::readResourceFromAPK(const char* filename) {
+			if(s_APKArchive == 0) return 0;
+			zip_file *file = zip_fopen(s_APKArchive, filename, 0);
+			LOGI("TEST");
+			if (!file) {
+			   return 0 ;
+			}
+
+
+			struct zip_stat info;
+			zip_stat(file->za, filename, ZIP_FL_NOCASE, &info);
+			if(info.size <= 0)
+				return 0;
+
+			char *buffer = new char[info.size];
+			zip_fread(file, buffer, info.size);
+			zip_fclose(file);
+			return buffer;
 	}
 
 	void Engine::start()

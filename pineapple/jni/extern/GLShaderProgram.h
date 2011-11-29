@@ -16,7 +16,7 @@ public:
     ~GLShaderProgram();
 
     void loadShaderFromSource(GLenum type, std::string source);
-
+    void loadShaderFromData(GLenum type, char *data);
     bool link();
     void bind() { glUseProgram(programId_); }
     void bind(VSML *instance);

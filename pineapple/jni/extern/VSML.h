@@ -22,7 +22,7 @@ class VSML {
 		static VSML* gInstance;
 
 		// getting the pointer to the instance
-		static VSML* getInstance (void);
+		static VSML* instance (void);
 
 		// destructor
 		~VSML();

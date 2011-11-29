@@ -18,10 +18,10 @@ JNIEXPORT void JNICALL Java_pineapple_libs_PineappleLib_test
 /*
  * Class:     pineapple_libs_PineappleLib
  * Method:    init
- * Signature: ()V
+ * Signature: (Ljava/lang/String;)V
  */
 JNIEXPORT void JNICALL Java_pineapple_libs_PineappleLib_init
-  (JNIEnv *, jclass);
+  (JNIEnv *, jclass, jstring);
 
 /*
  * Class:     pineapple_libs_PineappleLib

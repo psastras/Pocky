@@ -13,7 +13,7 @@ DegToRad(float degrees)
 // Singleton implementation
 // use this function to get the instance of VSML
 VSML*
-VSML::getInstance (void) {
+VSML::instance (void) {
 
 	if (0 != gInstance)
 		return gInstance;

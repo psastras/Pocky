@@ -59,7 +59,7 @@ import android.util.Log;
  * depths). Failure to do so would result in an EGL_BAD_MATCH error.
  */
 class PineappleGLSurface extends GLSurfaceView {
-	private static String TAG = "PineappleGLSurface";
+	private static String TAG = "PineappleGLS";
 	private static final boolean DEBUG = false;
 
 	public PineappleGLSurface(Context context, GLSurfaceView.Renderer renderer) {
@@ -152,7 +152,9 @@ class PineappleGLSurface extends GLSurfaceView {
 		private static int EGL_OPENGL_ES2_BIT = 4;
 		private static int[] s_configAttribs2 = { EGL10.EGL_RED_SIZE, 4,
 				EGL10.EGL_GREEN_SIZE, 4, EGL10.EGL_BLUE_SIZE, 4,
-				EGL10.EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT, EGL10.EGL_NONE };
+				EGL10.EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
+				EGL10.EGL_SAMPLE_BUFFERS, 1 /* true */, EGL10.EGL_SAMPLES, 2,
+				EGL10.EGL_NONE };
 
 		public EGLConfig chooseConfig(EGL10 egl, EGLDisplay display) {
 

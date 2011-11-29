@@ -7,6 +7,11 @@
 
 #ifndef PINEAPPLEGLSURFACE_H_
 #define PINEAPPLEGLSURFACE_H_
+#include "Common.h"
+#include "GLPrimitive.h"
+#include "GLShaderProgram.h"
+#include "VSML.h"
+
 namespace Pineapple {
 
 class GLShader;

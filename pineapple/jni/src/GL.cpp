@@ -6,7 +6,6 @@
  */
 
 #include "../extern/GL.h"
-#include "../extern/Common.h"
 
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
@@ -14,7 +13,9 @@
 #include <stdlib.h>
 #include <math.h>
 
+
 namespace Pineapple {
+
 	GL::GL() {
 
 	}
@@ -32,6 +33,7 @@ namespace Pineapple {
 		height_ = h;
 
 		glViewport(0, 0, w, h);
+
 	}
 
 

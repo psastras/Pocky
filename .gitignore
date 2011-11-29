@@ -10,6 +10,9 @@
 *.metadata*
 *.a
 *.d
+*.apk
+*.lo
+*.Plo
 
 
 # Packages #

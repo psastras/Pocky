@@ -24,5 +24,5 @@ public class Pocky {
 	/**
 	 * Causes the current scene to be drawn.
 	 */
-	public static native void draw();
+	public static native void draw(int time);
 }

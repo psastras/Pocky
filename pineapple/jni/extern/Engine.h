@@ -7,9 +7,11 @@
 
 #ifndef PINEAPPLEENGINE_H_
 #define PINEAPPLEENGINE_H_
+#include "../libzip/zip.h"
+#include "../libzip/config.h"
+#include "../libzip/zipint.h"
 
 namespace Pineapple {
-
 
 class Engine {
 public:
@@ -21,13 +23,20 @@ public:
 		return s_instance;
 	}
 
+	char *readResourceFromAPK(const char* filename);
+
 	void start();
 	void stop();
+
+	void setAPKArchive(zip *ark) {
+		s_APKArchive = ark;
+	}
 
 	void lock();
 	void unlock();
 
 protected:
+	zip* s_APKArchive;
 	static Engine *s_instance;
 	Engine();
 

@@ -15,16 +15,23 @@ public abstract class PineappleActivity extends Activity {
 
 	protected abstract GLSurfaceView.Renderer createRenderer();
 
+	protected abstract String getAPKPath();
+
+	protected long startTime_;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
+		startTime_ = System.currentTimeMillis();
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		setContentView(new PineappleGLSurface(getApplicationContext(),
 				createRenderer()));
-		PineappleLib.init();
+
+		PineappleLib.init(getAPKPath());
 		PineappleLib.start();
+
 	}
 
 	@Override
@@ -37,6 +44,10 @@ public abstract class PineappleActivity extends Activity {
 	protected void onResume() {
 		// PineappleLib.start();
 		super.onResume();
+	}
+
+	protected long elapsedTimeMillis() {
+		return System.currentTimeMillis() - startTime_;
 	}
 
 }
