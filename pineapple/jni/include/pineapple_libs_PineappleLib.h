@@ -23,6 +23,22 @@ JNIEXPORT void JNICALL Java_pineapple_libs_PineappleLib_test
 JNIEXPORT void JNICALL Java_pineapple_libs_PineappleLib_init
   (JNIEnv *, jclass);
 
+/*
+ * Class:     pineapple_libs_PineappleLib
+ * Method:    start
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_pineapple_libs_PineappleLib_start
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     pineapple_libs_PineappleLib
+ * Method:    stop
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_pineapple_libs_PineappleLib_stop
+  (JNIEnv *, jclass);
+
 #ifdef __cplusplus
 }
 #endif

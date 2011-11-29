@@ -15,10 +15,10 @@
 LOCAL_PATH:= $(call my-dir)
 
 include $(CLEAR_VARS)
-
 LOCAL_MODULE    := pineapple
-LOCAL_CFLAGS    := -Werror
-LOCAL_SRC_FILES := src/PineappleGLSurface.cpp src/PineappleLib.cpp  #$(wildcard src/*.cpp)
+LOCAL_CFLAGS    := -Werror 
+LOCAL_SRC_FILES := src/VSML.cpp src/GLPrimitive.cpp src/GLShaderProgram.cpp src/GL.cpp src/GLShader.cpp \
+					src/PineappleLib.cpp  src/Engine.cpp src/SceneObject.cpp src/Scene.cpp #$(wildcard src/*.cpp)
 LOCAL_LDLIBS    := -llog -lGLESv2
 
 include $(BUILD_SHARED_LIBRARY)
