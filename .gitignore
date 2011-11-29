@@ -8,6 +8,8 @@
 *.so
 *.class
 *.metadata*
+*.a
+*.d
 
 
 # Packages #
