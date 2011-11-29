@@ -33,7 +33,7 @@ androidmk : #generate the android.mk file
 	'LOCAL_MODULE    := pocky\n'\
 	'LOCAL_CFLAGS    := -Werror -I../\n'\
 	'LOCAL_SRC_FILES :=$(subst jni/, '', $(wildcard $(SRCDIR)/src/*.cpp))\n'\
-	'LOCAL_LDLIBS    := -llog -lGLESv2  -L../pineapple -lpineapple\n'\
+	'LOCAL_LDLIBS    := -llog -lGLESv2  -L../pineapple/libs/armeabi -lpineapple\n'\
 	'include $$(BUILD_SHARED_LIBRARY)' > $(SRCDIR)/Android.mk
 	
 rebuildassets : #need to refresh the assets to avoid segfaulting (not sure why)

@@ -27,10 +27,7 @@ JNIEXPORT void JNICALL Java_pocky_libs_Pocky_startup
 
 	LOGI("Pocky Started");
 	RELEASE(pGL);
-
 	pGL = new GL();
-
-
 }
 
 JNIEXPORT void JNICALL Java_pocky_libs_Pocky_resize
@@ -61,7 +58,7 @@ JNIEXPORT void JNICALL Java_pocky_libs_Pocky_draw
 	 glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	 pGL->perspective(60.f, 0.01f, 1000.f);
 	 VSML::instance()->translate(0.f, 2.f, -10.f);
-	// VSML::instance()->rotate(time / 100.f, 1.f, 1.f, 0.f);
+	 //VSML::instance()->rotate(time / 100.f, 1.f, 1.f, 0.f);
 	 quad->draw(prog);
 
 }

@@ -5,5 +5,5 @@ LOCAL_PATH:= $(call my-dir)
 LOCAL_MODULE    := pocky
 LOCAL_CFLAGS    := -Werror -I../
 LOCAL_SRC_FILES :=  src/pocky.cpp
-LOCAL_LDLIBS    := -llog -lGLESv2  -L../pineapple -lpineapple
+LOCAL_LDLIBS    := -llog -lGLESv2  -L../pineapple/libs/armeabi -lpineapple
 include $(BUILD_SHARED_LIBRARY)
