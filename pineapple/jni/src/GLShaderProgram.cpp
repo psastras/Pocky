@@ -30,29 +30,21 @@ void printLog(GLuint obj) {
 		LOGE(infoLog);
     fflush(stdout);
 }
-void GLShaderProgram::loadShaderFromData(GLenum type, unsigned char *data) {
-	stringstream ss;
-	ss << data;
-	this->loadShaderFromSource(type, ss.str());
+void GLShaderProgram::loadShaderFromData(GLenum type, unsigned char *data, size_t size) {
+	std::string str = (const char *)data;
+	int diff = str.size() - size;
+	this->loadShaderFromSource(type, str.substr(0, str.size() - diff)); //ditch the extra useless bytes
 }
-struct InvalidChar
-{
-    bool operator()(char c) const {
-        return (!isprint((unsigned)c) && c != '\n') || (unsigned)c == 26;
-    }
-};
-void GLShaderProgram::loadShaderFromSource(GLenum type, std::string source) {
 
+void GLShaderProgram::loadShaderFromSource(GLenum type, std::string source) {
     stringstream ss;
-   // ss << "#version 100 core" << endl;
     if(type == GL_FRAGMENT_SHADER)
 	ss << "#define _FRAGMENT_" << endl;
     else if(type == GL_VERTEX_SHADER)
 	ss << "#define _VERTEX_" << endl;
     ss << source;
     std::string str = ss.str();
-    str.erase(std::remove_if(str.begin(),str.end(), InvalidChar()), str.end());
-    LOGI("SHADER:\n%s", str.c_str());
+    //LOGI("%s", str.c_str());
     int length = str.length();
     const char *data = str.c_str();
     GLuint id = glCreateShader(type);
@@ -65,9 +57,6 @@ void GLShaderProgram::loadShaderFromSource(GLenum type, std::string source) {
 
 
 bool GLShaderProgram::link() {
-  //  glBindAttribLocation(programId_, 0, "in_Position"); // Bind a constant attribute location for positions of vertices
-//    glBindAttribLocation(programId_, 1, "in_Normal"); // Bind another constant attribute location, this time for color
-//    glBindAttribLocation(programId_, 2, "in_TexCoord"); // Bind another constant attribute location, this time for color
     glLinkProgram(programId_);
     return true;
 }

@@ -7,7 +7,7 @@
 struct GLFramebufferObjectParams {
     int width, height;
     bool hasDepth;
-    GLenum format, depthFormat, type;
+    GLenum format, type;
 };
 
 class GLFramebufferObject
@@ -20,8 +20,8 @@ public:
     GLuint id() { return id_; }
     GLFramebufferObjectParams &params() { return params_;  }
     void bind();
-    int width() { return params_.width; }
-    int height() { return params_.height; }
+    inline int width() { return params_.width; }
+    inline int height() { return params_.height; }
 
     void bindsurface(int idx);
     void unbindsurface() { glBindTexture(params_.type, 0); }

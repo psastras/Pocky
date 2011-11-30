@@ -140,6 +140,7 @@ Audio::Audio(void *memory, size_t size) {
 	   int sourceState = AL_PLAYING;
 	   do {
 		   alGetSourcei(source, AL_SOURCE_STATE, &sourceState);
+
 	   } while(sourceState == AL_PLAYING);
 
 }

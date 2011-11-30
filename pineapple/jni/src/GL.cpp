@@ -41,8 +41,8 @@ namespace Pineapple {
 		shaders_[name] = new GLShaderProgram();
 		size_t size;
 		unsigned char *data = Pineapple::Engine::instance()->readResourceFromAPK(filename, size);
-		shaders_[name]->loadShaderFromData(GL_FRAGMENT_SHADER, data);
-		shaders_[name]->loadShaderFromData(GL_VERTEX_SHADER, data);
+		shaders_[name]->loadShaderFromData(GL_FRAGMENT_SHADER, data, size);
+		shaders_[name]->loadShaderFromData(GL_VERTEX_SHADER, data, size);
 		shaders_[name]->link();
 		delete[] data;
 	}

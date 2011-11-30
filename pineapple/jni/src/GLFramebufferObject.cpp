@@ -41,8 +41,8 @@ void GLFramebufferObject::allocFramebuffer(GLFramebufferObjectParams &params) {
 		glTexParameterf(params.type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexImage2D(GL_TEXTURE_2D, 0, params.format, params.width, params.height, 0, GL_LUMINANCE, GL_FLOAT, 0);
-			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, color_[i], 0);
+		glTexImage2D(GL_TEXTURE_2D, 0, params.format, params.width, params.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, color_[i], 0);
 	}
 
 	glBindTexture(params.type, 0);
@@ -54,10 +54,11 @@ void GLFramebufferObject::allocFramebuffer(GLFramebufferObjectParams &params) {
 	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	    glTexImage2D(params.type, 0, params.depthFormat, params.width, params.height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+	    glTexImage2D(params.type, 0, GL_DEPTH_COMPONENT, params.width, params.height, 0, GL_DEPTH_COMPONENT,  GL_UNSIGNED_BYTE, 0);
 	    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depth_, 0);
 	    glBindTexture(params.type, 0);
     }
+
     this->release();
 }
 
@@ -70,7 +71,6 @@ GLuint GLFramebufferObject::depth() {
 }
 
 void GLFramebufferObject::bind() {
-	LOGE("id:%d", id_);
      glBindFramebuffer(GL_FRAMEBUFFER, id_);
 }
 
@@ -101,7 +101,7 @@ void GLFramebufferObject::resize(int width, int height) {
 
 	    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	    glTexImage2D(GL_TEXTURE_2D, 0, params_.depthFormat, params_.width, params_.height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+	    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, params_.width, params_.height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
 	    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depth_, 0);
 	    glBindTexture(GL_TEXTURE_2D, 0);
 

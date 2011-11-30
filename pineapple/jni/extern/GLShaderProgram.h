@@ -16,7 +16,7 @@ public:
     ~GLShaderProgram();
 
     void loadShaderFromSource(GLenum type, std::string source);
-    void loadShaderFromData(GLenum type, unsigned char *data);
+    void loadShaderFromData(GLenum type, unsigned char *data, size_t size);
     bool link();
     void bind() { glUseProgram(programId_); }
     void bind(VSML *instance);
@@ -53,19 +53,19 @@ public:
     }
 
     inline void setUniformValue(const char *name, float2 val) {
-	glUniform2fv(getUniformLocation(name), 1, &val.x);
+    	glUniform2fv(getUniformLocation(name), 1, &val.x);
     }
 
     inline void setUniformValue(const char *name, Float3 val) {
-	glUniform3fv(getUniformLocation(name), 1, &val.x);
+    	glUniform3fv(getUniformLocation(name), 1, &val.x);
     }
 
     inline void setUniformValue(const char *name, float val) {
-	glUniform1f(getUniformLocation(name), val);
+    	glUniform1f(getUniformLocation(name), val);
     }
 
     inline void setUniformValue(const char *name, int val){
-	glUniform1i(getUniformLocation(name), val);
+    	glUniform1i(getUniformLocation(name), val);
     }
 
 protected:
