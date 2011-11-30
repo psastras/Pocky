@@ -23,7 +23,7 @@ public:
 		return s_instance;
 	}
 
-	char *readResourceFromAPK(const char* filename);
+	unsigned char *readResourceFromAPK(const char* filename, size_t &size);
 
 	void start();
 	void stop();

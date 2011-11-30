@@ -16,17 +16,17 @@ public:
     ~GLShaderProgram();
 
     void loadShaderFromSource(GLenum type, std::string source);
-    void loadShaderFromData(GLenum type, char *data);
+    void loadShaderFromData(GLenum type, unsigned char *data);
     bool link();
     void bind() { glUseProgram(programId_); }
     void bind(VSML *instance);
     void release() { glUseProgram(0); }
 
     inline GLint getUniformLocation(const char *name) {
-	if(uniforms_.find(name) == uniforms_.end()) {
-	    uniforms_[name] = glGetUniformLocation(programId_, name);
-	}
-	return uniforms_[name];
+		if(uniforms_.find(name) == uniforms_.end()) {
+			uniforms_[name] = glGetUniformLocation(programId_, name);
+		}
+		return uniforms_[name];
     }
 
     inline GLint getAttributeLocation(const char *name) {

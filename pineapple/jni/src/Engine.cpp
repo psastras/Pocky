@@ -44,25 +44,23 @@ namespace Pineapple {
 		// TODO Auto-generated destructor stub
 	}
 
-	char *Engine::readResourceFromAPK(const char* filename) {
-			if(s_APKArchive == 0) return 0;
-			zip_file *file = zip_fopen(s_APKArchive, filename, 0);
-			LOGI("TEST");
-			if (!file) {
-			   return 0 ;
-			}
+	unsigned char *Engine::readResourceFromAPK(const char* filename, size_t &size) {
+		if(s_APKArchive == 0) return 0;
+		zip_file *file = zip_fopen(s_APKArchive, filename, 0);
+		if (!file) {
+		   return 0 ;
+		}
 
-			struct zip_stat info;
-			zip_stat(file->za, filename, ZIP_FL_NOCASE, &info);
-			if(info.size <= 0)
-				return 0;
+		struct zip_stat info;
+		zip_stat(file->za, filename, ZIP_FL_NOCASE, &info);
+		if(info.size <= 0)
+			return 0;
 
-			char *buffer = new char[info.size];
-			memset(buffer, 0, sizeof(char)*info.size);
-			zip_fread(file, buffer, info.size);
-			LOGI("SIZE: %d", info.size);
-			zip_fclose(file);
-			return buffer;
+		unsigned char *buffer = new unsigned char[info.size];
+		size = zip_fread(file, buffer, info.size);
+		//LOGI("SIZE: %d, %d", info.size, success);
+		zip_fclose(file);
+		return buffer;
 	}
 
 	void Engine::start()

@@ -64,7 +64,7 @@ int _zip_mkstemp(char *);
 #define ftello(s)	((long)ftell((s)))
 #endif
 
-
+
 
 #define CENTRAL_MAGIC "PK\1\2"
 #define LOCAL_MAGIC   "PK\3\4"
@@ -81,7 +81,7 @@ int _zip_mkstemp(char *);
 #define CDBUFSIZE       (MAXCOMLEN+EOCDLEN)
 #define BUFSIZE		8192
 
-
+
 
 /* state of change of a file in zip archive */
 
@@ -213,7 +213,7 @@ extern const int _zip_err_type[];
 			((x)->state == ZIP_ST_REPLACED  \
 			 || (x)->state == ZIP_ST_ADDED)
 
-
+
 
 int _zip_cdir_compute_crc(struct zip *, uLong *);
 void _zip_cdir_free(struct zip_cdir *);

@@ -12,7 +12,7 @@
 #include "GLShaderProgram.h"
 #include "GLFramebufferObject.h"
 #include "VSML.h"
-
+#include <unordered_map>
 namespace Pineapple {
 
 class GLShader;
@@ -23,18 +23,35 @@ struct GLObject {
 };
 
 class GL {
-	public:
-	GL();
-	GL(int w, int h);
-		virtual ~GL();
+public:
+	static void init(int w, int h) {
+		if(!s_instance)	s_instance = new GL(w, h);
+	}
 
-		void test();
+	static void init() {
+			if(!s_instance)	s_instance = new GL();
+		}
 
-		void initializeGL(int w, int h);
-		void ortho();
-		void perspective(float fov, float near, float far);
-	protected:
+	static GL *instance() {
+		return s_instance;
+	}
+
+	virtual ~GL();
+
+	void test();
+
+	void createShader(const std::string &name, const char *filename);
+	GLShaderProgram *shader(const std::string &name) { return shaders_[name]; }
+	void initializeGL(int w, int h);
+	void ortho();
+	void perspective(float fov, float near, float far);
+protected:
+		GL();
+		GL(int w, int h);
 		int width_, height_;
+		static GL *s_instance;
+		std::unordered_map<std::string, GLShaderProgram *> shaders_;
+		std::unordered_map<std::string, GLPrimitive *> primitives;
 	};
 }
 #endif /* PINEAPPLEGLSURFACE_H_ */

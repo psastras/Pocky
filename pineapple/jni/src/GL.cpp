@@ -6,7 +6,7 @@
  */
 
 #include "../extern/GL.h"
-
+#include "../extern/Engine.h"
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 #include <stdio.h>
@@ -37,9 +37,14 @@ namespace Pineapple {
 
 	}
 
-
-	void GL::test() {
-		LOGI("ASDASDASD");
+	void GL::createShader(const std::string &name, const char *filename) {
+		shaders_[name] = new GLShaderProgram();
+		size_t size;
+		unsigned char *data = Pineapple::Engine::instance()->readResourceFromAPK(filename, size);
+		shaders_[name]->loadShaderFromData(GL_FRAGMENT_SHADER, data);
+		shaders_[name]->loadShaderFromData(GL_VERTEX_SHADER, data);
+		shaders_[name]->link();
+		delete[] data;
 	}
 
 	void GL::ortho() {

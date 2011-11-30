@@ -15,6 +15,7 @@ class GLPrimitive {
       ~GLPrimitive();
 
       virtual void tesselate(Float3 tess, Float3 translate, Float3 scale) = 0; //tesselates and reuploads into vbo
+      void draw(const std::string &shadername);
       void draw(GLShaderProgram *program);
       void draw(GLShaderProgram *program, int instances);
 

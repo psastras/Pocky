@@ -5,7 +5,7 @@
 #include <string.h>
 #include <sstream>
 #include <fstream>
-
+#include <algorithm>
 using namespace std;
 GLShaderProgram::GLShaderProgram() {
     programId_ =  glCreateProgram();
@@ -30,21 +30,29 @@ void printLog(GLuint obj) {
 		LOGE(infoLog);
     fflush(stdout);
 }
-void GLShaderProgram::loadShaderFromData(GLenum type, char *data) {
+void GLShaderProgram::loadShaderFromData(GLenum type, unsigned char *data) {
 	stringstream ss;
 	ss << data;
 	this->loadShaderFromSource(type, ss.str());
 }
+struct InvalidChar
+{
+    bool operator()(char c) const {
+        return (!isprint((unsigned)c) && c != '\n') || (unsigned)c == 26;
+    }
+};
 void GLShaderProgram::loadShaderFromSource(GLenum type, std::string source) {
 
     stringstream ss;
-    ss << "#version 100 core" << endl;
+   // ss << "#version 100 core" << endl;
     if(type == GL_FRAGMENT_SHADER)
 	ss << "#define _FRAGMENT_" << endl;
     else if(type == GL_VERTEX_SHADER)
 	ss << "#define _VERTEX_" << endl;
     ss << source;
     std::string str = ss.str();
+    str.erase(std::remove_if(str.begin(),str.end(), InvalidChar()), str.end());
+    LOGI("SHADER:\n%s", str.c_str());
     int length = str.length();
     const char *data = str.c_str();
     GLuint id = glCreateShader(type);

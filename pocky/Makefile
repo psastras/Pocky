@@ -14,17 +14,14 @@ JNI_CLASSES := $(subst $(JAVA_CLASSDIR), '', $(JAVA_CLASSES:.class=))
 
 # Build
 all : pocky
-
 pineapple:
 	make -C ../pineapple all
-	
 headergen : #generate jni headers and compile info
 	@ \
 	echo '\nCreating JNI Headers'; \
 	echo $(JAVA_HEADERS); \
 	cd bin/classes/; \
 	javah -jni -d ../../jni/include $(subst /,., $(JNI_CLASSES))
-	 
 androidmk : #generate the android.mk file
 	@ \
 	echo '\nGenerating Android.mk'; \
@@ -35,19 +32,16 @@ androidmk : #generate the android.mk file
 	'LOCAL_SRC_FILES :=$(subst jni/, '', $(wildcard $(SRCDIR)/src/*.cpp))\n'\
 	'LOCAL_LDLIBS    := -llog -lGLESv2  -L../pineapple/libs/armeabi -lpineapple\n'\
 	'include $$(BUILD_SHARED_LIBRARY)' > $(SRCDIR)/Android.mk
-	
 rebuildassets : #need to refresh the assets to avoid segfaulting (not sure why)
 	@ \
 	echo '\nRefreshing Android Assets'; \
-	find assets -type f -follow -print|xargs echo; \
-	find assets -type f -follow -print|xargs touch
-	
+	find ./assets -type f -follow -print|xargs touch; \
+	find assets -type f -follow -print|xargs echo; 
 pocky : pineapple headergen rebuildassets androidmk  #compile
 	@ \
 	echo '\nCompiling'; \
 	echo '$(CC) $(wildcard $(SRCDIR)/src/*.cpp)\n'; \
 	$(CC) -j5
-	
 clean:
 	@ \
 	rm -rf obj/* libs/*;

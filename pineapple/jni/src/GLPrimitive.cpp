@@ -1,3 +1,4 @@
+#include "../extern/GL.h"
 #include "../extern/GLPrimitive.h"
 #include "../extern/GLShaderProgram.h"
 #include "../extern/VSML.h"
@@ -14,8 +15,12 @@ GLPrimitive::~GLPrimitive() {
     if(indexId_) glDeleteBuffers(1, &indexId_);
 }
 
+void GLPrimitive::draw(const std::string &shadername) {
+	this->draw(Pineapple::GL::instance()->shader(shadername));
+}
+
 void GLPrimitive::draw(GLShaderProgram *program, int instances) {
-	program->bind(VSML::instance());
+
     glBindBuffer(GL_ARRAY_BUFFER, vertexId_);
     GLint ids[3] = {
 		program->getAttributeLocation("in_Position"),
@@ -38,11 +43,11 @@ void GLPrimitive::draw(GLShaderProgram *program, int instances) {
     if(ids[0] >= 0) glDisableVertexAttribArray(ids[0]);
     if(ids[1] >= 0) glDisableVertexAttribArray(ids[1]);
     if(ids[2] >= 0) glDisableVertexAttribArray(ids[2]);
-    program->release();
+
 }
 
 void GLPrimitive::draw(GLShaderProgram *program) {
-	program->bind(VSML::instance());
+
 	glBindBuffer(GL_ARRAY_BUFFER, vertexId_);
 
     GLint ids[3] = {
@@ -72,7 +77,7 @@ void GLPrimitive::draw(GLShaderProgram *program) {
     if(ids[0] >= 0) glDisableVertexAttribArray(ids[0]);
     if(ids[1] >= 0) glDisableVertexAttribArray(ids[1]);
     if(ids[2] >= 0) glDisableVertexAttribArray(ids[2]);
-    program->release();
+
 }
 
 
