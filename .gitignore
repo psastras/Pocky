@@ -13,7 +13,8 @@
 *.apk
 *.lo
 *.Plo
-
+*.ap*
+*Compile.h
 
 # Packages #
 ############
