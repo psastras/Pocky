@@ -143,4 +143,16 @@ struct float2 {
     float2(float *data) { x = data[0]; y = data[1]; }
 };
 
+struct Float4 {
+    union {
+	struct {
+	    float x, y, z, w;
+	};
+	float data[4];
+    };
+
+    Float4(float v0 = 0, float v1 = 0, float v2 = 0, float v3 = 0) : x(v0), y(v1), z(v2), w(v3) { }
+    Float4(float *data) { x = data[0]; y = data[1]; z = data[2];w = data[3];}
+};
+
 #endif /* Float3_H_ */

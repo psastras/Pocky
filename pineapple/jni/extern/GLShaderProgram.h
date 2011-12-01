@@ -21,7 +21,7 @@ public:
     void bind() { glUseProgram(programId_); }
     void bind(VSML *instance);
     void release() { glUseProgram(0); }
-
+    void vsml(VSML *instance);
     inline GLint getUniformLocation(const char *name) {
 		if(uniforms_.find(name) == uniforms_.end()) {
 			uniforms_[name] = glGetUniformLocation(programId_, name);
@@ -58,6 +58,10 @@ public:
 
     inline void setUniformValue(const char *name, Float3 val) {
     	glUniform3fv(getUniformLocation(name), 1, &val.x);
+    }
+
+    inline void setUniformValue(const char *name, Float4 val) {
+        	glUniform4fv(getUniformLocation(name), 1, &val.x);
     }
 
     inline void setUniformValue(const char *name, float val) {

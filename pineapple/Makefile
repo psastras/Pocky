@@ -21,10 +21,10 @@ headergen : #generate jni headers
 	cd bin/classes/; \
 	javah -jni -d ../../jni/include $(subst /,., $(JNI_CLASSES)); \
 	echo '\nCreating More Headers';  \
-	echo '#ifndef COMPILE_H_\n#define COMPILE_H_\n#define COMPILE_TIME "' `date` '"\n#endif/* COMPILE_H_ */'> ../../$(SRCDIR)/extern/Compile.h
+	echo '#ifndef COMPILE_H_\n#define COMPILE_H_\n#define COMPILE_TIME "'`date`'"\n#endif/* COMPILE_H_ */'> ../../$(SRCDIR)/extern/Compile.h
 buildfonts :
 	@ \
-	echo '\nCreating Fonts'; \
+	echo '\nCreating Fonts and Even More Headers'; \
 	cd build-tools/font-to-texture-0.01; \
 	make run;
 androidmk : #generate the android.mk file

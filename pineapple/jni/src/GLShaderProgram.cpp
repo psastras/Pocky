@@ -61,6 +61,13 @@ bool GLShaderProgram::link() {
     return true;
 }
 
+void GLShaderProgram::vsml(VSML *instance) {
+    instance->initUniformLocs(this->getUniformLocation("modelviewMatrix"),
+			      this->getUniformLocation("projMatrix"));
+    instance->matrixToUniform(VSML::MODELVIEW);
+    instance->matrixToUniform(VSML::PROJECTION);
+}
+
 void GLShaderProgram::bind(VSML *instance) {
     this->bind();
     instance->initUniformLocs(this->getUniformLocation("modelviewMatrix"),

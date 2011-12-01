@@ -48,9 +48,12 @@ public:
 	void loadFont(FONTS font);
 	void releaseFont(FONTS font);
 	GLTexture *fontTexture(FONTS font) { return fontTextures_[font]; }
-
+	void renderText(const std::string &text, FONTS font);
 	void createTexture(const std::string &name, GLTextureParams &parms, unsigned char *data);
 	GLTexture *texture(const std::string &name) { return textures_[name]; }
+
+	void createPrimitive(const std::string &name, GLPrimitive *prim) { primitives_[name] = prim; }
+	GLPrimitive *primitive(const std::string &name) { return primitives_[name]; }
 
 	void initializeGL(int w, int h);
 	void ortho();

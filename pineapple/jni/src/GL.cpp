@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <math.h>
 
+/* DO NOT CHANGE THIS ON PAIN OF DEATH */
 char usefulchars[93]=("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!\"$%&*(){}[]:;@'~#?/\\<>,.+-_+|");
 
 namespace Pineapple {
@@ -49,6 +50,60 @@ namespace Pineapple {
 		parms.height = 256;
 		if(!fontTextures_[font])
 			fontTextures_[font] = new GLTexture(parms, GetFontData(font));
+	}
+
+	void GL::renderText(const std::string &text, FONTS font)
+	{
+		if(!fontTextures_[font]) this->loadFont(font);
+		FONTTABLE *tbl = GetFontTable(font);
+		float scale = 0.4f;
+		glDisable(GL_DEPTH_TEST);
+		glEnable(GL_BLEND);
+		glBlendFunc (GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
+		VSML::instance()->loadIdentity(VSML::PROJECTION);
+		VSML::instance()->ortho(0.f, (float)width_, 0.f, (float)height_);
+		VSML::instance()->loadIdentity(VSML::MODELVIEW);
+		GL::instance()->shader("text")->bind(VSML::instance());
+		glActiveTexture(GL_TEXTURE0);
+		fontTextures_[font]->bind();
+		GL::instance()->shader("text")->setUniformValue("tex", 0);
+		float posx = 5.f; float posy = 5.f;
+		int lineheight = 40 * scale; //in pixels - should be calculated in the font generation step
+		for(int i=0;i<text.size();i++) {
+
+			int idx = letterIdxs_[text[i]];
+			FONTTABLE *cur = &tbl[idx];
+			float dy = cur->fy2 - cur->fy;
+			float dx = cur->fx2 - cur->fx;
+			if(text[i] == ' ')
+			{
+				posx += dx * width_ *scale + 1;
+				continue;
+			}
+
+			else if(text[i] == '\n')
+			{
+				posx = 5.f;
+				posy += lineheight + 5.f;
+				continue;
+			}
+			float2 scale0 = {dx+0.003f,dy+0.003f};
+			float2 offset0 = {cur->fx-0.003f,cur->fy-0.003f};
+			VSML::instance()->pushMatrix(VSML::MODELVIEW);
+			VSML::instance()->translate(posx, height_ - lineheight - posy, 0.f);
+			VSML::instance()->scale(dx*scale, dy*scale, 1.f);
+
+			GL::instance()->shader("text")->vsml(VSML::instance());
+			GL::instance()->shader("text")->setUniformValue("texScale", scale0);
+			GL::instance()->shader("text")->setUniformValue("texOffset", offset0);
+			GL::instance()->primitive("quad")->draw("texmap");
+			VSML::instance()->popMatrix(VSML::MODELVIEW);
+
+			posx += dx * width_ *scale + 1;
+		}
+		GL::instance()->shader("text")->release();
+		glBindTexture(GL_TEXTURE_2D, 0);
+		glDisable(GL_BLEND);
 	}
 
 

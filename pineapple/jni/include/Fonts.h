@@ -11,6 +11,8 @@ struct FONTTABLE
 };
 
  
+#include "../extern/fonts/Anonymous.h" 
+#include "../extern/fonts/Lekton.h" 
 #include "../extern/fonts/RobotoBoldCondensed.h" 
 #include "../extern/fonts/RobotoBoldCondensedItalic.h" 
 #include "../extern/fonts/RobotoCondensed.h" 
@@ -18,7 +20,9 @@ struct FONTTABLE
 #include "../extern/fonts/RobotoItalic.h" 
 #include "../extern/fonts/RobotoRegular.h"
 
-enum FONTS {  FontRobotoBoldCondensed,
+enum FONTS {  FontAnonymous,
+ FontLekton,
+ FontRobotoBoldCondensed,
  FontRobotoBoldCondensedItalic,
  FontRobotoCondensed,
  FontRobotoCondensedItalic,
@@ -26,12 +30,16 @@ enum FONTS {  FontRobotoBoldCondensed,
  FontRobotoRegular,
 };
 
-#define NUMFONTS 6 
+#define NUMFONTS 8 
 
 static FONTTABLE *GetFontTable(FONTS font)
 {
 	switch(font)
 	{
+		case FONTS::FontAnonymous:
+			return Anonymous::font;
+		case FONTS::FontLekton:
+			return Lekton::font;
 		case FONTS::FontRobotoBoldCondensed:
 			return RobotoBoldCondensed::font;
 		case FONTS::FontRobotoBoldCondensedItalic:
@@ -52,6 +60,10 @@ static unsigned char *GetFontData(FONTS font)
 {
 	switch(font)
 	{
+		case FONTS::FontAnonymous:
+			return Anonymous::fontimage;
+		case FONTS::FontLekton:
+			return Lekton::fontimage;
 		case FONTS::FontRobotoBoldCondensed:
 			return RobotoBoldCondensed::fontimage;
 		case FONTS::FontRobotoBoldCondensedItalic:
