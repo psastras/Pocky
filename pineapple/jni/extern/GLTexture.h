@@ -16,6 +16,7 @@ namespace Pineapple {
 struct GLTextureParams {
 	int width, height;
 	GLuint format;
+	bool mipmap;
 };
 
 class GLTexture {

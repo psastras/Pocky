@@ -6,7 +6,6 @@ uniform mat4 projMatrix;
 
 #ifdef _VERTEX_
 attribute vec3 in_Position;
-attribute vec3 in_Normal;
 attribute vec3 in_TexCoord;
 
 void main(void) {

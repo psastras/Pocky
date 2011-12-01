@@ -6,7 +6,7 @@
 #include "GLShaderProgram.h"
 struct GLVertex
 {
-  Float3 p, n, t;
+  Float3 p; Float3 t;
 };
 
 
@@ -31,8 +31,8 @@ class GLPrimitive {
       GLenum type_;
       GLuint idxCount_;
       GLuint typeCount_;
-      int vOffset_, tOffset_, nOffset_;
-
+      int vOffset_, tOffset_;
+      GLShaderProgram *shader_;
       Float3 scale_, translate_;
 };
 
@@ -48,6 +48,14 @@ class GLRect : public GLPrimitive {
 public:
     GLRect(Float3 tess, Float3 translate, Float3 scale);
     ~GLRect();
+
+    void tesselate(Float3 tess, Float3 translate, Float3 scale);
+};
+
+class GLCircle : public GLPrimitive {
+public:
+	GLCircle(Float3 tess, Float3 translate, Float3 scale);
+    ~GLCircle();
 
     void tesselate(Float3 tess, Float3 translate, Float3 scale);
 };

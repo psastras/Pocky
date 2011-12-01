@@ -58,7 +58,7 @@ public:
 	void initializeGL(int w, int h);
 	void ortho();
 	void perspective(float fov, float near, float far);
-
+	void perspective(float fov, float near, float far, int w, int h);
 	inline int width() { return width_; }
 	inline int height() { return height_; }
 protected:

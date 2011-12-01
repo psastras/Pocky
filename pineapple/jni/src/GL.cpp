@@ -38,7 +38,10 @@ namespace Pineapple {
 	void GL::initializeGL(int w, int h) {
 		width_ = w;
 		height_ = h;
-
+//		glEnable(GL_CULL_FACE);
+//		glCullFace(GL_BACK);
+//		glFrontFace(GL_CW);
+		glDisable(GL_DITHER);
 		glViewport(0, 0, w, h);
 
 	}
@@ -56,7 +59,7 @@ namespace Pineapple {
 	{
 		if(!fontTextures_[font]) this->loadFont(font);
 		FONTTABLE *tbl = GetFontTable(font);
-		float scale = 0.4f;
+		float scale = 0.5f;
 		glDisable(GL_DEPTH_TEST);
 		glEnable(GL_BLEND);
 		glBlendFunc (GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
@@ -130,6 +133,11 @@ namespace Pineapple {
 	void GL::perspective(float fov, float near, float far) {
 		VSML::instance()->perspective(fov, width_ / (float)height_, near, far);
 		VSML::instance()->loadIdentity(VSML::MODELVIEW);
+	}
+
+	void GL::perspective(float fov, float near, float far, int w, int h) {
+			VSML::instance()->perspective(fov, w / (float)h, near, far);
+			VSML::instance()->loadIdentity(VSML::MODELVIEW);
 	}
 
 }

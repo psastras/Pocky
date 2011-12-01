@@ -3,10 +3,9 @@ uniform sampler2D tex;
 uniform vec2 texScale;
 uniform mat4 modelviewMatrix;
 uniform mat4 projMatrix;
-
+uniform float bloom;
 #ifdef _VERTEX_
 attribute vec3 in_Position;
-attribute vec3 in_Normal;
 attribute vec3 in_TexCoord;
 varying vec3 pass_TexCoord;
 void main(void) {
@@ -17,22 +16,8 @@ void main(void) {
 
 #ifdef _FRAGMENT_
 varying vec3 pass_TexCoord;
-void main()
-{
-   vec4 sum = vec4(0.0);
-   vec2 texcoord = pass_TexCoord.st * texScale;
-   sum += texture2D(tex, texcoord + vec2(-1, -1)*0.001);
-   sum += texture2D(tex, texcoord + vec2(-1, 0)*0.001);
-   sum += texture2D(tex, texcoord + vec2(-1, 1)*0.001);
-   sum += texture2D(tex, texcoord + vec2(0, -1)*0.001);
-   sum += texture2D(tex, texcoord + vec2(0, 0)*0.001);
-   sum += texture2D(tex, texcoord + vec2(0, 1)*0.001);
-   sum += texture2D(tex, texcoord + vec2(1, -1)*0.001);
-   sum += texture2D(tex, texcoord + vec2(1, 0)*0.001);
-   sum += texture2D(tex, texcoord + vec2(1, 1)*0.001);
-   sum /= 9.0;
-   gl_FragColor = sum;
-
+void main() {
+   gl_FragColor = texture2D(tex, pass_TexCoord.st * texScale);
+   gl_FragColor.w = bloom;
 }
-
-#endif
+#endif 
