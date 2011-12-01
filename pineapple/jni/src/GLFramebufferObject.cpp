@@ -37,10 +37,10 @@ void GLFramebufferObject::allocFramebuffer(GLFramebufferObjectParams &params) {
 
 	for(int i=0; i<1; i++) {
 		glBindTexture(params.type, color_[i]);
-		glTexParameterf(params.type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameterf(params.type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexImage2D(GL_TEXTURE_2D, 0, params.format, params.width, params.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, color_[i], 0);
 	}
@@ -54,7 +54,7 @@ void GLFramebufferObject::allocFramebuffer(GLFramebufferObjectParams &params) {
 	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	    glTexImage2D(params.type, 0, GL_DEPTH_COMPONENT, params.width, params.height, 0, GL_DEPTH_COMPONENT,  GL_UNSIGNED_BYTE, 0);
+	    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, params.width, params.height, 0, GL_DEPTH_COMPONENT,  GL_UNSIGNED_SHORT, 0);
 	    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depth_, 0);
 	    glBindTexture(params.type, 0);
     }

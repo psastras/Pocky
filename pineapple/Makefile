@@ -22,6 +22,11 @@ headergen : #generate jni headers
 	javah -jni -d ../../jni/include $(subst /,., $(JNI_CLASSES)); \
 	echo '\nCreating More Headers';  \
 	echo '#ifndef COMPILE_H_\n#define COMPILE_H_\n#define COMPILE_TIME "' `date` '"\n#endif/* COMPILE_H_ */'> ../../$(SRCDIR)/extern/Compile.h
+buildfonts :
+	@ \
+	echo '\nCreating Fonts'; \
+	cd build-tools/font-to-texture-0.01; \
+	make run;
 androidmk : #generate the android.mk file
 	@ \
 	echo '\nGenerating Android.mk';\
@@ -33,7 +38,7 @@ androidmk : #generate the android.mk file
 	'LOCAL_SRC_FILES :=$(subst jni/src/, '', $(wildcard $(SRCDIR)/src/*.cpp))\n'\
 	'LOCAL_LDLIBS    := -llog -lGLESv2 -ldl -lz\n'\
 	'include $$(BUILD_SHARED_LIBRARY)' > $(SRCDIR)/src/Android.mk	
-pineapple : headergen androidmk #ndk-build step
+pineapple : headergen buildfonts androidmk #ndk-build step
 	@ \
 	echo '\nCompiling'; \
 	echo '$(CC) $(wildcard $(SRCDIR)/src/*.cpp)\n'; \

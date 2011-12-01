@@ -13,16 +13,21 @@
 #include <stdlib.h>
 #include <math.h>
 
+char usefulchars[93]=("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!\"$%&*(){}[]:;@'~#?/\\<>,.+-_+|");
 
 namespace Pineapple {
 
 	GL::GL() {
 		width_ = 1;
 		height_ = 1;
+		for(int i=0;i<93;i++) letterIdxs_[usefulchars[i]] = i;
+		memset(fontTextures_, 0, NUMFONTS * sizeof(GLTexture *));
 	}
 
 	GL::GL(int w, int h) {
 		initializeGL(w, h);
+		for(int i=0;i<93;i++) letterIdxs_[usefulchars[i]] = i;
+		memset(fontTextures_, 0, NUMFONTS * sizeof(GLTexture *));
 	}
 
 	GL::~GL() {
@@ -35,6 +40,20 @@ namespace Pineapple {
 
 		glViewport(0, 0, w, h);
 
+	}
+
+	void GL::loadFont(FONTS font) {
+		GLTextureParams parms;
+		parms.format = GL_LUMINANCE;
+		parms.width = 256;
+		parms.height = 256;
+		if(!fontTextures_[font])
+			fontTextures_[font] = new GLTexture(parms, GetFontData(font));
+	}
+
+
+	void GL::createTexture(const std::string &name, GLTextureParams &parms, unsigned char *data) {
+		textures_[name] = new GLTexture(parms, data);
 	}
 
 	void GL::createShader(const std::string &name, const char *filename) {

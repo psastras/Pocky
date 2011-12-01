@@ -11,7 +11,9 @@
 #include "GLPrimitive.h"
 #include "GLShaderProgram.h"
 #include "GLFramebufferObject.h"
+#include "GLTexture.h"
 #include "VSML.h"
+#include "../include/Fonts.h"
 #include <unordered_map>
 namespace Pineapple {
 
@@ -42,6 +44,14 @@ public:
 
 	void createShader(const std::string &name, const char *filename);
 	GLShaderProgram *shader(const std::string &name) { return shaders_[name]; }
+
+	void loadFont(FONTS font);
+	void releaseFont(FONTS font);
+	GLTexture *fontTexture(FONTS font) { return fontTextures_[font]; }
+
+	void createTexture(const std::string &name, GLTextureParams &parms, unsigned char *data);
+	GLTexture *texture(const std::string &name) { return textures_[name]; }
+
 	void initializeGL(int w, int h);
 	void ortho();
 	void perspective(float fov, float near, float far);
@@ -54,7 +64,11 @@ protected:
 		int width_, height_;
 		static GL *s_instance;
 		std::unordered_map<std::string, GLShaderProgram *> shaders_;
-		std::unordered_map<std::string, GLPrimitive *> primitives;
+		std::unordered_map<std::string, GLPrimitive *> primitives_;
+		std::unordered_map<std::string, GLTexture *> textures_;
+		std::unordered_map<char, int> letterIdxs_;
+
+		GLTexture *fontTextures_[NUMFONTS];
 	};
 }
 #endif /* PINEAPPLEGLSURFACE_H_ */
