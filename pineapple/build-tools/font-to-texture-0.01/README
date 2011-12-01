@@ -1,0 +1,63 @@
+font-to-texture 0.01
+by Howard Jones (howie@thingy.com)
+http://wotsit.thingy.com/haj/
+September 23rd 2001
+
+A small tool I wrote to save me having to manually produce font textures for a
+Dreamcast game I'm working on. It takes a Truetype TTF file and produces a
+256x256 pixel PNG, ready to turn into a texture (see png-to-dreamcast on my
+site for that stage). It also produces a table of the appropriate UV
+coordinates to pull out particular characters!
+
+Obviously, you needn't be writing for Dreamcast for this to be useful.
+Anything that needs a bitmap font and can take in square bitmaps can use it.
+
+
+To compile:
+----------
+Check that you have libpng (most modern systems, including cygwin and Linux
+do), and FreeType 2 (maybe, maybe not), then type 'make; make install'
+
+If you need them:
+FreeType2: http://www.freetype.org/
+libpng: http://www.libpng.org/pub/png/
+
+Usage:
+-----
+font-to-texture ttffile.ttf pngfile.png
+
+Also produces font-table.h in the current directory, which looks like:
+   FONTTABLE font[] = 
+   {
+        {'a', 2,21,19,33,  0.007812,0.082031,0.074219,0.128906},
+     ...
+   }
+
+where FONTTABLE is defined as:
+   typedef struct
+   {
+        char ch;
+        int x,y,x2,y2;
+        float fx,fy,fx2,fy2;
+   } FONTTABLE;
+
+
+Notes:
+-----
+There is close to no error checking! It'll probably coredump if you miss either
+filename.
+
+It's not terribly smart, but does try and layout the glyphs somewhat
+efficiently. The pointsize is fixed though, so it is possible to run out of
+space within the 256x256 square. The pointsize is in a #define in the first 
+few lines - edit, make and try again if it causes you trouble.
+
+The font is always white. If you need multiple colours, you probably want to
+have something cleverer in your code, not mine.
+
+It has a crack at alpha channels, and does OK, but not great. Any suggestions
+welcome.
+
+Yes, the code is chock-full of junk. It took a lot of fiddling to get the
+glyphs where I wanted them to appear. There is a bunch of vestigal junk from
+the experimentation stage of that.

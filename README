@@ -1,1 +1,87 @@
-lalalal
+Herein lies the README for a project known as Pineapple and Pocky.
+Fall 2011, Android Game Development, CS195N Brown University
+
+Authors
+Paul Sastrasinh (psastras@cs.brown.edu)
+Justin Kim (jhk2@cs.brown.edu)
+
+Pineapple
+
+Pineapple is a C++ game engine library written for Android (specifically 
+targeting Android 8 devices and higher).  It uses OpenGL ES 2.
+
+It supports (among other things)
+	+ OpenGL and GLSL rendering
+		+ Text rendering
+		+ Animation
+	+ Touch input
+	+ Audio manipulation / playback
+	+ Asset management
+		+ PNG image loading
+		+ Audio loading (WAV)
+	+ ttf font loading
+
+Pocky
+
+Pocky is a little game implemented using Pineapple's game engine library.
+It communicates with Pineapple using Android's NDK and JNI.
+
+Building
+
+Since Pocky relies on Pineapple, Pineapple must be built first.  The only
+dependency required is the Android NDK with bundled stdlib ports.  All other
+dependencies are included within the project and are compiled automatically.
+
+Pineapple is distributed with a few third party libraries.  Each third party 
+library used is listed below (as well as how they are used)
+	
+	libpng 
+		Since Android 8 devices do not support native PNG loading, libpng
+		is used to read in images.
+	
+	libzip 
+		Android 8 devices do not support native asset loading.  To fix this
+		the APK is unzipped at runtime and the assets are loaded into memory
+		using libzip.  
+	
+	OpenAL 
+		Android 8 devices do not support native sound management.  OpenAL (with
+		tremolo) is used for native sound support.
+			 
+	font-builder
+		Android native does not support font loading / rendering.  At compile time
+		ttf files are converted into a readable texture format, which can then be 
+		rendered using OpenGL.
+		
+		
+Pocky and Pineapple are both Makefile based projects.  The Makefiles can be found
+in the root directory of each project.
+
+The build process of Pocky can be broken down into the following steps.
+
+	1. Code Generation
+		Much of the code in Pocky is generated at compile time.  These mostly take
+		the form of headers.  All headers found in pineapple/jni/include/,
+		extern/fonts are regenerated at compile time and should not be modified.
+		
+		JNI headers are automatically generated from JAVA files found in pineapple/src/lib
+		and pocky/src lib.  Java classes should only be added to these folders if a JNI
+		header needs to be generated.  Otherwise these classes should belong in the main/
+		folder.
+		
+		Font headers are generated for each of the ttf fonts contained in build-tools/font-to-texture/fonts/
+		Each ttf file must be alpha numerically named or an error will occur.  These headers
+		are placed in extern/fonts (one for each font).  Each header includes the font character 
+		data (positions, texture coordinates), and the bitmap texture data (which can be loaded
+		into OpenGL).  Finally the Font.h header is generated containing methods to access
+		the different fonts.  
+		
+		The Compile.h header contains build information (ex. Compile time, build number, etc.).
+		
+	2. Android Makefile Generation
+		Android.mk files are generated for the Pineapple and Pocky projects.
+		
+	3. Compilation
+		The Pineapple library is statically linked against libzip, libpng, and libOpenAL
+		to form a shared library, libpineapple.so.  Pocky is then linked against the
+		pineapple shared library during compilation.
