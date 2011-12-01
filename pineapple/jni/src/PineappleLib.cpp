@@ -3,8 +3,10 @@
 #include "../extern/Engine.h"
 #include "../extern/GL.h"
 #include "../libzip/zip.h"
+#include "../extern/Audio.h"
 Pineapple::Engine *Pineapple::Engine::s_instance = 0;
 Pineapple::GL *Pineapple::GL::s_instance = 0;
+Pineapple::Audio *Pineapple::Audio::s_instance = 0;
 JavaVM* pJVM = 0;
 
 static void loadAPK (const char* apkPath) {

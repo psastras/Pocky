@@ -26,11 +26,13 @@ JNIEXPORT void JNICALL Java_pocky_libs_Pocky_startup
   (JNIEnv *, jclass) {
 
 	LOGI("Pocky Started");
-	size_t size;
-	unsigned char * data = Engine::instance()->readResourceFromAPK("assets/audio/woman.wav", size);
+	//size_t size;
+	//unsigned char * data = Engine::instance()->readResourceFromAPK("assets/audio/woman.wav", size);
 //	LOGI("Creating Audio Object");
 	//Audio *aud = new Audio(data, size);
 	GL::instance()->init();
+	Audio::instance()->addSound("test", "assets/audio/technika2.wav", true);
+	Audio::instance()->playSound("test");
 }
 
 JNIEXPORT void JNICALL Java_pocky_libs_Pocky_resize
