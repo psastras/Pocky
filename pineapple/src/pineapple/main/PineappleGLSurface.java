@@ -153,7 +153,7 @@ class PineappleGLSurface extends GLSurfaceView {
 		private static int[] s_configAttribs2 = { EGL10.EGL_RED_SIZE, 4,
 				EGL10.EGL_GREEN_SIZE, 4, EGL10.EGL_BLUE_SIZE, 4,
 				EGL10.EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
-				EGL10.EGL_SAMPLE_BUFFERS, 0 /* true */, EGL10.EGL_NONE };
+				EGL10.EGL_SAMPLE_BUFFERS, 1 /* true */, EGL10.EGL_NONE };
 
 		public EGLConfig chooseConfig(EGL10 egl, EGLDisplay display) {
 

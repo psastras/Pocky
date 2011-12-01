@@ -18,6 +18,7 @@
 using namespace Pineapple;
 
 GLPlane *plane;
+GLCircle *circle;
 GLFramebufferObject *fbo;
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void * reserved)
 {
@@ -47,7 +48,7 @@ JNIEXPORT void JNICALL Java_pocky_libs_Pocky_resize
 	GL::instance()->loadFont(FONTS::FontRobotoRegular);
 	GLFramebufferObjectParams parms;
 
-	int maxdim = NextPowerOfTwo(MAX(w, h));
+	int maxdim = NextPowerOfTwo(MAX(w, h)) / 2;
 
 	parms.width = maxdim;
 	parms.height = maxdim;
@@ -56,56 +57,56 @@ JNIEXPORT void JNICALL Java_pocky_libs_Pocky_resize
 	parms.hasDepth = true;
 	fbo = new GLFramebufferObject(parms);
 	plane = new GLPlane(Float3(10, 10, 10), Float3::zero(), Float3(5.f, 5.f, 5.f));
+	circle = new GLCircle(Float3(40, 10, 10), Float3::zero(), Float3(1.f, 1.f, 1.f));
 	GL::instance()->createPrimitive("quad", new GLQuad(Float3(10, 10, 10), Float3(w/2,h/2,1.f), Float3(w, h, 1.f)));
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+	glDisable(GL_DEPTH_TEST);
+	glLineWidth(2.f);
 }
+
+
 
 
 int previousTime = 0;
 float fps = 30;
+
+void drawScene(int time)
+{
+
+
+
+
+
+}
+
 JNIEXPORT void JNICALL Java_pocky_libs_Pocky_draw
   (JNIEnv *, jclass, jint time) {
 
 	int dt = time - previousTime;
-
-	// Render to the framebuffer
-	 fbo->bind();
-	 glEnable(GL_DEPTH_TEST);
-	 glClear( GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-
-	 GL::instance()->perspective(60.f, 0.01f, 1000.f);
+    fps = 0.99f * fps + 0.01f * (1000 / dt);
+	previousTime = time;
+	int w = GL::instance()->width();
+	int h = GL::instance()->height();
+	glClear(GL_COLOR_BUFFER_BIT);
+	GL::instance()->perspective(60.f, 0.01f, 1000.f, w, h);
 	 VSML::instance()->translate(0.f, 2.f, -10.f);
 	 VSML::instance()->rotate(time / 100.f, 1.f, 1.f, 0.f);
-	 GL::instance()->shader("texmap")->bind(VSML::instance());
-	 glActiveTexture(GL_TEXTURE0);
-	 GL::instance()->fontTexture(FONTS::FontRobotoRegular)->id();
-	 float2 scale1 = {1.f, 1.f};
-	 GL::instance()->shader("texmap")->setUniformValue("texScale", scale1);
-	 GL::instance()->shader("texmap")->setUniformValue("tex", 0);
-	 plane->draw("texmap");
-	 GL::instance()->shader("texmap")->release();
+	 GL::instance()->shader("default")->bind(VSML::instance());
+	 //glActiveTexture(GL_TEXTURE0);
+	// GL::instance()->fontTexture(FONTS::FontRobotoRegular)->bind();
+//	 float2 scale1 = {1.f, 1.f};
+//	 GL::instance()->shader("texmap")->setUniformValue("texScale", scale1);
+//	 GL::instance()->shader("texmap")->setUniformValue("tex", 0);
+	 circle->draw("default");
+	 GL::instance()->shader("default")->release();
 
-	 fbo->release();
 
-	 // Draw the framebuffer to screen.
-	 glDisable(GL_DEPTH_TEST);
-	 GL::instance()->ortho();
-	 GL::instance()->shader("texmap")->bind(VSML::instance());
-	 glActiveTexture(GL_TEXTURE0);
-	 fbo->bindsurface(0);
-	 float2 scale0 = {GL::instance()->width() / (float)fbo->width(),
-			 GL::instance()->height() / (float)fbo->height()};
-	 GL::instance()->shader("texmap")->setUniformValue("texScale", scale0);
-	 GL::instance()->shader("texmap")->setUniformValue("tex", 0);
-	 GL::instance()->primitive("quad")->draw("texmap");
-	 glBindTexture(GL_TEXTURE_2D, 0);
-	 GL::instance()->shader("texmap")->release();
+
 	 std::stringstream ss;
-	 fps = 0.99f * fps + 0.01f * (1000 / dt);
 	 ss << "PINEAPPLE GAME ENGINE\n" << COMPILE_TIME << "\n\nOGL > " << glGetString(GL_VERSION) << "\nFPS > " << (int)fps
-			 << "\nRES > " << GL::instance()->width() << " X " << GL::instance()->height();
-	 previousTime = time;
+				 << "\nRES > " << GL::instance()->width() << " X " << GL::instance()->height();
 	 GL::instance()->renderText(ss.str(), FONTS::FontLekton);
+	glFlush();
 }
 
 JNIEXPORT void JNICALL Java_pocky_libs_Pocky_shutdown
