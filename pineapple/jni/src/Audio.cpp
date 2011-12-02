@@ -116,7 +116,7 @@ void Audio::addSound(std::string name, std::string path, bool loadImmediate, Aud
 			sounds_[name]->nChannels = header.channels;
 			sounds_[name]->bitspersample = header.bitsPerSample;
 			sounds_[name]->samplespersecond = header.samplesPerSec;
-			sounds_[name]->type_ = AudioType.OGG;
+			sounds_[name]->type_ = AudioType::OGG;
 
 			free(data);
 
