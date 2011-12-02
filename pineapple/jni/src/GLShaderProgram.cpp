@@ -26,8 +26,8 @@ void printLog(GLuint obj) {
 		glGetShaderInfoLog(obj, 1024, &infologLength, infoLog);
 	else
 		glGetProgramInfoLog(obj, 1024, &infologLength, infoLog);
-    if (infologLength > 0)
-		LOGE(infoLog);
+    if (infologLength > 0 && !strcmp("Success.", infoLog))
+		LOGI(infoLog);
     fflush(stdout);
 }
 void GLShaderProgram::loadShaderFromData(GLenum type, unsigned char *data, size_t size) {
@@ -44,7 +44,6 @@ void GLShaderProgram::loadShaderFromSource(GLenum type, std::string source) {
 	ss << "#define _VERTEX_" << endl;
     ss << source;
     std::string str = ss.str();
-    //LOGI("%s", str.c_str());
     int length = str.length();
     const char *data = str.c_str();
     GLuint id = glCreateShader(type);

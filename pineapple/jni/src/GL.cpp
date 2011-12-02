@@ -130,6 +130,7 @@ namespace Pineapple {
 		VSML::instance()->loadIdentity(VSML::MODELVIEW);
 	}
 
+
 	void GL::perspective(float fov, float near, float far) {
 		VSML::instance()->perspective(fov, width_ / (float)height_, near, far);
 		VSML::instance()->loadIdentity(VSML::MODELVIEW);

@@ -25,4 +25,10 @@ public class Pocky {
 	 * Causes the current scene to be drawn.
 	 */
 	public static native void draw(int time);
+
+	public static native void onTouch(float x, float y);
+
+	public static native void onDrag(float x, float y);
+
+	public static native void onRelease(float x, float y);
 }

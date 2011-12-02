@@ -17,6 +17,8 @@ public abstract class PineappleActivity extends Activity {
 
 	protected abstract String getAPKPath();
 
+	protected abstract TouchEventHandler getTouchHandler();
+
 	protected long startTime_;
 
 	@Override
@@ -27,7 +29,7 @@ public abstract class PineappleActivity extends Activity {
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		setContentView(new PineappleGLSurface(getApplicationContext(),
-				createRenderer()));
+				createRenderer(), getTouchHandler()));
 
 		PineappleLib.init(getAPKPath());
 		PineappleLib.start();

@@ -4,12 +4,14 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import pineapple.main.PineappleActivity;
+import pineapple.main.TouchEventHandler;
 import pocky.libs.Pocky;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.view.MotionEvent;
 
 public class PockyActivity extends PineappleActivity {
 
@@ -22,6 +24,11 @@ public class PockyActivity extends PineappleActivity {
 		super.onCreate(savedInstanceState);
 		Pocky.startup();
 
+	}
+
+	@Override
+	protected TouchEventHandler getTouchHandler() {
+		return new PockyTouchEventHandler();
 	}
 
 	@Override
@@ -40,6 +47,25 @@ public class PockyActivity extends PineappleActivity {
 
 		public void onSurfaceCreated(GL10 gl, EGLConfig config) {
 
+		}
+	}
+
+	private class PockyTouchEventHandler implements TouchEventHandler {
+
+		public PockyTouchEventHandler() {
+
+		}
+
+		public void onTouch(MotionEvent event) {
+			Pocky.onTouch(event.getX(), event.getY());
+		}
+
+		public void onDrag(MotionEvent event) {
+			Pocky.onDrag(event.getX(), event.getY());
+		}
+
+		public void onRelease(MotionEvent event) {
+			Pocky.onRelease(event.getX(), event.getY());
 		}
 	}
 

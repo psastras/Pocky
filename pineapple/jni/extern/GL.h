@@ -12,6 +12,7 @@
 #include "GLShaderProgram.h"
 #include "GLFramebufferObject.h"
 #include "GLTexture.h"
+#include "Objects.h"
 #include "VSML.h"
 #include "../include/Fonts.h"
 #include <unordered_map>
@@ -22,6 +23,10 @@ class GLShader;
 struct GLObject {
 	GLShader *shader;
 
+};
+
+struct GLCamera {
+	float near, far;
 };
 
 class GL {
@@ -59,6 +64,8 @@ public:
 	void ortho();
 	void perspective(float fov, float near, float far);
 	void perspective(float fov, float near, float far, int w, int h);
+
+	GLCamera *camera() { return &camera_; }
 	inline int width() { return width_; }
 	inline int height() { return height_; }
 protected:
@@ -70,7 +77,7 @@ protected:
 		std::unordered_map<std::string, GLPrimitive *> primitives_;
 		std::unordered_map<std::string, GLTexture *> textures_;
 		std::unordered_map<char, int> letterIdxs_;
-
+		GLCamera camera_;
 		GLTexture *fontTextures_[NUMFONTS];
 	};
 }

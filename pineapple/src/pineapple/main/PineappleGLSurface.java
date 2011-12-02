@@ -40,6 +40,7 @@ import android.content.Context;
 import android.graphics.PixelFormat;
 import android.opengl.GLSurfaceView;
 import android.util.Log;
+import android.view.MotionEvent;
 
 /**
  * A simple GLSurfaceView sub-class that demonstrate how to perform OpenGL ES
@@ -62,14 +63,32 @@ class PineappleGLSurface extends GLSurfaceView {
 	private static String TAG = "PineappleGLS";
 	private static final boolean DEBUG = false;
 
-	public PineappleGLSurface(Context context, GLSurfaceView.Renderer renderer) {
+	protected TouchEventHandler touchHandler_;
+
+	public PineappleGLSurface(Context context, GLSurfaceView.Renderer renderer,
+			TouchEventHandler handler) {
 		super(context);
+		touchHandler_ = handler;
 		init(renderer, false, 0, 0);
 	}
 
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
+		if (event.getAction() == MotionEvent.ACTION_DOWN) {
+			touchHandler_.onTouch(event);
+		} else if (event.getAction() == MotionEvent.ACTION_MOVE) {
+			touchHandler_.onDrag(event);
+		} else if (event.getAction() == MotionEvent.ACTION_UP) {
+			touchHandler_.onRelease(event);
+		}
+		return true;
+	}
+
 	public PineappleGLSurface(Context context, GLSurfaceView.Renderer renderer,
-			boolean translucent, int depth, int stencil) {
+			TouchEventHandler handler, boolean translucent, int depth,
+			int stencil) {
 		super(context);
+		touchHandler_ = handler;
 		init(renderer, translucent, depth, stencil);
 	}
 
