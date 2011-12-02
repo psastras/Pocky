@@ -69,4 +69,12 @@ class GLPlane : public GLPrimitive {
 };
 
 
+class GLTriangle : public GLPrimitive {
+    public:
+	GLTriangle(Float3 tess, Float3 translate, Float3 scale);
+	~GLTriangle();
+
+	void tesselate(Float3 tess, Float3 translate, Float3 scale);
+};
+
 #endif // GLPRIMITIVE_H

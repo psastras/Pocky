@@ -32,9 +32,13 @@ struct BasicWAVEHeader {
 	unsigned int dataSize;
 };
 
+enum AudioType {
+	OGG, WAV
+};
+
 class AudioObject {
 public:
-	BasicWAVEHeader header_;
+	int nChannels,  bitspersample,  samplespersecond;
 	std::string filepath_;
 	char *data_;
 	ALuint buffer_;
@@ -69,7 +73,8 @@ public:
 	}
 
 	virtual ~Audio();
-	void addSound(std::string name, std::string path, bool loadImmediate);
+	void addSound(std::string name, std::string path, bool loadImmediate, AudioType type);
+	void addSound2(const char *name);
 	bool playSound(std::string name);
 	void update();
 protected:

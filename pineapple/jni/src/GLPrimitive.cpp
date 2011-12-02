@@ -36,7 +36,6 @@ void GLPrimitive::draw(GLShaderProgram *program, int instances) {
     if(ids[1] >= 0) glEnableVertexAttribArray(ids[1]);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexId_);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     if(ids[0] >= 0) glDisableVertexAttribArray(ids[0]);
     if(ids[1] >= 0) glDisableVertexAttribArray(ids[1]);
 
@@ -52,16 +51,10 @@ void GLPrimitive::draw(GLShaderProgram *program) {
 	glVertexAttribPointer(ids[0], 3, GL_FLOAT, GL_FALSE, sizeof(GLVertex), (GLvoid *)vOffset_);
 	if(ids[1] >= 0)
 	glVertexAttribPointer(ids[1], 3, GL_FLOAT, GL_FALSE, sizeof(GLVertex), (GLvoid *)tOffset_);
-	//glBindBuffer(GL_ARRAY_BUFFER, 0);
-
 	if(ids[0] >= 0) glEnableVertexAttribArray(ids[0]);
 	if(ids[1] >= 0) glEnableVertexAttribArray(ids[1]);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexId_);
     glDrawElements(type_, idxCount_, GL_UNSIGNED_SHORT, BUFFER_OFFSET(0));
-//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-//    if(ids[0] >= 0) glDisableVertexAttribArray(ids[0]);
-//    if(ids[1] >= 0) glDisableVertexAttribArray(ids[1]);
-
 }
 
 
@@ -126,7 +119,6 @@ void GLPlane::tesselate(Float3 tess, Float3 translate, Float3 scale) {
     if(vertexId_) glDeleteBuffers(1, &vertexId_);
     if(indexId_) glDeleteBuffers(1, &indexId_);
 
-
     type_ = GL_TRIANGLES;
     idxCount_ = 6 * tess.x * tess.z;
     Float3 delta = scale / tess;
@@ -177,7 +169,7 @@ void GLCircle::tesselate(Float3 tess, Float3 translate, Float3 scale) {
     if(indexId_) glDeleteBuffers(1, &indexId_);
 
 
-    type_ = GL_LINE_LOOP;
+    type_ = GL_TRIANGLES;
     idxCount_ = tess.x;
     GLVertex *pVertex = new GLVertex[(int)(tess.x)];
     float r = scale.x;
