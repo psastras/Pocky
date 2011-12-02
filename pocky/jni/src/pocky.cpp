@@ -47,6 +47,7 @@ JNIEXPORT void JNICALL Java_pocky_libs_Pocky_resize
 	GL::instance()->createShader("texmap", "assets/shaders/texmap.glsl");
 	GL::instance()->createShader("bloom", "assets/shaders/bloom.glsl");
 	GL::instance()->createShader("text", "assets/shaders/text.glsl");
+	GL::instance()->createShader("backgrd", "assets/shaders/background.glsl");
 	GL::instance()->initializeGL(w, h);
 	GL::instance()->loadFont(FONTS::FontRobotoRegular);
 	GLFramebufferObjectParams parms;
@@ -67,50 +68,50 @@ JNIEXPORT void JNICALL Java_pocky_libs_Pocky_resize
 	glLineWidth(2.f);
 }
 
-
-
-
 int previousTime = 0;
 float fps = 30;
 
-void drawScene(int time)
-{
-
-
-
-
-
-}
-
 JNIEXPORT void JNICALL Java_pocky_libs_Pocky_draw
   (JNIEnv *, jclass, jint time) {
-
 	int dt = time - previousTime;
     fps = 0.99f * fps + 0.01f * (1000 / dt);
 	previousTime = time;
 	int w = GL::instance()->width();
 	int h = GL::instance()->height();
-	glClear(GL_COLOR_BUFFER_BIT);
+
 	GL::instance()->perspective(60.f, 0.01f, 1000.f, w, h);
-	 VSML::instance()->translate(0.f, 2.f, -10.f);
-	 VSML::instance()->rotate(time / 100.f, 1.f, 1.f, 0.f);
-	 GL::instance()->shader("default")->bind(VSML::instance());
-	 //glActiveTexture(GL_TEXTURE0);
-	// GL::instance()->fontTexture(FONTS::FontRobotoRegular)->bind();
-//	 float2 scale1 = {1.f, 1.f};
-//	 GL::instance()->shader("texmap")->setUniformValue("texScale", scale1);
-//	 GL::instance()->shader("texmap")->setUniformValue("tex", 0);
-	 circle->draw("default");
-	 GL::instance()->shader("default")->release();
+	VSML::instance()->perspective(60.f, w / (float)h, 0.01f, 1000.f);
+	VSML::instance()->loadIdentity(VSML::MODELVIEW);
 
-
-
-	 std::stringstream ss;
-	 ss << "PINEAPPLE GAME ENGINE\n" << COMPILE_TIME << "\n\nOGL > " << glGetString(GL_VERSION) << "\nFPS > " << (int)fps
+	VSML::instance()->translate(0.f, 2.f, -10.f);
+	//VSML::instance()->rotate(time / 100.f, 1.f, 1.f, 0.f);
+	GL::instance()->shader("default")->bind(VSML::instance());
+	circle->draw("default");
+	GL::instance()->shader("default")->release();
+	std::stringstream ss;
+	ss << "PINEAPPLE GAME ENGINE\n" << COMPILE_TIME << "\n\nOGL > " << glGetString(GL_VERSION) << "\nFPS > " << (int)fps
 				 << "\nRES > " << GL::instance()->width() << " X " << GL::instance()->height();
-	 GL::instance()->renderText(ss.str(), FONTS::FontLekton);
+	GL::instance()->renderText(ss.str(), FONTS::FontLekton);
 	glFlush();
 }
+
+JNIEXPORT void JNICALL Java_pocky_libs_Pocky_onTouch
+  (JNIEnv *, jclass, jfloat, jfloat) {
+	LOGI("Touch");
+}
+
+
+JNIEXPORT void JNICALL Java_pocky_libs_Pocky_onDrag
+  (JNIEnv *, jclass, jfloat, jfloat) {
+	LOGI("Drag");
+}
+
+
+JNIEXPORT void JNICALL Java_pocky_libs_Pocky_onRelease
+  (JNIEnv *, jclass, jfloat, jfloat) {
+	LOGI("Release");
+}
+
 
 JNIEXPORT void JNICALL Java_pocky_libs_Pocky_shutdown
   (JNIEnv *, jclass) {

@@ -39,6 +39,30 @@ JNIEXPORT void JNICALL Java_pocky_libs_Pocky_resize
 JNIEXPORT void JNICALL Java_pocky_libs_Pocky_draw
   (JNIEnv *, jclass, jint);
 
+/*
+ * Class:     pocky_libs_Pocky
+ * Method:    onTouch
+ * Signature: (FF)V
+ */
+JNIEXPORT void JNICALL Java_pocky_libs_Pocky_onTouch
+  (JNIEnv *, jclass, jfloat, jfloat);
+
+/*
+ * Class:     pocky_libs_Pocky
+ * Method:    onDrag
+ * Signature: (FF)V
+ */
+JNIEXPORT void JNICALL Java_pocky_libs_Pocky_onDrag
+  (JNIEnv *, jclass, jfloat, jfloat);
+
+/*
+ * Class:     pocky_libs_Pocky
+ * Method:    onRelease
+ * Signature: (FF)V
+ */
+JNIEXPORT void JNICALL Java_pocky_libs_Pocky_onRelease
+  (JNIEnv *, jclass, jfloat, jfloat);
+
 #ifdef __cplusplus
 }
 #endif

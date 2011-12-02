@@ -169,7 +169,7 @@ void GLCircle::tesselate(Float3 tess, Float3 translate, Float3 scale) {
     if(indexId_) glDeleteBuffers(1, &indexId_);
 
 
-    type_ = GL_TRIANGLES;
+    type_ = GL_LINE_LOOP;
     idxCount_ = tess.x;
     GLVertex *pVertex = new GLVertex[(int)(tess.x)];
     float r = scale.x;
