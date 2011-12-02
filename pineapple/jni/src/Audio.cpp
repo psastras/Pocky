@@ -104,6 +104,7 @@ void Audio::addSound(std::string name, std::string path, bool loadImmediate, Aud
 			sounds_[name]->nChannels = header.channels;
 			sounds_[name]->bitspersample = header.bitsPerSample;
 			sounds_[name]->samplespersecond = header.samplesPerSec;
+			sounds_[name]->type_ = AudioType::WAV;
 			free(data);
 		} else if(type == AudioType::OGG) {
 			BasicWAVEHeader header;
@@ -115,6 +116,7 @@ void Audio::addSound(std::string name, std::string path, bool loadImmediate, Aud
 			sounds_[name]->nChannels = header.channels;
 			sounds_[name]->bitspersample = header.bitsPerSample;
 			sounds_[name]->samplespersecond = header.samplesPerSec;
+			sounds_[name]->type_ = AudioType.OGG;
 
 			free(data);
 
@@ -126,7 +128,7 @@ bool Audio::playSound(std::string name) {
 	AudioObject *toplay = sounds_[name];
 	if (!toplay->data_) {
 		// load the sound
-		//this->addSound(name, toplay->filepath_, true);
+		this->addSound(name, toplay->filepath_, true, toplay->type_);
 	}
 	// make the buffer
 	toplay->buffer_ = createBuffer(toplay->data_, toplay->size_,
@@ -136,8 +138,13 @@ bool Audio::playSound(std::string name) {
 	alSourcei(toplay->source_id_, AL_BUFFER, toplay->buffer_);
 	// Play source
 	alSourcePlay(toplay->source_id_);
-	int state;
-	alGetSourcei(toplay->source_id_, AL_SOURCE_STATE, &state);
+//	int state;
+//	alGetSourcei(toplay->source_id_, AL_SOURCE_STATE, &state);
+}
+
+bool Audio::stopSound(std::string name){
+	AudioObject *tostop = sounds_[name];
+	alSourceStop(tostop->source_id_);
 }
 
 void Audio::update() {
@@ -154,9 +161,9 @@ void Audio::update() {
 			if (!ao->keepLoaded_) {
 				delete[] ao->data_;
 				ao->data_ = NULL;
-				sounds_.erase(iter->first);
 				std::string m = "removed sound " + iter->first + "from map";
 				LOGI(m.c_str());
+				sounds_.erase(iter->first);
 				delete ao;
 			}
 
@@ -179,32 +186,6 @@ Audio::Audio() {
 	context_ = alcCreateContext(device_, context_attribs);
 	alcMakeContextCurrent(context_);
 
-}
-
-void Audio::addSound2(const char *test) {
-	LOGI("reading");
-	size_t size;
-	std::vector < char > *buffer = new std::vector < char > ();
-	unsigned char *data = Engine::instance()->readResourceFromAPK(test, size);
-	vorbis_info *pInfo;
-	OggVorbis_File oggFile;
-	LOGI("attemptin open");
-	ov_open(0, &oggFile, (char *)data, size);
-	pInfo = ov_info(&oggFile, -1);
-
-	int endian = 0;             // 0 for Little-Endian, 1 for Big-Endian
-	int bitStream;
-	long bytes;
-	char array[32768];    // Local fixed size array
-	 do {
-	    // Read up to a buffer's worth of decoded sound data
-	    bytes = ov_read(&oggFile, array, 32768,  &bitStream);
-	    // Append to end of buffer
-	    buffer->insert(buffer->end(), array, array + bytes);
-	  } while (bytes > 0);
-	LOGI("Channels: %d", pInfo->channels);
-	delete buffer;
-	ov_clear(&oggFile);
 }
 
 Audio::~Audio() {

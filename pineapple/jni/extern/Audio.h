@@ -45,6 +45,7 @@ public:
 	size_t size_;
 	ALuint source_id_;
 	bool keepLoaded_;
+	AudioType type_;
 
 	AudioObject(){
 		source_id_ = -1;
@@ -76,6 +77,7 @@ public:
 	void addSound(std::string name, std::string path, bool loadImmediate, AudioType type);
 	void addSound2(const char *name);
 	bool playSound(std::string name);
+	bool stopSound(std::string name);
 	void update();
 protected:
 	Audio();
