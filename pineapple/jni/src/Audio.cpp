@@ -15,7 +15,9 @@
 #include <sstream>
 #include <vector>
 #include <algorithm>
-#include "../openal/tremolo/ivorbisfile.h"
+
+
+#define BUFFER_SIZE 1048576
 namespace Pineapple {
 
 char* readWAV(void *data, size_t size, BasicWAVEHeader* header) {
@@ -36,32 +38,49 @@ char* readWAV(void *data, size_t size, BasicWAVEHeader* header) {
 	}
 	return 0;
 }
-char array[32768];    // Local fixed size array
-char *readOgg(unsigned char *data, size_t &size, BasicWAVEHeader *header) {
-	LOGI("reading");
-	std::vector < char > *buffer = new std::vector < char > ();
-	vorbis_info *pInfo;
-	OggVorbis_File oggFile;
-	ov_open(0, &oggFile, (char *)data, size);
-	pInfo = ov_info(&oggFile, -1);
-	int bitStream;
-	long bytes;
+char array[32768]; // Local fixed size array
 
-	 do {
-	    // Read up to a buffer's worth of decoded sound data
-	    bytes = ov_read(&oggFile, array, 32768,  &bitStream);
-	    // Append to end of buffer
-	    buffer->insert(buffer->end(), array, array + bytes);
-	  } while (bytes > 0);
+char *bufferOgg(AudioObject &ao, OggVorbis_File *oggFile, size_t &buffersize) {
+	std::vector<char> *buffer = new std::vector<char>();
+	long bytes;
+	long total = 0;
+
+	//LOGI("reading new bytes into buffer");
+	do {
+		// Read up to a buffer's worth of decoded sound data
+		//LOGI("bitstream is %d", ao.bitStream_);
+		bytes = ov_read(oggFile, array, 32768, &ao.bitStream_);
+		//LOGI("read %d bytes", (int)bytes);
+		// Append to end of buffer
+		buffer->insert(buffer->end(), array, array + bytes);
+		total += bytes;
+		//LOGI("inserted %d bytes", bytes);
+	} while (total <= BUFFER_SIZE);
+	buffersize = total;
+	//LOGI("read %d total bytes", buffersize);
+	//size = buffer->size();
+	char *toreturn = new char[buffer->size()];
+	std::copy(buffer->begin(), buffer->end(), toreturn);
+	delete buffer;
+	return toreturn;
+}
+
+char *readOgg(AudioObject &ao, unsigned char *data, size_t &size,
+		BasicWAVEHeader *header, size_t &buffersize) {
+	LOGI("reading");
+
+	vorbis_info *pInfo;
+	ao.file_ = new OggVorbis_File();
+	ov_open(0, ao.file_, (char *) data, size);
+	pInfo = ov_info(ao.file_, -1);
+
 	LOGI("Channels: %d, %d", pInfo->channels, pInfo->rate);
 	header->bitsPerSample = 16;
 	header->channels = pInfo->channels;
 	header->samplesPerSec = pInfo->rate;
-	size = buffer->size();
-	ov_clear(&oggFile);
-	char *toreturn = new char[buffer->size()];
-	std::copy(buffer->begin(), buffer->end(), toreturn);
-	delete buffer;
+
+	char *toreturn = bufferOgg(ao, ao.file_, buffersize);
+	//ov_clear(&oggFile);
 	return toreturn;
 }
 
@@ -85,64 +104,144 @@ ALuint createBuffer(char* data, int datasize, int nChannels, int bitspersample,
 	return buffer;
 }
 
-void Audio::addSound(std::string name, std::string path, bool loadImmediate, AudioType type) {
+void repurposeBuffer(ALuint &buffer, char* data, int datasize, int nChannels,
+		int bitspersample, int samplespersecond) {
+	ALuint format = 0;
+	switch (bitspersample) {
+	case 8:
+		format = (nChannels == 1) ? AL_FORMAT_MONO8 : AL_FORMAT_STEREO8;
+		break;
+	case 16:
+		format = (nChannels == 1) ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
+		break;
+	default:
+		return;
+//		return 0;
+	}
+
+	//alGenBuffers(1, &	buffer);
+	alBufferData(buffer, format, data, datasize, samplespersecond);
+	//return buffer;
+}
+
+char *rebufferOgg(AudioObject &ao, unsigned char *data, size_t &size) {
+	// check the number of currently playing buffers
+	int val;
+	alGetSourcei(ao.source_id_, AL_BUFFERS_QUEUED, &val);
+	int state;
+	alGetSourcei(ao.source_id_, AL_SOURCE_STATE, &state);
+	int freebuffers;
+	alGetSourcei(ao.source_id_, AL_BUFFERS_PROCESSED, &freebuffers);
+	val -= freebuffers;
+	// if there is less than two queued buffers
+	if (val != 0 && val < 2 && state != AL_STOPPED) {
+		LOGI("only have %d queued buffers, so adding more", val);
+		//OggVorbis_File oggFile;
+		//ov_open(0, &oggFile, (char *) data, size);
+		size_t buffersize;
+		while (val < 2) {
+			LOGI("get new buffer");
+			char *newbuffer = bufferOgg(ao, ao.file_, buffersize);
+			ALuint buffer;
+			//LOGI("unqueue buffers");
+			alSourceUnqueueBuffers(ao.source_id_, 1, &buffer);
+			//LOGI("unqueued buffers");
+			int error = alGetError();
+			if(error != AL_NO_ERROR){
+				LOGI("unqueue returned error %d", error);
+			}
+			if (error == AL_INVALID_VALUE || freebuffers <= 0) {
+				LOGI("unqueue failed or no free buffers");
+				// create a new buffer
+				buffer = createBuffer(newbuffer, buffersize, ao.nChannels,
+						ao.bitspersample, ao.samplespersecond);
+				LOGI("new buffer %d created", buffer);
+			} else {
+				LOGI("reusing buffer %d", buffer);
+				// repurpose the existing buffer
+				repurposeBuffer(buffer, newbuffer, buffersize, ao.nChannels,
+						ao.bitspersample, ao.samplespersecond);
+				LOGI("buffer %d repurposed", buffer);
+				delete[] ao.buffers_[buffer];
+			}
+			ao.buffers_[buffer] = newbuffer;
+			// queue it up
+			alSourceQueueBuffers(ao.source_id_, 1, &buffer);
+			if(alGetError() != AL_NO_ERROR){
+				LOGI("error requeuing %d", alGetError());
+			}
+			LOGI("rebuffered with buffer %d", buffer);
+			val++;
+		}
+		//ov_clear(&oggFile);
+	}
+}
+
+void Audio::addSound(std::string name, std::string path, bool loadImmediate,
+		AudioType type) {
 	// make a new audio object for this file
 	sounds_[name] = new AudioObject();
 	sounds_[name]->filepath_ = path;
 	if (loadImmediate) {
 		size_t size;
+		size_t buffersize;
 		unsigned char * data = Engine::instance()->readResourceFromAPK(
 				sounds_[name]->filepath_.c_str(), size);
-		if(type == AudioType::WAV) {
+		char *actual = 0;
+		if (type == AudioType::WAV) {
 
 			BasicWAVEHeader header;
-			char * actual = readWAV(data, size, &header);
+			actual = readWAV(data, size, &header);
 			//free(data);
 			sounds_[name]->size_ = size;
-			sounds_[name]->data_ = actual;
+//			sounds_[name]->data_ = actual;
 			//int datasize, nChannels,  bitspersample,  samplespersecond;
 			sounds_[name]->nChannels = header.channels;
 			sounds_[name]->bitspersample = header.bitsPerSample;
 			sounds_[name]->samplespersecond = header.samplesPerSec;
 			sounds_[name]->type_ = AudioType::WAV;
 			free(data);
-		} else if(type == AudioType::OGG) {
+		} else if (type == AudioType::OGG) {
 			BasicWAVEHeader header;
-			char * actual = readOgg(data, size, &header);
+			actual = readOgg(*sounds_[name], data, size, &header, buffersize);
 			//free(data);
 			sounds_[name]->size_ = size;
-			sounds_[name]->data_ = actual;
+			sounds_[name]->data_ = data;
 			//int datasize, nChannels,  bitspersample,  samplespersecond;
 			sounds_[name]->nChannels = header.channels;
 			sounds_[name]->bitspersample = header.bitsPerSample;
 			sounds_[name]->samplespersecond = header.samplesPerSec;
-			sounds_[name]->type_ = AudioType.OGG;
+			sounds_[name]->type_ = AudioType::OGG;
 
 			free(data);
 
 		}
+		// make the buffer
+			ALuint buffer = createBuffer(actual, buffersize,
+					sounds_[name]->nChannels, sounds_[name]->bitspersample, sounds_[name]->samplespersecond);
+			sounds_[name]->buffers_[buffer] = actual;
+			// Create source from buffer and play it
+			alGenSources(1, &(sounds_[name]->source_id_));
+			alSourceQueueBuffers(sounds_[name]->source_id_, 1, &buffer);
+			LOGI("added new buffer %d", buffer);
 	}
 }
 
 bool Audio::playSound(std::string name) {
 	AudioObject *toplay = sounds_[name];
-	if (!toplay->data_) {
+	if (toplay->buffers_.empty()) {
 		// load the sound
 		this->addSound(name, toplay->filepath_, true, toplay->type_);
 	}
-	// make the buffer
-	toplay->buffer_ = createBuffer(toplay->data_, toplay->size_,
-			toplay->nChannels, toplay->bitspersample, toplay->samplespersecond);
-	// Create source from buffer and play it
-	alGenSources(1, &(toplay->source_id_));
-	alSourcei(toplay->source_id_, AL_BUFFER, toplay->buffer_);
+
+//	alSourcei(toplay->source_id_, AL_BUFFER, toplay->buffer_);
 	// Play source
 	alSourcePlay(toplay->source_id_);
 //	int state;
 //	alGetSourcei(toplay->source_id_, AL_SOURCE_STATE, &state);
 }
 
-bool Audio::stopSound(std::string name){
+bool Audio::stopSound(std::string name) {
 	AudioObject *tostop = sounds_[name];
 	alSourceStop(tostop->source_id_);
 }
@@ -152,23 +251,33 @@ void Audio::update() {
 		AudioObject *ao = iter->second;
 		int sourceState;
 		alGetSourcei(ao->source_id_, AL_SOURCE_STATE, &sourceState);
-		if (sourceState == AL_STOPPED && ao->data_ && ao->source_id_ > 0) {
+		if (sourceState == AL_STOPPED && !ao->buffers_.empty() && ao->source_id_ > 0) {
 			std::string mes = "deleting sound " + iter->first;
-							LOGI(mes.c_str());
+			LOGI(mes.c_str());
 			// delete stuff
 			alDeleteSources(1, &ao->source_id_);
-			alDeleteBuffers(1, &ao->buffer_);
+//			alDeleteBuffers(1, &ao->buffer_);
 			if (!ao->keepLoaded_) {
-				delete[] ao->data_;
-				ao->data_ = NULL;
-				std::string m = "removed sound " + iter->first + "from map";
+				for(auto itertwo = ao->buffers_.begin(); itertwo != ao->buffers_.end(); itertwo++){
+					LOGI("trying delete %d", itertwo->first);
+					delete[] itertwo->second;
+					LOGI("removed buffer %d", itertwo->first);
+					ao->buffers_.erase(itertwo->first);
+				}
+				std::string m = "removed sound " + iter->first + " from map";
 				LOGI(m.c_str());
 				sounds_.erase(iter->first);
+				ov_clear(ao->file_);
 				delete ao;
 			}
 
 			ao->source_id_ = -1;
-			ao->buffer_ = -1;
+		} else if (sourceState != AL_STOPPED && ao->type_ == AudioType::OGG){
+			// check for rebuffers
+			rebufferOgg(*ao, ao->data_, ao->size_);
+			if(sourceState != AL_PLAYING){
+				alSourcePlay(ao->source_id_);
+			}
 		}
 	}
 

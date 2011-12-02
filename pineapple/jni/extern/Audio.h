@@ -13,6 +13,7 @@
 #include <unordered_map>
 #include "../openal/include/AL/al.h"
 #include  "../openal/include/AL/alc.h"
+#include "../openal/tremolo/ivorbisfile.h"
 
 namespace Pineapple {
 
@@ -40,21 +41,23 @@ class AudioObject {
 public:
 	int nChannels,  bitspersample,  samplespersecond;
 	std::string filepath_;
-	char *data_;
-	ALuint buffer_;
+	unsigned char *data_;
+//	ALuint buffer_;
 	size_t size_;
 	ALuint source_id_;
 	bool keepLoaded_;
 	AudioType type_;
+	int bitStream_;
+	std::unordered_map<ALuint, char *> buffers_;
+	OggVorbis_File *file_;
 
 	AudioObject(){
 		source_id_ = -1;
-		buffer_ = -1;
-		data_ = NULL;
 	}
 
 	virtual ~AudioObject(){
-		delete data_;
+		//delete data_;
+		delete file_;
 	}
 };
 
