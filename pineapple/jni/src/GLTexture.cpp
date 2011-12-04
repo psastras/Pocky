@@ -6,6 +6,7 @@
  */
 
 #include "../extern/GLTexture.h"
+#include "../libpng/png.h"
 
 namespace Pineapple {
 
@@ -16,6 +17,7 @@ GLTexture::GLTexture(GLTextureParams params, unsigned char *data) : id_(0) {
 GLTexture::GLTexture(GLTextureParams params) : id_(0) {
 	this->init(params);
 }
+
 
 void GLTexture::init(GLTextureParams params)
 {

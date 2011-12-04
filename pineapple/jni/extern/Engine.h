@@ -24,7 +24,7 @@ public:
 	}
 
 	unsigned char *readResourceFromAPK(const char* filename, size_t &size);
-
+	unsigned char *readPNGFromAPK(const char* filename, int *width, int *height);
 	void start();
 	void stop();
 

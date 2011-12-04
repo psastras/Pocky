@@ -14,6 +14,8 @@ GLPrimitive::GLPrimitive(Float3 &tess, Float3 &translate, Float3 &scale) : verte
 GLPrimitive::~GLPrimitive() {
     if(vertexId_) glDeleteBuffers(1, &vertexId_);
     if(indexId_) glDeleteBuffers(1, &indexId_);
+
+
 }
 
 void GLPrimitive::draw(const std::string &shadername) {
@@ -60,6 +62,10 @@ void GLPrimitive::draw(GLShaderProgram *program) {
 
 GLQuad::GLQuad(Float3 tess, Float3 translate, Float3 scale) : GLPrimitive(tess, translate, scale) {
      this->tesselate(tess, translate, scale);
+}
+
+
+GLQuad::~GLQuad() {
 }
 
 
@@ -163,6 +169,10 @@ GLCircle::GLCircle(Float3 tess, Float3 translate, Float3 scale) : GLPrimitive(te
      this->tesselate(tess, translate, scale);
 }
 
+GLCircle::~GLCircle() {
+
+}
+
 void GLCircle::tesselate(Float3 tess, Float3 translate, Float3 scale) {
 
     if(vertexId_) glDeleteBuffers(1, &vertexId_);
@@ -172,12 +182,12 @@ void GLCircle::tesselate(Float3 tess, Float3 translate, Float3 scale) {
     type_ = GL_LINE_LOOP;
     idxCount_ = tess.x;
     GLVertex *pVertex = new GLVertex[(int)(tess.x)];
-    float r = scale.x;
+    float r = scale.x / 2.f;
 
 	for(int x=0; x<tess.x; x++) {
-		float xx = r * cosf(x / tess.x * 2 * 3.14159f);
-		float yy = r * sinf(x / tess.x * 2 * 3.14159f);
-		pVertex[x].p = Float3(xx,0, yy);
+		float xx = r * cosf(x / tess.x * 2 * 3.14159f + 3.14159f*0.5f);
+		float yy = r * sinf(x / tess.x * 2 * 3.14159f + 3.14159f*0.5f);
+		pVertex[x].p = Float3(xx + translate.x,yy+translate.y, translate.z);
 		//pVertex[i].t = Float3(x, z, 0) * tdelta;
 	}
     glGenBuffers(1, &vertexId_);
@@ -199,3 +209,45 @@ void GLCircle::tesselate(Float3 tess, Float3 translate, Float3 scale) {
     vOffset_ = 0;
     tOffset_ = 12;
 }
+
+//
+//GLHexagon::GLHexagon(Float3 tess, Float3 translate, Float3 scale) : GLPrimitive(tess, translate, scale) {
+//     this->tesselate(tess, translate, scale);
+//}
+//
+//void GLHexagon::tesselate(Float3 tess, Float3 translate, Float3 scale) {
+//
+//    if(vertexId_) glDeleteBuffers(1, &vertexId_);
+//    if(indexId_) glDeleteBuffers(1, &indexId_);
+//
+//
+//    type_ = GL_LINE_LOOP;
+//    idxCount_ = tess.x;
+//    GLVertex *pVertex = new GLVertex[(int)(tess.x)];
+//    float r = scale.x;
+//
+//	for(int x=0; x<tess.x; x++) {
+//		float xx = r * cosf(x / tess.x * 2 * 3.14159f);
+//		float yy = r * sinf(x / tess.x * 2 * 3.14159f);
+//		pVertex[x].p = Float3(xx,0, yy);
+//		//pVertex[i].t = Float3(x, z, 0) * tdelta;
+//	}
+//    glGenBuffers(1, &vertexId_);
+//    glBindBuffer(GL_ARRAY_BUFFER, vertexId_);
+//    glBufferData(GL_ARRAY_BUFFER, sizeof(GLVertex)*(tess.x), &pVertex[0].p.x, GL_STATIC_DRAW);
+//
+//    unsigned short *pIndices = new unsigned short[idxCount_];
+//
+//	for(int x=0; x<tess.x; x++) {
+//	   pIndices[x] = x;
+//	}
+//
+//    glGenBuffers(1, &indexId_);
+//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexId_);
+//    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned short)*idxCount_, &pIndices[0], GL_STATIC_DRAW);
+//
+//    delete[] pVertex, delete[] pIndices;
+//
+//    vOffset_ = 0;
+//    tOffset_ = 12;
+//}

@@ -62,6 +62,7 @@ public:
 
 	void initializeGL(int w, int h);
 	void ortho();
+	void ortho(int w, int h) ;
 	void perspective(float fov, float near, float far);
 	void perspective(float fov, float near, float far, int w, int h);
 
