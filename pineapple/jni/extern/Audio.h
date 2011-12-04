@@ -14,6 +14,8 @@
 #include "../openal/include/AL/al.h"
 #include  "../openal/include/AL/alc.h"
 #include "../openal/tremolo/ivorbisfile.h"
+#include <sys/time.h>
+#include <sys/times.h>
 
 namespace Pineapple {
 
@@ -48,11 +50,15 @@ public:
 	bool keepLoaded_;
 	AudioType type_;
 	int bitStream_;
+	bool finished_;
+	double totalLength_;
 	std::unordered_map<ALuint, char *> buffers_;
 	OggVorbis_File *file_;
+	struct timespec startTime_;
 
 	AudioObject(){
 		source_id_ = -1;
+		finished_ = false;
 	}
 
 	virtual ~AudioObject(){
@@ -81,6 +87,7 @@ public:
 	void addSound2(const char *name);
 	bool playSound(std::string name);
 	bool stopSound(std::string name);
+	double getProgress(std::string name);
 	void update();
 protected:
 	Audio();

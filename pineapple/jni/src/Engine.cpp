@@ -22,18 +22,26 @@ void* run(void*) {
 	//LOGI("engine update");
 	while (gIsRunning) {
 
-		//LOGI("before mutex");
-		//pthread_mutex_lock(&mutex);
-
-		//LOGI("before audio update");
+//		LOGI("before mutex");
+		pthread_mutex_lock(&mutex);
+//		int res = pthread_mutex_trylock(&mutex);
+//
+//		if (res == 0) {
+//			LOGI("mutex lock successful");
 		// do stuff
 		if (Pineapple::Audio::instance()) {
 			//LOGI("audio update");
 			Pineapple::Audio::instance()->update();
 		}
 
+//		LOGI("after audio update");
+		pthread_mutex_unlock(&mutex);
+//		LOGI("after mutex");
 
-		//pthread_mutex_unlock(&mutex);
+//
+//		} else {
+//			LOGI("mutex lock failed");
+//		}
 
 		nanosleep(&sleepTime, &returnTime);
 	}
@@ -80,6 +88,14 @@ void Engine::start() {
 	gIsRunning = true;
 	pthread_create(&thread_, 0, run, 0);
 	LOGI("Engine Thread Started");
+	pthread_mutex_unlock(&mutex);
+
+//	int res = pthread_mutex_trylock(&mutex);
+//	if(res != 0){
+//		LOGI("mutex locked after init");
+//	}else{
+//		LOGI("mutex okay in init");
+//	}
 }
 
 void Engine::lock() {

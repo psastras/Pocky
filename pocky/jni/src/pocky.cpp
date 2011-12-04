@@ -34,7 +34,7 @@ JNIEXPORT void JNICALL Java_pocky_libs_Pocky_startup
 //	LOGI("Creating Audio Object");
 	//Audio *aud = new Audio(data, size);
 	GL::instance()->init();
-	Audio::instance()->addSound("test", "assets/audio/title.ogg", true, AudioType::OGG);
+	Audio::instance()->addSound("test", "assets/audio/short.ogg", true, AudioType::OGG);
 	//Audio::instance()->addSound("test", "assets/audio/technika2.wav", true, AudioType::WAV);
 	Audio::instance()->playSound("test");
 }
