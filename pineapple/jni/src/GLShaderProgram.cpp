@@ -26,7 +26,7 @@ void printLog(GLuint obj) {
 		glGetShaderInfoLog(obj, 1024, &infologLength, infoLog);
 	else
 		glGetProgramInfoLog(obj, 1024, &infologLength, infoLog);
-    if (infologLength > 0 && !strcmp("Success.", infoLog))
+    if (infologLength > 0)// && !strcmp("Success.", infoLog))
 		LOGI(infoLog);
     fflush(stdout);
 }

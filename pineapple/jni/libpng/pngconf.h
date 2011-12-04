@@ -22,6 +22,7 @@
 #ifndef PNGCONF_H
 #define PNGCONF_H
 
+
 #ifndef PNG_NO_LIMITS_H
 #  include <limits.h>
 #endif

@@ -130,6 +130,12 @@ namespace Pineapple {
 		VSML::instance()->loadIdentity(VSML::MODELVIEW);
 	}
 
+	void GL::ortho(int w, int h) {
+		VSML::instance()->loadIdentity(VSML::PROJECTION);
+		VSML::instance()->ortho(0.f,(float)w,(float)h,0.f);
+		VSML::instance()->loadIdentity(VSML::MODELVIEW);
+	}
+
 
 	void GL::perspective(float fov, float near, float far) {
 		VSML::instance()->perspective(fov, width_ / (float)height_, near, far);
@@ -137,8 +143,8 @@ namespace Pineapple {
 	}
 
 	void GL::perspective(float fov, float near, float far, int w, int h) {
-			VSML::instance()->perspective(fov, w / (float)h, near, far);
-			VSML::instance()->loadIdentity(VSML::MODELVIEW);
+		VSML::instance()->perspective(fov, w / (float)h, near, far);
+		VSML::instance()->loadIdentity(VSML::MODELVIEW);
 	}
 
 }

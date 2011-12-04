@@ -30,7 +30,9 @@ public abstract class PineappleActivity extends Activity {
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		setContentView(new PineappleGLSurface(getApplicationContext(),
 				createRenderer(), getTouchHandler()));
-
+		WindowManager.LayoutParams lp = getWindow().getAttributes();
+		lp.screenBrightness = 100 / 100.0f;
+		getWindow().setAttributes(lp);
 		PineappleLib.init(getAPKPath());
 		PineappleLib.start();
 

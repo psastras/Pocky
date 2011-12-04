@@ -28,6 +28,7 @@ public:
 	GLuint id() { return id_; }
 	void init(GLTextureParams);
 	void init(GLTextureParams, unsigned char *data);
+	unsigned char *readPNG(unsigned char *data);
 
 	void bind() { glBindTexture(GL_TEXTURE_2D, id_); }
 	void release() { glBindTexture(GL_TEXTURE_2D, 0); }
