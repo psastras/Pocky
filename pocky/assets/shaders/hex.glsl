@@ -3,6 +3,7 @@ uniform sampler2D tex;
 uniform vec2 tcOffset;
 uniform mat4 modelviewMatrix;
 uniform mat4 projMatrix;
+uniform float life;
 
 #ifdef _VERTEX_
 attribute vec3 in_Position;
@@ -17,7 +18,7 @@ void main(void) {
 #ifdef _FRAGMENT_
 varying vec3 pass_TexCoord;
 void main() {
-   gl_FragColor = texture2D(tex, pass_TexCoord.st) * 0.5;
+   gl_FragColor = texture2D(tex, pass_TexCoord.st)*life;
    gl_FragColor.st *= tcOffset;
    gl_FragColor.w = 0.5;
 }

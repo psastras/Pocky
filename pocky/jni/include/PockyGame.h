@@ -11,7 +11,7 @@
 #include <pineapple/jni/extern/Float3.h>
 #include <pineapple/jni/extern/GL.h>
 
-#define MAX_ACTIVE 10
+#define MAX_ACTIVE 10 //if you change this make sure to change the shader as well
 
 namespace Pocky {
 

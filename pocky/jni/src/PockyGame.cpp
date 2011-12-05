@@ -51,8 +51,9 @@ void PockyGame::init() {
 	glViewport(0, 0, GL::instance()->width(), GL::instance()->height());
 
 	CELL(5, 3).life = 1.f;
-	CELL(1, 2).life = 1.f;
-	CELL(3, 0).life = 1.f;
+	CELL(1, 2).life = 0.4f;
+	CELL(3, 0).life = 0.2f;
+	CELL(3, 1).life = 0.7f;
 	GL::instance()->perspective(60.f, 0.01f, 1000.f, GL::instance()->width(), GL::instance()->height());
 		VSML::instance()->translate(2*(1.05)+0.5f, 0*0.95, 0.f);
 		Float3 wspos(2*(1.05)+0.5f, 0*0.95, -5.f);
@@ -78,7 +79,7 @@ void PockyGame::draw(int time) {
 		{
 			lightPositions_[nLights].x = cell_[i].sspos.x;
 			lightPositions_[nLights].y = cell_[i].sspos.y;
-			lightPositions_[nLights].z = 20.f;
+			lightPositions_[nLights].z = 20.f*(cell_[i].life+0.5f);
 			nLights++;
 			GL::instance()->perspective(60.f, 0.01f, 1000.f, GL::instance()->width(), GL::instance()->height());
 			VSML::instance()->translate(cell_[i].wspos.x, cell_[i].wspos.y, 0.f);
@@ -87,6 +88,7 @@ void PockyGame::draw(int time) {
 			glActiveTexture(GL_TEXTURE0);
 			framebuffer0_->bindsurface(0);
 			hexShader_->setUniformValue("tex", 0);
+			hexShader_->setUniformValue("life", cell_[i].life);
 			hexShader_->setUniformValue("tcOffset", tc);
 			square_->draw(hexShader_);
 			hexShader_->release();
