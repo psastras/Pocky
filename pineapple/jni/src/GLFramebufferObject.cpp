@@ -20,6 +20,12 @@ GLFramebufferObject::~GLFramebufferObject() {
     if(color_) delete[] color_;
 }
 
+void GLFramebufferObject::releaseFramebuffer()
+{
+	glDeleteFramebuffers(1, &id_);
+	id_ = 0;
+}
+
 void GLFramebufferObject::bindsurface(int idx) {
 	glBindTexture(GL_TEXTURE_2D, color_[idx]);
 }

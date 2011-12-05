@@ -3,8 +3,8 @@ uniform sampler2D tex;
 uniform vec2 texScale;
 uniform mat4 modelviewMatrix;
 uniform mat4 projMatrix;
-uniform vec3 lightpos;
-uniform float lum;
+uniform vec3 lightpositions[10];
+uniform int nLights;
 #ifdef _VERTEX_
 attribute vec3 in_Position;
 attribute vec3 in_TexCoord;
@@ -13,8 +13,13 @@ varying float pass_dL;
 void main(void) {
 	pass_TexCoord  = in_TexCoord;
 	vec4 vertpos = modelviewMatrix * vec4(in_Position,1.0);
-   	pass_dL = dot(normalize(lightpos - vertpos.xyz), vec3(0.0, 0.0, 1.0)) * lum;
-	pass_dL *= (pass_dL + 0.5);
+	pass_dL = 0.0;
+	for(int i=0; i<nLights;i++) 
+	{
+		pass_dL += (dot(normalize(lightpositions[i] - vertpos.xyz), vec3(0.0, 0.0, 1.0)) * 2.5);
+	}
+   	pass_dL = min(pass_dL, 1.0);
+	pass_dL *= (pass_dL);
     gl_Position = projMatrix * modelviewMatrix * vec4(in_Position,1.0);
 }
 #endif

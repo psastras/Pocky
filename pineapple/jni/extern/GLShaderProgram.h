@@ -60,6 +60,10 @@ public:
     	glUniform3fv(getUniformLocation(name), 1, &val.x);
     }
 
+    inline void setUniformValue(const char *name, Float3 *vals, int n) {
+        glUniform3fv(getUniformLocation(name), n,&vals[0].x);
+    }
+
     inline void setUniformValue(const char *name, Float4 val) {
         	glUniform4fv(getUniformLocation(name), 1, &val.x);
     }

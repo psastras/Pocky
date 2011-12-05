@@ -49,6 +49,7 @@ public:
 
 	void createShader(const std::string &name, const char *filename);
 	GLShaderProgram *shader(const std::string &name) { return shaders_[name]; }
+	void releaseShader(const std::string &name);
 
 	void loadFont(FONTS font);
 	void releaseFont(FONTS font);
@@ -65,10 +66,12 @@ public:
 	void ortho(int w, int h) ;
 	void perspective(float fov, float near, float far);
 	void perspective(float fov, float near, float far, int w, int h);
+	float2 unproject(const Float3& pos);
 
 	GLCamera *camera() { return &camera_; }
 	inline int width() { return width_; }
 	inline int height() { return height_; }
+
 protected:
 		GL();
 		GL(int w, int h);

@@ -38,6 +38,8 @@ namespace Pineapple {
 	void GL::initializeGL(int w, int h) {
 		width_ = w;
 		height_ = h;
+		GL::instance()->createPrimitive("quad", new GLQuad(Float3(20, 20, 10), Float3(w/2,h/2,1.f), Float3(w, h, 1.f)));
+		GL::instance()->createShader("text", "assets/shaders/text.glsl");
 //		glEnable(GL_CULL_FACE);
 //		glCullFace(GL_BACK);
 //		glFrontFace(GL_CW);
@@ -53,6 +55,17 @@ namespace Pineapple {
 		parms.height = 256;
 		if(!fontTextures_[font])
 			fontTextures_[font] = new GLTexture(parms, GetFontData(font));
+	}
+
+	float2 GL::unproject(const Float3& pos)
+	{
+		float *p = VSML::instance()->get(VSML::PROJECTION);
+		 GLfloat _p[] = {p[0]*pos.x +p[4]*pos.y +p[8]*pos.z + p[12],
+		p[1]*pos.x +p[5]*pos.y +p[9]*pos.z + p[13],
+		p[2]*pos.x +p[6]*pos.y +p[10]*pos.z+ p[14],
+		p[3]*pos.x +p[7]*pos.y +p[11]*pos.z+ p[15]};
+
+		return float2((_p[0]/_p[3]+1.f)*0.5f*width_, (1.f - _p[1]/_p[3])*height_*0.5f);
 	}
 
 	void GL::renderText(const std::string &text, FONTS font)
@@ -99,7 +112,7 @@ namespace Pineapple {
 			GL::instance()->shader("text")->vsml(VSML::instance());
 			GL::instance()->shader("text")->setUniformValue("texScale", scale0);
 			GL::instance()->shader("text")->setUniformValue("texOffset", offset0);
-			GL::instance()->primitive("quad")->draw("texmap");
+			GL::instance()->primitive("quad")->draw("text");
 			VSML::instance()->popMatrix(VSML::MODELVIEW);
 
 			posx += dx * width_ *scale + 1;
@@ -122,6 +135,11 @@ namespace Pineapple {
 		shaders_[name]->loadShaderFromData(GL_VERTEX_SHADER, data, size);
 		shaders_[name]->link();
 		delete[] data;
+	}
+
+	void GL::releaseShader(const std::string &name) {
+		delete shaders_[name];
+		shaders_.erase(name);
 	}
 
 	void GL::ortho() {

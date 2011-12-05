@@ -141,16 +141,16 @@ bool rebufferOgg(AudioObject &ao, unsigned char *data, size_t &size) {
 	val -= freebuffers;
 	// if there is less than two queued buffers
 	if (val != 0 && val < 2 && state != AL_STOPPED) {
-		LOGI("only have %d queued buffers, so adding more", val);
+	//	LOGI("only have %d queued buffers, so adding more", val);
 		//OggVorbis_File oggFile;
 		//ov_open(0, &oggFile, (char *) data, size);
 		size_t buffersize;
 		while (val < 2) {
-			LOGI("get new buffer");
+		//	LOGI("get new buffer");
 			char *newbuffer = bufferOgg(ao, ao.file_, buffersize);
 			if (newbuffer == 0) {
 				// we've reached the end of the file
-				LOGI("reached end of file");
+		//		LOGI("reached end of file");
 				ao.finished_ = true;
 				return true;
 			}
@@ -169,11 +169,11 @@ bool rebufferOgg(AudioObject &ao, unsigned char *data, size_t &size) {
 						ao.bitspersample, ao.samplespersecond);
 				LOGI("new buffer %d created", buffer);
 			} else {
-				LOGI("reusing buffer %d", buffer);
+			//	LOGI("reusing buffer %d", buffer);
 				// repurpose the existing buffer
 				repurposeBuffer(buffer, newbuffer, buffersize, ao.nChannels,
 						ao.bitspersample, ao.samplespersecond);
-				LOGI("buffer %d repurposed", buffer);
+			//	LOGI("buffer %d repurposed", buffer);
 				delete[] ao.buffers_[buffer];
 			}
 			ao.buffers_[buffer] = newbuffer;
@@ -181,7 +181,8 @@ bool rebufferOgg(AudioObject &ao, unsigned char *data, size_t &size) {
 			alSourceQueueBuffers(ao.source_id_, 1, &buffer);
 			if (alGetError() != AL_NO_ERROR) {
 				LOGI("error requeuing %d", alGetError());
-			}LOGI("rebuffered with buffer %d", buffer);
+			}
+			//LOGI("rebuffered with buffer %d", buffer);
 			val++;
 		}
 		//ov_clear(&oggFile);
@@ -298,8 +299,8 @@ void Audio::update() {
 //			LOGI("source state is %d", ao->source_id_);
 		if (sourceState == AL_STOPPED && !ao->buffers_.empty()
 				&& ao->source_id_ > 0) {
-			std::string mes = "deleting sound " + iter->first;
-			LOGI(mes.c_str());
+			//std::string mes = "deleting sound " + iter->first;
+			//LOGI(mes.c_str());
 			// delete stuff
 			alDeleteSources(1, &ao->source_id_);
 //			alDeleteBuffers(1, &ao->buffer_);

@@ -60,6 +60,14 @@ public:
     void tesselate(Float3 tess, Float3 translate, Float3 scale);
 };
 
+class GLDisc : public GLPrimitive {
+public:
+	GLDisc(Float3 tess, Float3 translate, Float3 scale);
+    ~GLDisc();
+
+    void tesselate(Float3 tess, Float3 translate, Float3 scale);
+};
+
 class GLPlane : public GLPrimitive {
     public:
 	GLPlane(Float3 tess, Float3 translate, Float3 scale);

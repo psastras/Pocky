@@ -210,6 +210,51 @@ void GLCircle::tesselate(Float3 tess, Float3 translate, Float3 scale) {
     tOffset_ = 12;
 }
 
+GLDisc::GLDisc(Float3 tess, Float3 translate, Float3 scale) : GLPrimitive(tess, translate, scale) {
+     this->tesselate(tess, translate, scale);
+}
+
+GLDisc::~GLDisc() {
+
+}
+
+void GLDisc::tesselate(Float3 tess, Float3 translate, Float3 scale) {
+
+    if(vertexId_) glDeleteBuffers(1, &vertexId_);
+    if(indexId_) glDeleteBuffers(1, &indexId_);
+
+
+    type_ = GL_TRIANGLE_FAN;
+    idxCount_ = tess.x + 2;
+    GLVertex *pVertex = new GLVertex[(int)(tess.x)+2];
+    float r = scale.x / 2.f;
+    pVertex[0].p = translate;
+	for(int x=0; x<=tess.x; x++) {
+		float xx = r * cosf(x / tess.x * 2 * 3.14159f + 3.14159f*0.5f);
+		float yy = r * sinf(x / tess.x * 2 * 3.14159f + 3.14159f*0.5f);
+		pVertex[x+1].p = Float3(xx + translate.x,yy+translate.y, translate.z);
+		//pVertex[i].t = Float3(x, z, 0) * tdelta;
+	}
+    glGenBuffers(1, &vertexId_);
+    glBindBuffer(GL_ARRAY_BUFFER, vertexId_);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLVertex)*(tess.x+2), &pVertex[0].p.x, GL_STATIC_DRAW);
+
+    unsigned short *pIndices = new unsigned short[idxCount_];
+
+	for(int x=0; x<idxCount_; x++) {
+	   pIndices[x] = x;
+	}
+
+    glGenBuffers(1, &indexId_);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexId_);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned short)*idxCount_, &pIndices[0], GL_STATIC_DRAW);
+
+    delete[] pVertex, delete[] pIndices;
+
+    vOffset_ = 0;
+    tOffset_ = 12;
+}
+
 //
 //GLHexagon::GLHexagon(Float3 tess, Float3 translate, Float3 scale) : GLPrimitive(tess, translate, scale) {
 //     this->tesselate(tess, translate, scale);

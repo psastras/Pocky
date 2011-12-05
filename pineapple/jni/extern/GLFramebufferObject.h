@@ -23,6 +23,7 @@ public:
     inline int width() { return params_.width; }
     inline int height() { return params_.height; }
 
+    void releaseFramebuffer();
     void bindsurface(int idx);
     void unbindsurface() { glBindTexture(params_.type, 0); }
     void release();
