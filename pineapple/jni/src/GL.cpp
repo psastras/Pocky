@@ -38,7 +38,7 @@ namespace Pineapple {
 	void GL::initializeGL(int w, int h) {
 		width_ = w;
 		height_ = h;
-		GL::instance()->createPrimitive("quad", new GLQuad(Float3(20, 20, 10), Float3(w/2,h/2,1.f), Float3(w, h, 1.f)));
+		GL::instance()->createPrimitive("quad", new GLQuad(Float3(10, 6, 10), Float3(w/2,h/2,1.f), Float3(w, h, 1.f)));
 		GL::instance()->createShader("text", "assets/shaders/text.glsl");
 //		glEnable(GL_CULL_FACE);
 //		glCullFace(GL_BACK);
@@ -66,6 +66,33 @@ namespace Pineapple {
 		p[3]*pos.x +p[7]*pos.y +p[11]*pos.z+ p[15]};
 
 		return float2((_p[0]/_p[3]+1.f)*0.5f*width_, (1.f - _p[1]/_p[3])*height_*0.5f);
+	}
+
+	Float3 GL::project(const float2 &sspos, const float z)
+	{
+		float *p = VSML::instance()->get(VSML::PROJECTION);
+
+		const int w = width_;
+		const int h = height_;
+		const float u = sspos.x;
+		const float v = sspos.y;
+
+		// begin lulz - psastras
+		// see http://www.wolframalpha.com/input/?i=Solve{u%3D%28%28P0*x%2BP4*y-z*P8%2BP12%29%2F%28P3*x%2BP7*y-z*P11%2BP15%29%2B1%29*0.5*w%2C+v%3D%281.0-%28P1*x%2BP5*y-z*P9%2BP13%29%2F%28P3*x%2BP7*y-z*P11%2BP15%29%29*0.5*h}+for+x+and+y
+		float x=-((h*p[5]-h*p[7]+2*p[7]*v)*(-2*p[11]*u*z+p[11]*w*z-p[12]*
+				w+2*p[15]*u-p[15]*w+p[8]*w*z)-(-p[4]*w+2*p[7]*u-p[7]*w)*
+				(h*p[11]*z+h*p[13]-h*p[15]-h*p[9]*z-2*p[11]*v*z+2*p[15]*v))/
+				((h*p[5]-h*p[7]+2*p[7]*v)*(-p[0]*w+2*p[3]*u-p[3]*w)-
+						(h*p[1]-h*p[3]+2*p[3]*v)*(-p[4]*w+2*p[7]*u-p[7]*w));
+		float y=-(-h*p[0]*p[11]*w*z-h*p[0]*p[13]*w+h*p[0]*p[15]*w+h*p[0]*p[9]
+		        *w*z+2*h*p[1]*p[11]*u*z-h*p[1]*p[11]*w*z+h*p[1]*p[12]*w-2*h*
+		        p[1]*p[15]*u+h*p[1]*p[15]*w-h*p[1]*p[8]*w*z-h*p[12]*p[3]*w+2*
+		        h*p[13]*p[3]*u-h*p[13]*p[3]*w+h*p[3]*p[8]*w*z-2*h*p[3]*p[9]*u*
+		        z+h*p[3]*p[9]*w*z+2*p[0]*p[11]*v*w*z-2*p[0]*p[15]*v*w+2*p[12]*
+		        p[3]*v*w-2*p[3]*p[8]*v*w*z)/(-h*p[0]*p[5]*w+h*p[0]*p[7]*w+h*
+		        		p[1]*p[4]*w-2*h*p[1]*p[7]*u+h*p[1]*p[7]*w-h*p[3]*p[4]*w+
+		        		2*h*p[3]*p[5]*u-h*p[3]*p[5]*w-2*p[0]*p[7]*v*w+2*p[3]*p[4]*v*w);
+		return Float3(x, y, z);
 	}
 
 	void GL::renderText(const std::string &text, FONTS font)

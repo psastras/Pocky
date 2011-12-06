@@ -67,7 +67,7 @@ public:
 	void perspective(float fov, float near, float far);
 	void perspective(float fov, float near, float far, int w, int h);
 	float2 unproject(const Float3& pos);
-
+	Float3 project(const float2 &sspos, const float depth);
 	GLCamera *camera() { return &camera_; }
 	inline int width() { return width_; }
 	inline int height() { return height_; }

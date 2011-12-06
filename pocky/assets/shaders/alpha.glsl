@@ -16,6 +16,6 @@ void main(void) {
 #ifdef _FRAGMENT_
 
 void main() {
-    gl_FragColor = vec4(1.0);
+    gl_FragColor = texture2D(tex, texScale*pass_TexCoord.st);
 }
 #endif

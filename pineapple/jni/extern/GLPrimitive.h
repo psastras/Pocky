@@ -38,10 +38,13 @@ class GLPrimitive {
 
 class GLQuad : public GLPrimitive {
     public:
-	GLQuad(Float3 tess, Float3 translate, Float3 scale);
+	GLQuad(Float3 tess, Float3 translate, Float3 scale, bool flip = false);
 	~GLQuad();
 
 	void tesselate(Float3 tess, Float3 translate, Float3 scale);
+
+    protected:
+	bool flip_;
 };
 
 class GLRect : public GLPrimitive {

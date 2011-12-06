@@ -60,7 +60,8 @@ void GLPrimitive::draw(GLShaderProgram *program) {
 }
 
 
-GLQuad::GLQuad(Float3 tess, Float3 translate, Float3 scale) : GLPrimitive(tess, translate, scale) {
+GLQuad::GLQuad(Float3 tess, Float3 translate, Float3 scale, bool flip) : GLPrimitive(tess, translate, scale) {
+	 flip_ = flip;
      this->tesselate(tess, translate, scale);
 }
 
@@ -85,7 +86,10 @@ void GLQuad::tesselate(Float3 tess, Float3 translate, Float3 scale) {
     for(int y=0, i=0; y<=tess.y; y++) {
 	for(int x=0; x<=tess.x; x++, i++) {
 	    pVertex[i].p = Float3(-0.5, -0.5, 0.0) * scale  + translate + delta * Float3(x, y, 0);
-	    pVertex[i].t = Float3(x, tess.y - y, 0) * tdelta;
+	    if(flip_)
+	    	pVertex[i].t = Float3(x, 1.f - (tess.y - y), 0) * tdelta;
+	    else
+	    	pVertex[i].t = Float3(x, tess.y - y, 0) * tdelta;
 	}
     }
     glGenBuffers(1, &vertexId_);
@@ -254,6 +258,62 @@ void GLDisc::tesselate(Float3 tess, Float3 translate, Float3 scale) {
     vOffset_ = 0;
     tOffset_ = 12;
 }
+//
+//GLCylinder::GLCylinder(Float3 tess, Float3 translate, Float3 scale) : GLPrimitive(tess, translate, scale) {
+//     this->tesselate(tess, translate, scale);
+//}
+//
+//
+//GLCylinder::~GLCylinder() {
+//}
+//
+//
+//void GLCylinder::tesselate(Float3 tess, Float3 translate, Float3 scale) {
+//
+//    if(vertexId_) glDeleteBuffers(1, &vertexId_);
+//    if(indexId_) glDeleteBuffers(1, &indexId_);
+//
+//
+//    type_ = GL_TRIANGLES;
+//    idxCount_ = 6 * tess.x * tess.y;
+//    Float3 delta = scale / tess;
+//    Float3 tdelta = 1.0 / tess;
+//    delta.z = 0;
+//
+//    GLVertex *pVertex = new GLVertex[(int)((tess.x + 1) * (tess.y + 1))];
+//    for(int y=0, i=0; y<=tess.y; y++) {
+//	for(int x=0; x<=tess.x; x++, i++) {
+//	    pVertex[i].p = Float3(-0.5, -0.5, 0.0) * scale  + translate + delta * Float3(x, y, 0);
+//	    pVertex[i].t = Float3(x, tess.y - y, 0) * tdelta;
+//	}
+//    }
+//    glGenBuffers(1, &vertexId_);
+//    glBindBuffer(GL_ARRAY_BUFFER, vertexId_);
+//    glBufferData(GL_ARRAY_BUFFER, sizeof(GLVertex)*((tess.x + 1) * (tess.y + 1)), &pVertex[0].p.x, GL_STATIC_DRAW);
+//
+//    unsigned short *pIndices = new unsigned short[idxCount_];
+//    for(int y=0, i=0; y<tess.y; y++) {
+//	for(int x=0; x<tess.x; x++, i+=6) {
+//	   pIndices[i] = y*(tess.x+1)+x;
+//	   pIndices[i+1] = y*(tess.x+1)+x+1;
+//	   pIndices[i+2] = (y+1)*(tess.x+1)+x+1;
+//
+//	   pIndices[i+3] = (y+1)*(tess.x+1)+x+1;
+//	   pIndices[i+4] = (y+1)*(tess.x+1)+x;
+//	   pIndices[i+5] = (y)*(tess.x+1)+x;
+//
+//	}
+//    }
+//
+//    glGenBuffers(1, &indexId_);
+//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexId_);
+//    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned short)*idxCount_, &pIndices[0], GL_STATIC_DRAW);
+//
+//    delete[] pVertex, delete[] pIndices;
+//
+//    vOffset_ = 0;
+//    tOffset_ = 12;
+//}
 
 //
 //GLHexagon::GLHexagon(Float3 tess, Float3 translate, Float3 scale) : GLPrimitive(tess, translate, scale) {

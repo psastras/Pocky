@@ -48,9 +48,9 @@ protected:
 	PockyGridCell *cell_;
 	int ncellsx_, ncellsy_;
 
-	GLPrimitive *quad_, *square_;
+	GLPrimitive *quad_, *square_, *topbar_;
 	GLFramebufferObject *framebuffer0_, *framebuffer1_;
-	GLShaderProgram *texLight_, *hexShader_;
+	GLShaderProgram *texLight_, *hexShader_, *bg_, *overlay_;
 	Float3 lightPositions_[MAX_ACTIVE];
 	PockyGameParams params_;
 

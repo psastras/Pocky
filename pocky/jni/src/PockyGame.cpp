@@ -37,7 +37,7 @@ PockyGame::~PockyGame() {
 
 float touchx = 400.f;
 float touchy = 240.f;
-
+GLPrimitive *circle;
 GLFramebufferObject *fbo2;
 void PockyGame::init() {
 	this->applyGLSettings();
@@ -46,19 +46,35 @@ void PockyGame::init() {
 
 	int w = GL::instance()->width();
 	int h = GL::instance()->height();
-	square_ = new GLQuad(Float3(10, 10, 10), Float3(0.f,0.f, -5.f), Float3(1.f, 1.f, 1.f));
+	square_ = new GLQuad(Float3(1, 1, 1), Float3(0.f,0.f, -5.f), Float3(1.f, 1.f, 1.f));
 	quad_ = GL::instance()->primitive("quad");
+	topbar_ = new GLQuad(Float3(1, 1, 1), Float3(w/2,20, 0.f), Float3(w, 40, 1.f));
+	//botbar_ = new GLQuad(Float3(1, 1, 1), Float3(w/2,h-10, 0.f), Float3(w, 20, 1.f), true);
+
 	glViewport(0, 0, GL::instance()->width(), GL::instance()->height());
 
 	CELL(5, 3).life = 1.f;
 	CELL(1, 2).life = 0.4f;
 	CELL(3, 0).life = 0.2f;
 	CELL(3, 1).life = 0.7f;
+	CELL(3, 2).life = 1.4f;
+	CELL(4, 0).life = 1.2f;
+	CELL(0, 1).life = 1.7f;
 	GL::instance()->perspective(60.f, 0.01f, 1000.f, GL::instance()->width(), GL::instance()->height());
-		VSML::instance()->translate(2*(1.05)+0.5f, 0*0.95, 0.f);
-		Float3 wspos(2*(1.05)+0.5f, 0*0.95, -5.f);
-		const float2& sspos = GL::instance()->unproject(wspos);
-	LOGI("[%f, %f]", sspos.x, sspos.y);
+
+	//glClearColor(0.1f, 0.1f, 0.1f, 1.f);
+
+	circle =  new GLCircle(Float3(6.f, 1.f, 1.f), Float3(0.f, 0.f, -5.f), Float3(1.f, 1.f, 1.f));
+	Float3 p1 = GL::instance()->project(float2(0.f, 0.f), -5.f);
+	Float3 p2 = GL::instance()->project(float2(800.f, 480.f), -5.f);
+
+	LOGI("[%f, %f, %f]" , p1.x, p1.y, p1.z);
+	LOGI("[%f, %f, %f]" , p2.x, p2.y, p2.z);
+
+
+	Audio::instance()->addSound("test", "assets/audio/title.ogg", true, AudioType::OGG);
+		//Audio::instance()->addSound("test", "assets/audio/technika2.wav", true, AudioType::WAV);
+	Audio::instance()->playSound("test");
 }
 
 void PockyGame::draw(int time) {
@@ -69,10 +85,25 @@ void PockyGame::draw(int time) {
 	int w = GL::instance()->width();
 	int h = GL::instance()->height();
 
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_COLOR, GL_DST_ALPHA);
-	int nLights = 0;
+	//draw stuff behind the overlay
+	GL::instance()->perspective(60.f, 0.01f, 1000.f, GL::instance()->width(), GL::instance()->height());
+	VSML::instance()->scale(9.6f, 5.97f, 1.f);
+	//VSML::instance()->rotate(time / 100.f, 0.f, 1.f, 0.f);
+//	bg_->bind(VSML::instance());
+//	glActiveTexture(GL_TEXTURE0);
+//	framebuffer1_->bindsurface(0);
+//	bg_->setUniformValue("tex", 0);
+//	float2 scale = {w / 1024.f, h / 1024.f};
+//	bg_->setUniformValue("translate", 0.001f);
+//	bg_->setUniformValue("texScale", scale);
+//	square_->draw(bg_);
+//	bg_->release();
 
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
+	int nLights = 0;
+	//float color = sinf(time / 1000.f) * 2.f;
 	for(int i=0; i<ncellsx_*ncellsy_; i++)
 	{
 		if(cell_[i].life > 0.f && nLights < MAX_ACTIVE)
@@ -82,18 +113,20 @@ void PockyGame::draw(int time) {
 			lightPositions_[nLights].z = 20.f*(cell_[i].life+0.5f);
 			nLights++;
 			GL::instance()->perspective(60.f, 0.01f, 1000.f, GL::instance()->width(), GL::instance()->height());
+			VSML::instance()->scale(MAX(cell_[i].life + 0.5f, 1.f), MAX(cell_[i].life+0.5f, 1.f), 1.f);
 			VSML::instance()->translate(cell_[i].wspos.x, cell_[i].wspos.y, 0.f);
 			float2 tc(cell_[i].sspos.x / w, 1.f - cell_[i].sspos.y / h);
 			hexShader_->bind(VSML::instance());
 			glActiveTexture(GL_TEXTURE0);
 			framebuffer0_->bindsurface(0);
 			hexShader_->setUniformValue("tex", 0);
-			hexShader_->setUniformValue("life", cell_[i].life);
+			hexShader_->setUniformValue("life", -((cell_[i].life-0.5f)*(cell_[i].life-0.5f))+0.7f);
 			hexShader_->setUniformValue("tcOffset", tc);
+			//hexShader_->setUniformValue("color", color);
 			square_->draw(hexShader_);
 			hexShader_->release();
 
-			cell_[i].life -= dt / 1000.f;
+			cell_[i].life -= dt / 3000.f;
 			if(cell_[i].life <= 0.f) {
 						while(true) {
 							int idx = rand() % (ncellsx_ * ncellsy_);
@@ -109,6 +142,7 @@ void PockyGame::draw(int time) {
 
 
 	}
+	// draw background
 	GL::instance()->ortho();
 	float2 scale1 = {w / 1024.f, h / 1024.f};
 	glActiveTexture(GL_TEXTURE0);
@@ -120,9 +154,28 @@ void PockyGame::draw(int time) {
 	texLight_->setUniformValue("texScale", scale1);
 	quad_->draw(texLight_);
 	texLight_->release();
+
+
+	//overlay
+	glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_ALPHA);
+	//VSML::instance()->scale(1.f, 0.08f, 1.f);
+	overlay_->bind(VSML::instance());
+	overlay_->setUniformValue("height", 1.f / 40.f);
+	topbar_->draw(overlay_);
+//	overlay_->setUniformValue("height", 1.f /20.f);
+//	botbar_->draw(overlay_);
+	overlay_->release();
+
+//	VSML::instance()->translate(1.f, 600.f, 1.f);
+//	overlay_->bind(VSML::instance());
+//	quad_->draw(overlay_);
+//	overlay_->release();
+	//Audio::instance()->getProgress()
 	glDisable(GL_BLEND);
+	//text
+	//double progress = Audio::instance()->getProgress("test");
 	std::stringstream ss;
-	ss << "FPS > " << (int)fps_ << "\nRES > " << GL::instance()->width() << " X " << GL::instance()->height();
+	ss << "FPS > " << (int)fps_;// << " <> " << progress;// << "\nRES > " << GL::instance()->width() << " X " << GL::instance()->height();
 	GL::instance()->renderText(ss.str(), FONTS::FontLekton);
 }
 
@@ -151,8 +204,7 @@ void PockyGame::DrawGrid(int radx, int rady)
 				VSML::instance()->translate(x*(1.05)+0.5f, y*0.95, 0.f);
 			}
 			cell_[j].sspos = GL::instance()->unproject(cell_[j].wspos);
-			if(x==2 && y == 0)
-				LOGI("%f, %f, %d", cell_[j].sspos.x, cell_[j].sspos.y, j);
+
 			GL::instance()->shader("texmap")->bind(VSML::instance());
 			glActiveTexture(GL_TEXTURE0);
 			fbo2->bindsurface(0);
@@ -196,6 +248,16 @@ void PockyGame::generateAssets() {
 		delete hexagon;
 	}
 	GL::instance()->shader("default")->release();
+
+#if 0
+	GLPrimitive *hexagon = new GLDisc(Float3(6, 10, 10), Float3(parms.width / 2.f, parms.height / 2.f, 0.f),
+						Float3(parms.width - 2, parms.height - 2, 1.f));
+	GL::instance()->shader("alpha")->bind(VSML::instance());
+	hexagon->draw("alpha");
+	GL::instance()->shader("alpha")->release();
+	delete hexagon;
+#endif
+
 	framebuffer0_->release();
 
 	GLQuad *fx = new GLQuad(Float3(10, 10, 10), Float3(parms.width/2, parms.height/2,1.f), Float3(parms.width,  parms.height, 1.f));
@@ -245,6 +307,12 @@ void PockyGame::loadShaders() {
 	hexShader_ = GL::instance()->shader("hex");
 	GL::instance()->createShader("texlit", "assets/shaders/texmaplit.glsl");
 	texLight_ = GL::instance()->shader("texlit");
+	GL::instance()->createShader("bg", "assets/shaders/background.glsl");
+	bg_ = GL::instance()->shader("bg");
+//	GL::instance()->createShader("alpha", "assets/shaders/alpha.glsl");
+//	bg_ = GL::instance()->shader("alpha");
+	GL::instance()->createShader("overlay", "assets/shaders/overlay.glsl");
+	overlay_ = GL::instance()->shader("overlay");
 }
 
 void PockyGame::applyGLSettings() {

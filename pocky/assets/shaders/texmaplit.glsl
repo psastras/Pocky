@@ -16,11 +16,11 @@ void main(void) {
 	pass_dL = 0.0;
 	for(int i=0; i<nLights;i++) 
 	{
-		pass_dL += (dot(normalize(lightpositions[i] - vertpos.xyz), vec3(0.0, 0.0, 1.0)) * 2.5);
+		pass_dL += (dot(normalize(lightpositions[i] - vertpos.xyz), vec3(0.0, 0.0, 1.0)) * 2.5) * 0.5;
 	}
    	pass_dL = min(pass_dL, 1.0);
 	pass_dL *= (pass_dL);
-    gl_Position = projMatrix * modelviewMatrix * vec4(in_Position,1.0);
+    gl_Position = projMatrix * vertpos;
 }
 #endif
 
