@@ -53,13 +53,13 @@ void PockyGame::init() {
 
 	glViewport(0, 0, GL::instance()->width(), GL::instance()->height());
 
-	CELL(5, 3).life = 1.f;
-	CELL(1, 2).life = 0.4f;
-	CELL(3, 0).life = 0.2f;
-	CELL(3, 1).life = 0.7f;
-	CELL(3, 2).life = 1.4f;
-	CELL(4, 0).life = 1.2f;
-	CELL(0, 1).life = 1.7f;
+//	CELL(5, 3).life = 1.f;
+//	CELL(1, 2).life = 0.4f;
+//	CELL(3, 0).life = 0.2f;
+//	CELL(3, 1).life = 0.7f;
+//	CELL(3, 2).life = 1.4f;
+//	CELL(4, 0).life = 1.2f;
+//	CELL(0, 1).life = 1.7f;
 	GL::instance()->perspective(60.f, 0.01f, 1000.f, GL::instance()->width(),
 			GL::instance()->height());
 
@@ -70,7 +70,7 @@ void PockyGame::init() {
 	LOGI("[%f, %f, %f]", p1.x, p1.y, p1.z);
 	LOGI("[%f, %f, %f]", p2.x, p2.y, p2.z);
 
-	Audio::instance()->addSound("test", "assets/audio/title.ogg", true,
+	Audio::instance()->addSound("test", "assets/audio/short.ogg", true,
 			AudioType::OGG);
 	//Audio::instance()->addSound("test", "assets/audio/technika2.wav", true, AudioType::WAV);
 	Audio::instance()->playSound("test");
@@ -124,24 +124,12 @@ void PockyGame::draw(int time) {
 			hexShader_->setUniformValue("life",
 					-((cell_[i].life - 0.5f) * (cell_[i].life - 0.5f)) + 0.7f);
 			hexShader_->setUniformValue("tcOffset", tc);
-			//hexShader_->setUniformValue("color", color);
 			square_->draw(hexShader_);
 			hexShader_->release();
-
-			cell_[i].life -= dt / 3000.f;
-			if (cell_[i].life <= 0.f) {
-				while (true) {
-					int idx = rand() % (ncellsx_ * ncellsy_);
-					if (cell_[idx].life <= 0) {
-						cell_[idx].life = 1.f;
-						break;
-					}
-				}
-			}
 		}
 	}
-	Engine::instance()->unlock();
 
+	Engine::instance()->unlock();
 	// draw background
 	GL::instance()->ortho();
 	float2 scale1 = { w / 1024.f, h / 1024.f };
