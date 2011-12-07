@@ -75,7 +75,7 @@ void PockyGame::init() {
 	LOGI("[%f, %f, %f]", p1.x, p1.y, p1.z);
 	LOGI("[%f, %f, %f]", p2.x, p2.y, p2.z);
 
-	Audio::instance()->addSound("test", "assets/audio/title.ogg", true,
+	Audio::instance()->addSound("test", "assets/audio/short.ogg", true,
 			AudioType::OGG);
 	//Audio::instance()->addSound("test", "assets/audio/technika2.wav", true, AudioType::WAV);
 	Audio::instance()->playSound("test");
@@ -108,6 +108,7 @@ void PockyGame::draw(int time) {
 	glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
 	int nLights = 0;
 	//float color = sinf(time / 1000.f) * 2.f;
+	LOGI("draw thread lock");
 	Engine::instance()->lock();
 	for (int i = 0; i < ncellsx_ * ncellsy_; i++) {
 		if (cell_[i].life > 0.f && nLights < MAX_ACTIVE) {
@@ -144,9 +145,9 @@ void PockyGame::draw(int time) {
 //				}
 //			}
 		}
-		Engine::instance()->unlock();
-
 	}
+		Engine::instance()->unlock();
+		LOGI("draw thread unlock");
 	// draw background
 	GL::instance()->ortho();
 	float2 scale1 = { w / 1024.f, h / 1024.f };

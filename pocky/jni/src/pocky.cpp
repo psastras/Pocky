@@ -6,6 +6,7 @@
  */
 #include "../include/pocky_libs_Pocky.h"
 #include "../include/PockyGame.h"
+#include "../include/PockyState.h"
 #include <pineapple/jni/extern/Engine.h>
 #include <pineapple/jni/extern/Compile.h>
 #include <pineapple/jni/extern/Common.h>
@@ -25,6 +26,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void * reserved)
 }
 
 PockyGame *g_Game;
+PockyState *g_State;
 
 JNIEXPORT void JNICALL Java_pocky_libs_Pocky_startup
   (JNIEnv *, jclass) {
@@ -41,6 +43,8 @@ JNIEXPORT void JNICALL Java_pocky_libs_Pocky_startup
 	params.gridx = 5;
 	params.gridy = 3;
 	g_Game  = new PockyGame(params);
+	g_State = new PockyState(g_Game);
+	Engine::instance()->setUpdatable(g_State);
 	//Engine::instance()->readPNGFromAPK("assets/textures/cat.png", &w, &h);
 	//LOGI("%d, %d", w, h);
 }
