@@ -38,7 +38,9 @@ void* run(void*) {
 //		LOGI("after audio update");
 	//	pthread_mutex_unlock(&mutex);
 //		LOGI("after mutex");
-
+		if(Pineapple::Engine::instance()->updatable()) {
+			Pineapple::Engine::instance()->updatable()->update();
+		}
 //
 //		} else {
 //			LOGI("mutex lock failed");
@@ -55,7 +57,7 @@ Engine::Engine() {
 	sleepTime.tv_sec = 0;
 	sleepTime.tv_nsec = 33333333;
 	s_APKArchive = 0;
-
+	updatable_ = 0;
 	Pineapple::Audio::init();
 }
 

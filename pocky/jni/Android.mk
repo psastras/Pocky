@@ -4,6 +4,6 @@ LOCAL_PATH:= $(call my-dir)
  include $(CLEAR_VARS)
 LOCAL_MODULE    := pocky
 LOCAL_CFLAGS    := -Werror -I../
-LOCAL_SRC_FILES :=  src/PockyGame.cpp  src/PockyGridData.cpp  src/pocky.cpp
+LOCAL_SRC_FILES :=  src/PockyGame.cpp  src/PockyGridData.cpp  src/PockyState.cpp  src/pocky.cpp
 LOCAL_LDLIBS    := -llog -lGLESv2  -L../pineapple/libs/armeabi -lpineapple
 include $(BUILD_SHARED_LIBRARY)

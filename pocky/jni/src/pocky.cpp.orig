@@ -1,0 +1,216 @@
+/*
+ * pocky.cpp
+ *
+ *  Created on: Nov 28, 2011
+ *      Author: psastras
+ */
+#include "../include/pocky_libs_Pocky.h"
+#include <pineapple/jni/extern/Engine.h>
+#include <pineapple/jni/extern/Compile.h>
+#include <pineapple/jni/extern/Common.h>
+#include <pineapple/jni/extern/GL.h>
+#include <pineapple/jni/extern/GLText.h>
+#include <pineapple/jni/extern/Audio.h>
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
+#include <sstream>
+
+using namespace Pineapple;
+
+GLPlane *plane;
+GLCircle *circle;
+JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void * reserved)
+{
+    return JNI_VERSION_1_6;
+}
+
+JNIEXPORT void JNICALL Java_pocky_libs_Pocky_startup
+  (JNIEnv *, jclass) {
+
+	LOGI("Pocky Started");
+	//size_t size;
+	//unsigned char * data = Engine::instance()->readResourceFromAPK("assets/audio/woman.wav", size);
+//	LOGI("Creating Audio Object");
+	//Audio *aud = new Audio(data, size);
+	GL::instance()->init();
+<<<<<<< HEAD
+	Audio::instance()->addSound("test", "assets/audio/short.ogg", true, AudioType::OGG);
+=======
+	//Audio::instance()->addSound("test", "assets/audio/title.ogg", true, AudioType::OGG);
+>>>>>>> 7cb83955bdaf40368b4a906ad755847ce4b3d763
+	//Audio::instance()->addSound("test", "assets/audio/technika2.wav", true, AudioType::WAV);
+	//Audio::instance()->playSound("test");
+	//int w;
+	//int h;
+
+	//Engine::instance()->readPNGFromAPK("assets/textures/cat.png", &w, &h);
+	//LOGI("%d, %d", w, h);
+}
+GLFramebufferObject *fbo1, *fbo2, *fbo3;
+static void DrawGrid(int radx, int rady)
+{
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_ONE, GL_ONE);
+	float2 scale = {1.f, 1.f};
+	for(int y=-rady,i=0; y<=rady; y++, i++)
+	{
+		for(int x=-radx; x<=radx; x++)
+		{
+			VSML::instance()->pushMatrix(VSML::MODELVIEW);
+			if(i%2 ==0 )
+				VSML::instance()->translate(x*(1.05), y*0.95, 0.f);
+			else
+				VSML::instance()->translate(x*(1.05)+0.5f, y*0.95, 0.f);
+			GL::instance()->shader("texmap")->bind(VSML::instance());
+			glActiveTexture(GL_TEXTURE0);
+			fbo2->bindsurface(0);
+			GL::instance()->shader("texmap")->setUniformValue("tex", 0);
+			GL::instance()->shader("texmap")->setUniformValue("texScale", scale);
+			GL::instance()->primitive("square")->draw("texmap");
+			GL::instance()->shader("texmap")->release();
+			VSML::instance()->popMatrix(VSML::MODELVIEW);
+		}
+	}
+
+	glDisable(GL_BLEND);
+}
+// setup our game textures
+static void CreateTextures() {
+	GL::instance()->createShader("blur", "assets/shaders/blur.glsl");
+
+
+	GLFramebufferObjectParams parms;
+	parms.width = 128;
+	parms.height = 128;
+	parms.type = GL_TEXTURE_2D;
+	parms.format = GL_RGBA;
+	parms.hasDepth = false;
+	fbo1 = new GLFramebufferObject(parms);
+	fbo2 = new GLFramebufferObject(parms);
+
+	fbo1->bind();
+	glClearColor(0.0f, 0.f, 0.f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+	glViewport(0, 0, parms.width, parms.height);
+	GL::instance()->ortho(parms.width, parms.height);
+
+	GL::instance()->shader("default")->bind(VSML::instance());
+	for(int i=0; i<2; i++) {
+		GLCircle *hexagon = new GLCircle(Float3(6, 10, 10), Float3(parms.width / 2.f, parms.height / 2.f, 0.f),
+					Float3(parms.width - i*20 - 2, parms.height - i*20 - 2, 1.f));
+		hexagon->draw("default");
+		delete hexagon;
+	}
+	GL::instance()->shader("default")->release();
+	fbo1->release();
+
+	GLQuad *fx = new GLQuad(Float3(10, 10, 10), Float3(parms.width/2, parms.height/2,1.f), Float3(parms.width,  parms.height, 1.f));
+
+	fbo2->bind();
+
+	//antialiasing pass
+	GL::instance()->shader("blur")->bind(VSML::instance());
+	glActiveTexture(GL_TEXTURE0);
+	fbo1->bindsurface(0);
+	GL::instance()->shader("blur")->setUniformValue("tex", 0);
+	fx->draw("blur");
+	fbo2->release();
+
+	delete fx;
+	delete fbo1;
+	parms.width = 1024;
+	parms.height = 1024;
+	fbo3 = new GLFramebufferObject(parms);
+	fbo3->bind();
+	glClearColor(0.f, 0.f, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+	glViewport(0, 0, GL::instance()->width(), GL::instance()->height());
+	GL::instance()->perspective(60.f, 0.01f, 1000.f, GL::instance()->width(), GL::instance()->height());
+	DrawGrid(5, 3);
+	fbo3->release();
+
+	delete fbo2;
+}
+
+
+
+JNIEXPORT void JNICALL Java_pocky_libs_Pocky_resize
+  (JNIEnv *, jclass, jint w, jint h) {
+	glEnable(GL_TEXTURE_2D);
+
+	GL::instance()->createShader("default", "assets/shaders/default.glsl");
+	GL::instance()->createShader("texmap", "assets/shaders/texmap.glsl");
+	GL::instance()->createShader("bloom", "assets/shaders/bloom.glsl");
+	GL::instance()->createShader("text", "assets/shaders/text.glsl");
+	GL::instance()->createShader("texlit", "assets/shaders/texmaplit.glsl");
+
+	GL::instance()->loadFont(FONTS::FontRobotoRegular);
+	GL::instance()->createPrimitive("plane", new GLPlane(Float3(10, 10, 10), Float3::zero(), Float3(5.f, 5.f, 5.f)));
+	circle = new GLCircle(Float3(6, 10, 10), Float3(0.f, 0.f, -5.f), Float3(1.f, 1.f, 1.f));
+	GL::instance()->createPrimitive("square", new GLQuad(Float3(10, 10, 10), Float3(0.f, 0.f, -5.f), Float3(1.f, 1.f, 1.f)));
+	GL::instance()->createPrimitive("quad", new GLQuad(Float3(20, 20, 10), Float3(w/2,h/2,1.f), Float3(w, h, 1.f)));
+	glClearColor(0.f, 0.f, 0.f, 1.0f);
+	glDisable(GL_DEPTH_TEST);
+	glLineWidth(1.f);
+	GL::instance()->initializeGL(w, h);
+	CreateTextures();
+
+	glClearColor(0.f, 0.f, 0.f, 1.0f);
+	GL::instance()->initializeGL(w, h);
+}
+
+int previousTime = 0;
+float fps = 30;
+float touchx = 400.f;
+float touchy = 240.f;
+JNIEXPORT void JNICALL Java_pocky_libs_Pocky_draw
+  (JNIEnv *, jclass, jint time) {
+	int dt = time - previousTime;
+    fps = 0.99f * fps + 0.01f * (1000 / dt);
+	previousTime = time;
+	int w = GL::instance()->width();
+	int h = GL::instance()->height();
+	float lum = (sinf(time / 1000.f) + 1.5f) / 2.f + 0.1f;
+	// draw the hexagons
+	GL::instance()->ortho();
+	float2 scale = {w / 1024.f, h / 1024.f};
+	//VSML::instance()->rotate(time / 100.f, 0.f, 0.f, 1.f);
+	GL::instance()->shader("texlit")->bind(VSML::instance());
+	glActiveTexture(GL_TEXTURE0);
+	fbo3->bindsurface(0);
+	Float3 lightpos = Float3(touchx,touchy, 20.0);
+	GL::instance()->shader("texlit")->setUniformValue("tex", 0);
+	GL::instance()->shader("texlit")->setUniformValue("lightpos", lightpos);
+	GL::instance()->shader("texlit")->setUniformValue("texScale", scale);
+	GL::instance()->shader("texlit")->setUniformValue("lum", lum);
+	GL::instance()->primitive("quad")->draw("blur");
+	GL::instance()->shader("texlit")->release();
+	std::stringstream ss;
+	ss << "FPS > " << (int)fps << "\nRES > " << GL::instance()->width() << " X " << GL::instance()->height();
+	GL::instance()->renderText(ss.str(), FONTS::FontLekton);
+	glFlush();
+}
+
+JNIEXPORT void JNICALL Java_pocky_libs_Pocky_onTouch
+  (JNIEnv *, jclass, jfloat x , jfloat y) {
+	touchx = x;
+	touchy = y;
+}
+
+
+JNIEXPORT void JNICALL Java_pocky_libs_Pocky_onDrag
+  (JNIEnv *, jclass, jfloat, jfloat) {
+	LOGI("Drag");
+}
+
+
+JNIEXPORT void JNICALL Java_pocky_libs_Pocky_onRelease
+  (JNIEnv *, jclass, jfloat, jfloat) {
+	LOGI("Release");
+}
+
+
+JNIEXPORT void JNICALL Java_pocky_libs_Pocky_shutdown
+  (JNIEnv *, jclass) {
+	LOGI("Pocky Shutdown");
+}

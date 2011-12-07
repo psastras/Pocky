@@ -13,6 +13,11 @@
 
 namespace Pineapple {
 
+class EngineUpdatable {
+public:
+	virtual void update() = 0;
+};
+
 class Engine {
 public:
 	static void init() {
@@ -27,7 +32,8 @@ public:
 	unsigned char *readPNGFromAPK(const char* filename, int *width, int *height);
 	void start();
 	void stop();
-
+	void setUpdatable(EngineUpdatable *updatable) { updatable_ = updatable; }
+	EngineUpdatable *updatable() { return updatable_; }
 	void setAPKArchive(zip *ark) {
 		s_APKArchive = ark;
 	}
@@ -37,6 +43,7 @@ public:
 
 protected:
 	zip* s_APKArchive;
+	EngineUpdatable *updatable_;
 	static Engine *s_instance;
 	Engine();
 

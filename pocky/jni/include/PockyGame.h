@@ -38,9 +38,14 @@ public:
 
 	void draw(int time);
 
-	Float4 getGridBounds() { return Float4(0.f, 0.f, 0.f, 0.f); }
-	float2 getGridLocation(int x, int y) //get the grid cell (given screen coordinates)
+	Float4 getGridBounds() { return Float4(0.f, ncellsx_-1, 0.f, ncellsy_-1); }
+	float2 getGridLocation(int x, int y); //get the grid cell (given screen coordinates)
 
+	PockyGridCell *getGrid(int &x, int &y){
+		x = ncellsx_;
+		y = ncellsy_;
+		return cell_;
+	}
 
 protected:
 
