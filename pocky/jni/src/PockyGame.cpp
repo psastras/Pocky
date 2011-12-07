@@ -35,9 +35,7 @@ PockyGame::~PockyGame() {
 	delete[] cell_;
 }
 
-float touchx = 400.f;
-float touchy = 240.f;
-GLPrimitive *circle;
+
 GLFramebufferObject *fbo2;
 void PockyGame::init() {
 	this->applyGLSettings();
@@ -55,20 +53,17 @@ void PockyGame::init() {
 
 	glViewport(0, 0, GL::instance()->width(), GL::instance()->height());
 
-//	CELL(5, 3).life = 1.f;
-//	CELL(1, 2).life = 0.4f;
-//	CELL(3, 0).life = 0.2f;
-//	CELL(3, 1).life = 0.7f;
-//	CELL(3, 2).life = 1.4f;
-//	CELL(4, 0).life = 1.2f;
-//	CELL(0, 1).life = 1.7f;
+	CELL(5, 3).life = 1.f;
+	CELL(1, 2).life = 0.4f;
+	CELL(3, 0).life = 0.2f;
+	CELL(3, 1).life = 0.7f;
+	CELL(3, 2).life = 1.4f;
+	CELL(4, 0).life = 1.2f;
+	CELL(0, 1).life = 1.7f;
 	GL::instance()->perspective(60.f, 0.01f, 1000.f, GL::instance()->width(),
 			GL::instance()->height());
 
 	//glClearColor(0.1f, 0.1f, 0.1f, 1.f);
-
-	circle = new GLCircle(Float3(6.f, 1.f, 1.f), Float3(0.f, 0.f, -5.f),
-			Float3(1.f, 1.f, 1.f));
 	Float3 p1 = GL::instance()->project(float2(0.f, 0.f), -5.f);
 	Float3 p2 = GL::instance()->project(float2(800.f, 480.f), -5.f);
 
@@ -133,20 +128,20 @@ void PockyGame::draw(int time) {
 			square_->draw(hexShader_);
 			hexShader_->release();
 
-//			cell_[i].life -= dt / 3000.f;
-//			if (cell_[i].life <= 0.f) {
-//				while (true) {
-//					int idx = rand() % (ncellsx_ * ncellsy_);
-//					if (cell_[idx].life <= 0) {
-//						cell_[idx].life = 1.f;
-//						break;
-//					}
-//				}
-//			}
+			cell_[i].life -= dt / 3000.f;
+			if (cell_[i].life <= 0.f) {
+				while (true) {
+					int idx = rand() % (ncellsx_ * ncellsy_);
+					if (cell_[idx].life <= 0) {
+						cell_[idx].life = 1.f;
+						break;
+					}
+				}
+			}
 		}
-		Engine::instance()->unlock();
-
 	}
+	Engine::instance()->unlock();
+
 	// draw background
 	GL::instance()->ortho();
 	float2 scale1 = { w / 1024.f, h / 1024.f };
@@ -183,17 +178,33 @@ void PockyGame::draw(int time) {
 	GL::instance()->renderText(ss.str(), FONTS::FontLekton);
 }
 
-void PockyGame::DrawGrid(int radx, int rady) {
+void IdxToRGB565(int idx, Float3 &rgb) {
+	int r = idx / (32*64);
+	int g = (idx - r*32*64) / 32;
+	int b = (idx - r*32*64-g*32);
+	rgb.x = r*8;
+	rgb.y = g*4;
+	rgb.z = b*8;
+	rgb /= 255.f;
+}
+
+void PockyGame::DrawGrid(int radx, int rady, bool solid) {
 
 	GLPrimitive *square = new GLQuad(Float3(10, 10, 10), Float3(0.f, 0.f, -5.f),
 			Float3(1.f, 1.f, 1.f));
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_ONE, GL_ONE);
+	if(!solid) {
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_ONE, GL_ONE);
+	} else {
+		glDisable(GL_BLEND);
+	}
+	GLPrimitive *disc = new GLDisc(Float3(6, 1, 1), Float3(0.f, 0.f, -5.f),
+				Float3(1.f, 1.f, 1.f));
 	float2 scale = { 1.f, 1.f };
 	for (int y = -rady, i = 0, j = 0; y <= rady; y++, i++) {
 		for (int x = -radx; x <= radx; x++, j++) {
 			cell_[j].life = 0.f;
-
+			cell_[j].id = j+1;
 			GL::instance()->perspective(60.f, 0.01f, 1000.f,
 					GL::instance()->width(), GL::instance()->height());
 			if (i % 2 == 0) {
@@ -204,23 +215,34 @@ void PockyGame::DrawGrid(int radx, int rady) {
 				VSML::instance()->translate(x * (1.05) + 0.5f, y * 0.95, 0.f);
 			}
 			cell_[j].sspos = GL::instance()->unproject(cell_[j].wspos);
-
-			GL::instance()->shader("texmap")->bind(VSML::instance());
-			glActiveTexture(GL_TEXTURE0);
-			fbo2->bindsurface(0);
-			GL::instance()->shader("texmap")->setUniformValue("tex", 0);
-			GL::instance()->shader("texmap")->setUniformValue("texScale",
-					scale);
-			square->draw("texmap");
-			GL::instance()->shader("texmap")->release();
-			//VSML::instance()->popMatrix(VSML::MODELVIEW);
-
+			if(solid) {
+				GL::instance()->shader("id")->bind(VSML::instance());
+				//convert j=1...65535 to r5g6b5
+				//32 - 64 - 32
+				//r*32*64+g*32+b
+				//r = idx / (32*64), g = (idx - r*32*64) / 32, b=(idx - r*32*64-g*32)
+				Float3 color;
+				IdxToRGB565(cell_[j].id, color);
+				GL::instance()->shader("id")->setUniformValue("id", color);
+				disc->draw("id");
+				GL::instance()->shader("id")->release();
+			} else {
+				GL::instance()->shader("texmap")->bind(VSML::instance());
+				glActiveTexture(GL_TEXTURE0);
+				fbo2->bindsurface(0);
+				GL::instance()->shader("texmap")->setUniformValue("tex", 0);
+				GL::instance()->shader("texmap")->setUniformValue("texScale",
+						scale);
+				square->draw("texmap");
+				GL::instance()->shader("texmap")->release();
+			}
 		}
 	}
-
+	delete disc;
 	delete square;
 	glDisable(GL_BLEND);
 }
+
 
 void PockyGame::generateAssets() {
 	GL::instance()->createShader("blur", "assets/shaders/blur.glsl");
@@ -280,14 +302,38 @@ void PockyGame::generateAssets() {
 	delete framebuffer0_;
 	parms.width = 1024;
 	parms.height = 1024;
-	framebuffer1_ = new GLFramebufferObject(parms);
-	framebuffer1_->bind();
 	glClearColor(0.f, 0.f, 0.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
 	glViewport(0, 0, GL::instance()->width(), GL::instance()->height());
+	framebuffer1_ = new GLFramebufferObject(parms);
+	//framebuffer1_->bind();
+
+	glClear(GL_COLOR_BUFFER_BIT);
+	glDisable(GL_DITHER);
 	GL::instance()->perspective(60.f, 0.01f, 1000.f, GL::instance()->width(),
 			GL::instance()->height());
-	DrawGrid(params_.gridx, params_.gridy);
+	DrawGrid(params_.gridx, params_.gridy, true);
+
+	GLushort *texdata = new GLushort[GL::instance()->width() * GL::instance()->height()];
+	ids_ = new int[GL::instance()->width() * GL::instance()->height()];
+	glReadPixels(0, 0, GL::instance()->width(), GL::instance()->height(), GL_RGB, GL_UNSIGNED_SHORT_5_6_5, texdata);
+	for(int y=0, i=0;y<GL::instance()->height();y++)
+	{
+		for(int x=0;x<GL::instance()->width();x++,i++)
+		{
+			int r = (255 * ((texdata[i]) >> 11) + 15) / 31;
+			int g = (255 * ((texdata[i] & 0x7E0) >>  5) + 31) / 63;
+			int b = (255 * ((texdata[i] & 0x01F)) + 15) / 31;
+			ids_[i] = (r*32*64/8+g*32/4+b/8)-1;
+		}
+	}
+	delete[] texdata;
+
+
+	framebuffer1_->bind();
+	glClear(GL_COLOR_BUFFER_BIT);
+	GL::instance()->perspective(60.f, 0.01f, 1000.f, GL::instance()->width(),
+			GL::instance()->height());
+	DrawGrid(params_.gridx, params_.gridy, false);
 	framebuffer1_->release();
 
 	//begine active hex generation
@@ -322,6 +368,9 @@ void PockyGame::loadShaders() {
 //	bg_ = GL::instance()->shader("alpha");
 	GL::instance()->createShader("overlay", "assets/shaders/overlay.glsl");
 	overlay_ = GL::instance()->shader("overlay");
+
+	GL::instance()->createShader("id", "assets/shaders/id.glsl");
+	id_ = GL::instance()->shader("id");
 }
 
 void PockyGame::applyGLSettings() {
@@ -330,6 +379,9 @@ void PockyGame::applyGLSettings() {
 	glClearColor(0.f, 0.f, 0.f, 1.0f);
 	glDisable(GL_DEPTH_TEST);
 	glLineWidth(1.f);
+}
+int PockyGame::getGridLocation(int x, int y) {
+	return ids_[y * GL::instance()->width() + x];
 }
 
 } /* namespace Pineapple */

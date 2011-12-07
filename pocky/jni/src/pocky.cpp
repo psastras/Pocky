@@ -38,8 +38,8 @@ JNIEXPORT void JNICALL Java_pocky_libs_Pocky_startup
 
 	//int w;
 	PockyGameParams params;
-	params.gridx = 5;
-	params.gridy = 3;
+	params.gridx = 4;
+	params.gridy = 2;
 	g_Game  = new PockyGame(params);
 	//Engine::instance()->readPNGFromAPK("assets/textures/cat.png", &w, &h);
 	//LOGI("%d, %d", w, h);
@@ -68,19 +68,19 @@ JNIEXPORT void JNICALL Java_pocky_libs_Pocky_draw
 
 JNIEXPORT void JNICALL Java_pocky_libs_Pocky_onTouch
   (JNIEnv *, jclass, jfloat x , jfloat y) {
-
+	LOGI("ID [%d, %d]: %d", (int)x, (int)y, g_Game->getGridLocation(x, y));
 }
 
 
 JNIEXPORT void JNICALL Java_pocky_libs_Pocky_onDrag
   (JNIEnv *, jclass, jfloat x , jfloat y) {
-
+	LOGI("ID [%d, %d]: %d", (int)x, (int)y, g_Game->getGridLocation(x, y));
 }
 
 
 JNIEXPORT void JNICALL Java_pocky_libs_Pocky_onRelease
   (JNIEnv *, jclass, jfloat, jfloat) {
-	LOGI("Release");
+	//LOGI("Release");
 }
 
 

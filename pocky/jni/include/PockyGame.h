@@ -23,6 +23,7 @@ struct PockyGameParams
 struct PockyGridCell {
 	Float3 wspos; //world space position
 	float2 sspos; //screen space position
+	int id;
 	float life;
 };
 
@@ -39,7 +40,7 @@ public:
 	void draw(int time);
 
 	Float4 getGridBounds() { return Float4(0.f, ncellsx_-1, 0.f, ncellsy_-1); }
-	float2 getGridLocation(int x, int y); //get the grid cell (given screen coordinates)
+	int getGridLocation(int x, int y); //get the grid cell (given screen coordinates)
 
 	PockyGridCell *getGrid(int &x, int &y){
 		x = ncellsx_;
@@ -59,13 +60,14 @@ protected:
 
 	GLPrimitive *quad_, *square_, *topbar_;
 	GLFramebufferObject *framebuffer0_, *framebuffer1_;
-	GLShaderProgram *texLight_, *hexShader_, *bg_, *overlay_;
+	GLShaderProgram *texLight_, *hexShader_, *bg_, *overlay_, *id_;
 	Float3 lightPositions_[MAX_ACTIVE];
 	PockyGameParams params_;
 
+	int *ids_;
 
 private:
-	void DrawGrid(int radx, int rady);
+	void DrawGrid(int radx, int rady, bool solid);
 	void applyGLSettings();
 	void loadShaders();
 	void generateAssets();
