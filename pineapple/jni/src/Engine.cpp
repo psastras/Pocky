@@ -24,7 +24,7 @@ void* run(void*) {
 	while (gIsRunning) {
 
 //		LOGI("before mutex");
-		pthread_mutex_lock(&mutex);
+	//	pthread_mutex_lock(&mutex);
 //		int res = pthread_mutex_trylock(&mutex);
 //
 //		if (res == 0) {
@@ -36,7 +36,7 @@ void* run(void*) {
 		}
 
 //		LOGI("after audio update");
-		pthread_mutex_unlock(&mutex);
+	//	pthread_mutex_unlock(&mutex);
 //		LOGI("after mutex");
 
 //

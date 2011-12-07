@@ -20,6 +20,12 @@ struct PockyGameParams
 	int gridx, gridy;
 };
 
+struct PockyGridCell {
+	Float3 wspos; //world space position
+	float2 sspos; //screen space position
+	float life;
+};
+
 class PockyGame {
 
 
@@ -32,15 +38,13 @@ public:
 
 	void draw(int time);
 
+	Float4 getGridBounds() { return Float4(0.f, 0.f, 0.f, 0.f); }
+	float2 getGridLocation(int x, int y) //get the grid cell (given screen coordinates)
+
+
 protected:
 
 
-
-	struct PockyGridCell {
-		Float3 wspos; //world space position
-		float2 sspos; //screen space position
-		float life;
-	};
 
 	float fps_;
 	int previousTime_; // holds the previous draw time

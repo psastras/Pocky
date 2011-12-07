@@ -104,6 +104,7 @@ void PockyGame::draw(int time) {
 	glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
 	int nLights = 0;
 	//float color = sinf(time / 1000.f) * 2.f;
+	Engine::instance()->lock();
 	for(int i=0; i<ncellsx_*ncellsy_; i++)
 	{
 		if(cell_[i].life > 0.f && nLights < MAX_ACTIVE)
@@ -137,8 +138,8 @@ void PockyGame::draw(int time) {
 					}
 		}
 	}
+	Engine::instance()->unlock();
 
-	//update step
 
 
 	}
