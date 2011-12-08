@@ -1,13 +1,11 @@
 #ifndef GLSHADERPROGRAM_H
 #define GLSHADERPROGRAM_H
-
 #include "Common.h"
 #include "Float3.h"
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <GLES2/gl2.h>
-#include <GLES2/gl2ext.h>
+
 class VSML;
 class GLShaderProgram
 {
@@ -75,6 +73,8 @@ public:
     inline void setUniformValue(const char *name, int val){
     	glUniform1i(getUniformLocation(name), val);
     }
+
+	GLuint id() { return programId_; }
 
 protected:
 

@@ -1,8 +1,17 @@
 #ifndef GLFRAMEBUFFEROBJECT_H
 #define GLFRAMEBUFFEROBJECT_H
 
+#include "Common.h"
+
+#ifndef _DESKTOP
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
+#else
+#define GL_GLEXT_PROTOTYPES
+#include <GL/gl.h>
+#include <GL/glext.h>
+#include <qgl.h>
+#endif
 
 struct GLFramebufferObjectParams {
     int width, height;

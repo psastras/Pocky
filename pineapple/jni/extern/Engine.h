@@ -7,6 +7,7 @@
 
 #ifndef PINEAPPLEENGINE_H_
 #define PINEAPPLEENGINE_H_
+#include "Common.h"
 #include "../libzip/zip.h"
 #include "../libzip/config.h"
 #include "../libzip/zipint.h"
@@ -27,9 +28,10 @@ public:
 	static Engine *instance() {
 		return s_instance;
 	}
-
+#ifndef _DESKTOP
 	unsigned char *readResourceFromAPK(const char* filename, size_t &size);
 	unsigned char *readPNGFromAPK(const char* filename, int *width, int *height);
+#endif
 	void start();
 	void stop();
 	void setUpdatable(EngineUpdatable *updatable) { updatable_ = updatable; }

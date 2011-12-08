@@ -4,6 +4,7 @@
  *  Created on: Nov 29, 2011
  *      Author: psastras
  */
+#ifndef _DESKTOP
 
 #ifndef AUDIO_H_
 #define AUDIO_H_
@@ -99,3 +100,4 @@ protected:
 
 } /* namespace Pineapple */
 #endif /* AUDIO_H_ */
+#endif

@@ -7,8 +7,20 @@
 
 #include "../extern/GL.h"
 #include "../extern/Engine.h"
+#ifndef _DESKTOP
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
+#else
+#define GL_GLEXT_PROTOTYPES
+#include <QFile>
+#include <fstream>
+#include <GL/gl.h>
+#include <GL/glext.h>
+#include <sstream>
+#include <iostream>
+using namespace std;
+#include <qgl.h>
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -95,11 +107,11 @@ namespace Pineapple {
 		return Float3(x, y, z);
 	}
 
-	void GL::renderText(const std::string &text, FONTS font)
+	void GL::renderText(const std::string &text, const Float3 &pos, FONTS font)
 	{
 		if(!fontTextures_[font]) this->loadFont(font);
 		FONTTABLE *tbl = GetFontTable(font);
-		float scale = 0.5f;
+		float scale = 0.75f;
 		glDisable(GL_DEPTH_TEST);
 		glEnable(GL_BLEND);
 		glBlendFunc (GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
@@ -110,7 +122,7 @@ namespace Pineapple {
 		glActiveTexture(GL_TEXTURE0);
 		fontTextures_[font]->bind();
 		GL::instance()->shader("text")->setUniformValue("tex", 0);
-		float posx = 5.f; float posy = 5.f;
+		float posx = pos.x; float posy = pos.y;
 		int lineheight = 40 * scale; //in pixels - should be calculated in the font generation step
 		for(int i=0;i<text.size();i++) {
 
@@ -126,14 +138,14 @@ namespace Pineapple {
 
 			else if(text[i] == '\n')
 			{
-				posx = 5.f;
+				posx = pos.x;
 				posy += lineheight + 5.f;
 				continue;
 			}
 			float2 scale0 = {dx+0.003f,dy+0.003f};
 			float2 offset0 = {cur->fx-0.003f,cur->fy-0.003f};
 			VSML::instance()->pushMatrix(VSML::MODELVIEW);
-			VSML::instance()->translate(posx, height_ - lineheight - posy, 0.f);
+			VSML::instance()->translate(posx, height_ - lineheight - posy, pos.z);
 			VSML::instance()->scale(dx*scale, dy*scale, 1.f);
 
 			GL::instance()->shader("text")->vsml(VSML::instance());
@@ -157,11 +169,31 @@ namespace Pineapple {
 	void GL::createShader(const std::string &name, const char *filename) {
 		shaders_[name] = new GLShaderProgram();
 		size_t size;
+#ifndef _DESKTOP
 		unsigned char *data = Pineapple::Engine::instance()->readResourceFromAPK(filename, size);
 		shaders_[name]->loadShaderFromData(GL_FRAGMENT_SHADER, data, size);
 		shaders_[name]->loadShaderFromData(GL_VERTEX_SHADER, data, size);
 		shaders_[name]->link();
 		delete[] data;
+#else
+		stringstream ss;
+		ifstream file(filename);
+		string line;
+		if (file.is_open()) {
+		   while (file.good()) {
+		 getline(file, line);
+		 ss << line << endl;
+		  }
+		  file.close();
+		} else {
+			cerr << "Failed to open file " << filename << endl;
+			return;
+		}
+		std::string str = ss.str();
+		shaders_[name]->loadShaderFromSource(GL_FRAGMENT_SHADER, str);
+		shaders_[name]->loadShaderFromSource(GL_VERTEX_SHADER, str);
+		shaders_[name]->link();
+#endif
 	}
 
 	void GL::releaseShader(const std::string &name) {

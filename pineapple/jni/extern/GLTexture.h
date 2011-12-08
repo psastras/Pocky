@@ -7,9 +7,16 @@
 
 #ifndef GLTEXTURE_H_
 #define GLTEXTURE_H_
-
+#include "../extern/Common.h"
+#ifndef _DESKTOP
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
+#else
+#define GL_GLEXT_PROTOTYPES
+#include <GL/gl.h>
+#include <GL/glext.h>
+#include <qgl.h>
+#endif
 
 namespace Pineapple {
 

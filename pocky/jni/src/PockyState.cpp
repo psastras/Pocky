@@ -64,7 +64,7 @@ void PockyState::update() {
 
 		}
 		if(current -> life <= 0){
-			LOGI("erasing");
+			//LOGI("erasing");
 			i = activeCells_->erase(i);
 			continue;
 		}
@@ -78,7 +78,7 @@ void PockyState::update() {
 //			while (true) {
 	int idx = rand() % (ncellsx_ * ncellsy_);
 	if (cells_[idx].life <= 0 && activeCells_->size() < 10) {
-		LOGI("spawn new cell at index %d", idx);
+		//LOGI("spawn new cell at index %d", idx);
 		cells_[idx].life = 1.f;
 		activeCells_->push_back(&cells_[idx]);
 	}
@@ -88,7 +88,9 @@ void PockyState::update() {
 //	}
 }
 
+
 void PockyState::touch(float x, float y) {
+
 
 }
 }
