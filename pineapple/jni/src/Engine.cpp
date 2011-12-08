@@ -166,7 +166,17 @@ unsigned char *Engine::readPNGFromAPK(const char* filename, int *w2, int *g2) {
 
 	return 0;
 }
-
+#else
+unsigned char *Engine::readResourceFromAPK(const char* filename, size_t &size) {
+	FILE *file = fopen(filename, "r");
+	fseek(file, 0, SEEK_END);
+	size=ftell(file);
+	fseek(file, 0, SEEK_SET);
+	unsigned char *buffer = new unsigned char[size];
+	fread(buffer, size, 1, file);
+	fclose(file);
+	return buffer;
+}
 #endif
 
 void Engine::start() {

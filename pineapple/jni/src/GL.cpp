@@ -169,31 +169,11 @@ namespace Pineapple {
 	void GL::createShader(const std::string &name, const char *filename) {
 		shaders_[name] = new GLShaderProgram();
 		size_t size;
-#ifndef _DESKTOP
 		unsigned char *data = Pineapple::Engine::instance()->readResourceFromAPK(filename, size);
 		shaders_[name]->loadShaderFromData(GL_FRAGMENT_SHADER, data, size);
 		shaders_[name]->loadShaderFromData(GL_VERTEX_SHADER, data, size);
 		shaders_[name]->link();
 		delete[] data;
-#else
-		stringstream ss;
-		ifstream file(filename);
-		string line;
-		if (file.is_open()) {
-		   while (file.good()) {
-		 getline(file, line);
-		 ss << line << endl;
-		  }
-		  file.close();
-		} else {
-			cerr << "Failed to open file " << filename << endl;
-			return;
-		}
-		std::string str = ss.str();
-		shaders_[name]->loadShaderFromSource(GL_FRAGMENT_SHADER, str);
-		shaders_[name]->loadShaderFromSource(GL_VERTEX_SHADER, str);
-		shaders_[name]->link();
-#endif
 	}
 
 	void GL::releaseShader(const std::string &name) {

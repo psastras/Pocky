@@ -28,8 +28,10 @@ public:
 	static Engine *instance() {
 		return s_instance;
 	}
-#ifndef _DESKTOP
+
 	unsigned char *readResourceFromAPK(const char* filename, size_t &size);
+
+#ifndef _DESKTOP
 	unsigned char *readPNGFromAPK(const char* filename, int *width, int *height);
 #endif
 	void start();
