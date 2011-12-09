@@ -41,6 +41,9 @@ public:
 
 	SimNote *getNextNote();
 	int incrementPosition();
+	int getPosition(){
+		return position_;
+	}
 
 protected:
 	SimData *data_;
