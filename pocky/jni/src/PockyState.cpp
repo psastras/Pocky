@@ -47,16 +47,13 @@ void PockyState::loadSimfile(std::string path) {
 	simfile_ = Simfile::parse(path);
 	// play the song here for now
 	std::string soundpath = "assets/audio/" + simfile_->getData()->music_;
-	Audio::instance()->addSound("sim", soundpath, true,	AudioType::OGG);
+	Audio::instance()->addSound("sim", soundpath, true, AudioType::OGG);
 	Audio::instance()->playSound("sim");
 }
 
 void PockyState::update() {
 	if (lastUpdate_.tv_sec == 0 && lastUpdate_.tv_nsec == 0) {
 		clock_gettime(CLOCK_MONOTONIC, &lastUpdate_);
-		return;
-	}
-	if(!simfile_){
 		return;
 	}
 	timespec current;
@@ -104,6 +101,9 @@ void PockyState::update() {
 		i++;
 
 	}
+	if (simfile_->getPosition() == -1) {
+		return;
+	}
 	// check if we need to spawn new notes
 	bool spawning = true;
 	while (spawning) {
@@ -132,10 +132,11 @@ void PockyState::update() {
 				activeCells_->push_back(&cells_[idx]);
 			}
 			int newpos = simfile_->incrementPosition();
-			if(newpos == -1){
-				delete simfile_;
-				simfile_ = 0;
+			if (newpos == -1) {
+//				delete simfile_;
+//				simfile_ = 0;
 				spawning = false;
+				LOGI("end of simfile");
 			}
 		} else {
 			spawning = false;
@@ -163,21 +164,18 @@ void PockyState::touch(float x, float y) {
 	// get the cell id
 	lastTouch_.x = x;
 	lastTouch_.y = y;
-//	int index = game_->getGridLocation((int) x, (int) y);
-//	if (index < 0) {
-//		return;
-//	}
-//	Engine::instance()->lock();
-//	//	LOGI("touched cell %d", index);
-//	LOGI("touched cell %d, life is %f", index, cells_[index].life);
-//	if (cells_[index].life > 0 && cells_[index].life < 0.5) {
-//		// kill it
-//		LOGI("killing cell %d", index);
-//		cells_[index].life = 0;
-//	} else if (cells_[index].life < 0) {
-//		cells_[index].life = 1.0f;
-//		activeCells_->push_back(&cells_[index]);
-//	}
-//	Engine::instance()->unlock();
+	int index = game_->getGridLocation((int) x, (int) y);
+	if (index < 0) {
+		return;
+	}
+	Engine::instance()->lock();
+	//	LOGI("touched cell %d", index);
+	LOGI("touched cell %d, life is %f", index, cells_[index].life);
+	if (cells_[index].life > 0 && cells_[index].life < 0.5) {
+		// kill it
+		LOGI("killing cell %d", index);
+		cells_[index].life = 0;
+	}
+	Engine::instance()->unlock();
 }
 }
