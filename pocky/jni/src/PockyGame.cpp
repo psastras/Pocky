@@ -26,6 +26,7 @@
 #include <iomanip>
 
 #define CELL(X, Y) cell_[(Y) * ncellsx_ + (X)]
+#define NUM_TOUCHPOINTS 20
 
 using namespace Pineapple;
 namespace Pocky {
@@ -42,6 +43,7 @@ PockyGame::PockyGame(const PockyGameParams &params) {
 		cell_[i].life = -1;
 	}
 	score_ = 0;
+        state_ = 0;
 }
 
 PockyGame::~PockyGame() {
@@ -61,6 +63,10 @@ void PockyGame::init() {
 	quad_ = GL::instance()->primitive("quad");
 	topbar_ = new GLQuad(Float3(1, 1, 1), Float3(w / 2, 15, 0.f),
 			Float3(w, 30, 1.f));
+        touchprim_ = new GLCircle(
+                Float3(6, 10, 10),
+                Float3(0,0, 0.f),
+                Float3(50, 50, 1.f));
 	//botbar_ = new GLQuad(Float3(1, 1, 1), Float3(w/2,h-10, 0.f), Float3(w, 20, 1.f), true);
 
 	glViewport(0, 0, GL::instance()->width(), GL::instance()->height());
@@ -89,6 +95,12 @@ void PockyGame::init() {
 }
 
 float prog = 0.f;
+
+void PockyGame::setState(PockyState *s){
+
+    state_= s;
+
+}
 
 void PockyGame::draw(int time) {
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -169,12 +181,47 @@ void PockyGame::draw(int time) {
 			hexShader_->setUniformValue(
 						"life",
 						-((cell_[i].life - 0.5f) * (cell_[i].life - 0.5f))
-								+ 1.5f);
+                                                                + 2.0f);
 			hexShader_->setUniformValue("tcOffset", tc);
 			square_->draw(hexShader_);
 			hexShader_->release();
 		}
 	}
+
+        // draw finger trail
+        if(state_){
+            TouchTracker *tp = state_->getTouchPoints();
+            for(int i = 0; i < NUM_TOUCHPOINTS; i++){
+                const TouchTracker &current = tp[i];
+                if(current.life_ <= 0){
+                    continue;
+                }
+//                GL::instance()->ortho();
+//                VSML::instance()->translate(400, 200,
+//                                0.f);
+//                VSML::instance()->scale(100.0, 100.0, 1);
+//
+//                float2 tc(1.f, 1.f);
+//                hexShader_->bind(VSML::instance());
+//                glActiveTexture(GL_TEXTURE0);
+//                framebuffer0_->bindsurface(0);
+//                hexShader_->setUniformValue("tex", 0);
+//                hexShader_->setUniformValue(
+//                                        "life",
+//                                        10.f);
+//                hexShader_->setUniformValue("tcOffset", tc);
+//                square_->draw(hexShader_);
+//                hexShader_->release();
+                GL::instance()->ortho();
+                VSML::instance()->translate(current.touchpoint_.x, current.touchpoint_.y, 0.0f);
+                VSML::instance()->scale(current.life_, current.life_, 1.0f);
+
+                touch_->bind(VSML::instance());
+                touch_->setUniformValue("life", current.life_);
+                        touchprim_->draw(touch_);
+                touch_->release();
+            }
+        }
 
 	Engine::instance()->unlock();
 	// draw background
@@ -300,12 +347,12 @@ void PockyGame::generateAssets() {
 	glViewport(0, 0, parms.width, parms.height);
 	GL::instance()->ortho(parms.width, parms.height);
 	GL::instance()->shader("default")->bind(VSML::instance());
-	for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 2; i++) {
 		GLPrimitive *hexagon = new GLCircle(
 				Float3(6, 10, 10),
 				Float3(parms.width / 2.f, parms.height / 2.f, 0.f),
 				Float3(parms.width - i * 20 - 2, parms.height - i * 20 - 2,
-						1.f));
+                                                1.f));
 		hexagon->draw("default");
 		delete hexagon;
 	}
@@ -388,7 +435,7 @@ void PockyGame::generateAssets() {
 	GL::instance()->ortho(parms.width, parms.height);
 	GLPrimitive *hexagon = new GLDisc(Float3(6, 10, 10),
 			Float3(parms.width / 2.f, parms.height / 2.f, 0.f),
-			Float3(parms.width - 20, parms.height - 20, 1.f));
+                        Float3(parms.width - 20, parms.height - 20, 1.f));
 
 	GL::instance()->shader("default2")->bind(VSML::instance());
 	glActiveTexture(GL_TEXTURE0);
@@ -418,6 +465,10 @@ void PockyGame::loadShaders() {
 
 	GL::instance()->createShader("id", "assets/shaders/id.glsl");
 	id_ = GL::instance()->shader("id");
+
+        GL::instance()->createShader("touch", "assets/shaders/touch.glsl");
+        touch_ = GL::instance()->shader("touch");
+
 }
 
 void PockyGame::applyGLSettings() {

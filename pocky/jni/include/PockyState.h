@@ -17,6 +17,13 @@
 //class PockyGame;
 using namespace Pineapple;
 namespace Pocky {
+
+struct TouchTracker {
+	float2 touchpoint_;
+	float life_;
+};
+class PockyGame;
+struct PockyGridCell;
 class PockyState: public EngineUpdatable {
 public:
 	PockyState(PockyGame *pg);
@@ -29,6 +36,11 @@ public:
 	int getScore(){
 		return score_;
 	}
+
+        TouchTracker *getTouchPoints(){
+            return touchPoints_;
+        }
+
 protected:
 	PockyGame *game_;
 	PockyGridCell *cells_;
@@ -42,6 +54,9 @@ protected:
 	float2 lastTouch_;
 
 	Simfile *simfile_;
+
+	TouchTracker *touchPoints_;
+	int nextfreetouch_;
 
 };
 }
