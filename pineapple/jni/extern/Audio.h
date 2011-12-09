@@ -4,7 +4,6 @@
  *  Created on: Nov 29, 2011
  *      Author: psastras
  */
-#ifndef _DESKTOP
 
 #ifndef AUDIO_H_
 #define AUDIO_H_
@@ -14,7 +13,11 @@
 #include <unordered_map>
 #include "../openal/include/AL/al.h"
 #include  "../openal/include/AL/alc.h"
+#ifdef _DESKTOP
+#include <vorbis/vorbisfile.h>
+#else
 #include "../openal/tremolo/ivorbisfile.h"
+#endif
 #include <sys/time.h>
 #include <sys/times.h>
 
@@ -100,4 +103,3 @@ protected:
 
 } /* namespace Pineapple */
 #endif /* AUDIO_H_ */
-#endif

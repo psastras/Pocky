@@ -19,3 +19,7 @@ $1 = (const QString::Null *) 0xb73b1704
 $1 = (const QString::Null *) 0xb73b1704
 $1 = (const QString::Null *) 0xb73b1704
 $1 = (const QString::Null *) 0xb73b1704
+$1 = (const QString::Null *) 0xb732e704
+$1 = (const QString::Null *) 0xb732e704
+$1 = (const QString::Null *) 0xb732e704
+$1 = (const QString::Null *) 0xb732e704

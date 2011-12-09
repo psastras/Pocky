@@ -2,6 +2,7 @@
 #include <pocky/jni/include/PockyGame.h>
 #include <pocky/jni/include/PockyState.h>
 #include <pineapple/jni/extern/Engine.h>
+#include <pineapple/jni/extern/Audio.h>
 #include <QGLWidget>
 #include <QTimer>
 #include <QTime>
@@ -15,9 +16,10 @@ PockyState *g_State;
 QTimer *g_Timer;
 GLWidget::GLWidget(QWidget *parent) : QGLWidget(parent)
 {
-
+	Audio::init();
 	Engine::init();
 	GL::init();
+
 	PockyGameParams parms;
 	parms.gridx = 5;
 	parms.gridy = 3;
