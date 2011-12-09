@@ -54,7 +54,7 @@ public:
 	void loadFont(FONTS font);
 	void releaseFont(FONTS font);
 	GLTexture *fontTexture(FONTS font) { return fontTextures_[font]; }
-	void renderText(const std::string &text, FONTS font);
+	void renderText(const std::string &text, const Float3 &pos, FONTS font);
 	void createTexture(const std::string &name, GLTextureParams &parms, unsigned char *data);
 	GLTexture *texture(const std::string &name) { return textures_[name]; }
 

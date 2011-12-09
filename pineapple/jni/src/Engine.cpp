@@ -22,10 +22,12 @@ struct timespec returnTime;
 void* run(void*) {
 	//LOGI("engine update");
 	while (gIsRunning) {
+#ifndef _DESKTOP
 		if (Pineapple::Audio::instance()) {
 		//	LOGI("audio update");
 			Pineapple::Audio::instance()->update();
 		}
+#endif
 	//	LOGI("before mutex");
 		pthread_mutex_lock(&mutex);
 //		int res = pthread_mutex_trylock(&mutex);
@@ -59,13 +61,18 @@ Engine::Engine() {
 	sleepTime.tv_nsec = 33333333;
 	s_APKArchive = 0;
 	updatable_ = 0;
+#ifndef _DESKTOP
 	Pineapple::Audio::init();
+#endif
 }
+
 
 Engine::~Engine() {
+#ifndef _DESKTOP
 	Pineapple::Audio::release();
+#endif
 }
-
+#ifndef _DESKTOP
 unsigned char *Engine::readResourceFromAPK(const char* filename, size_t &size) {
 	if (s_APKArchive == 0)
 		return 0;
@@ -90,6 +97,7 @@ void png_zip_read(png_structp png, png_bytep data, png_size_t size) {
 	struct zip_file *zfp = (struct zip_file *) png->io_ptr;
 	zip_fread(zfp, data, size);
 }
+
 void abort_(const char * s, ...) {
 	va_list args;
 	va_start(args, s);
@@ -158,6 +166,18 @@ unsigned char *Engine::readPNGFromAPK(const char* filename, int *w2, int *g2) {
 
 	return 0;
 }
+#else
+unsigned char *Engine::readResourceFromAPK(const char* filename, size_t &size) {
+	FILE *file = fopen(filename, "r");
+	fseek(file, 0, SEEK_END);
+	size=ftell(file);
+	fseek(file, 0, SEEK_SET);
+	unsigned char *buffer = new unsigned char[size];
+	fread(buffer, size, 1, file);
+	fclose(file);
+	return buffer;
+}
+#endif
 
 void Engine::start() {
 	pthread_mutex_init(&mutex, 0);

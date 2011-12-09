@@ -28,7 +28,7 @@ void GLPrimitive::draw(GLShaderProgram *program, int instances) {
     GLint ids[2] = {
 		program->getAttributeLocation("in_Position"),
 		program->getAttributeLocation("in_TexCoord")
-    };
+	};
     if(ids[0] >= 0)
 	glVertexAttribPointer(ids[0], 3, GL_FLOAT, GL_FALSE, sizeof(GLVertex), (GLvoid *)vOffset_);
     if(ids[1] >= 0)
@@ -40,7 +40,6 @@ void GLPrimitive::draw(GLShaderProgram *program, int instances) {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexId_);
     if(ids[0] >= 0) glDisableVertexAttribArray(ids[0]);
     if(ids[1] >= 0) glDisableVertexAttribArray(ids[1]);
-
 }
 
 void GLPrimitive::draw(GLShaderProgram *program) {
@@ -55,8 +54,8 @@ void GLPrimitive::draw(GLShaderProgram *program) {
 	glVertexAttribPointer(ids[1], 3, GL_FLOAT, GL_FALSE, sizeof(GLVertex), (GLvoid *)tOffset_);
 	if(ids[0] >= 0) glEnableVertexAttribArray(ids[0]);
 	if(ids[1] >= 0) glEnableVertexAttribArray(ids[1]);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexId_);
-    glDrawElements(type_, idxCount_, GL_UNSIGNED_SHORT, BUFFER_OFFSET(0));
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexId_);
+	glDrawElements(type_, idxCount_, GL_UNSIGNED_SHORT, BUFFER_OFFSET(0));
 }
 
 

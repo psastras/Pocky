@@ -1,6 +1,4 @@
-
 precision mediump float;
-uniform sampler2D tex;
 uniform mat4 modelviewMatrix;
 uniform mat4 projMatrix;
 
