@@ -14,6 +14,7 @@
 
 bool gIsRunning = false;
 pthread_t thread_ = 0;
+pthread_t audiothread_ = 0;
 pthread_mutex_t mutex;
 
 struct timespec sleepTime;
@@ -22,12 +23,7 @@ struct timespec returnTime;
 void* run(void*) {
 	//LOGI("engine update");
 	while (gIsRunning) {
-#ifndef _DESKTOP
-		if (Pineapple::Audio::instance()) {
-			//	LOGI("audio update");
-			Pineapple::Audio::instance()->update();
-		}
-#endif
+
 		//	LOGI("before mutex");
 		pthread_mutex_lock(&mutex);
 //		int res = pthread_mutex_trylock(&mutex);
@@ -42,12 +38,29 @@ void* run(void*) {
 
 //		LOGI("after audio update");
 		pthread_mutex_unlock(&mutex);
+//		if (Pineapple::Audio::instance()) {
+//			//	LOGI("audio update");
+//			Pineapple::Audio::instance()->update();
+//		}
 		//LOGI("after mutex");
 
 //
 //		} else {
 //			LOGI("mutex lock failed");
 //		}
+
+		nanosleep(&sleepTime, &returnTime);
+	}
+}
+
+void* runAudio(void*) {
+
+	while (gIsRunning) {
+
+		if (Pineapple::Audio::instance()) {
+			//	LOGI("audio update");
+			Pineapple::Audio::instance()->update();
+		}
 
 		nanosleep(&sleepTime, &returnTime);
 	}
@@ -183,6 +196,7 @@ void Engine::start() {
 	this->stop();
 	gIsRunning = true;
 	pthread_create(&thread_, 0, run, 0);
+	pthread_create(&audiothread_, 0, runAudio, 0);
 	LOGI("Engine Thread Started");
 	pthread_mutex_unlock(&mutex);
 
@@ -206,6 +220,8 @@ void Engine::stop() {
 	if (gIsRunning) {
 		if (thread_)
 			pthread_join(thread_, 0);
+		if (audiothread_)
+					pthread_join(audiothread_, 0);
 
 		gIsRunning = false;
 		thread_ = 0;

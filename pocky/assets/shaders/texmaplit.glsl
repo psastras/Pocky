@@ -3,7 +3,7 @@ uniform sampler2D tex;
 uniform vec2 texScale;
 uniform mat4 modelviewMatrix;
 uniform mat4 projMatrix;
-uniform vec3 lightpositions[50];
+uniform vec3 lightpositions[10];
 uniform int nLights;
 #ifdef _VERTEX_
 attribute vec3 in_Position;

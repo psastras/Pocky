@@ -40,7 +40,7 @@ JNIEXPORT void JNICALL Java_pocky_libs_Pocky_startup
 
 	//int w;
 	PockyGameParams params;
-	params.gridx = 2;
+	params.gridx = 3;
 	params.gridy = 2;
 	g_Game  = new PockyGame(params);
 	g_State = new PockyState(g_Game);

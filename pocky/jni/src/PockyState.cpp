@@ -47,8 +47,8 @@ void PockyState::loadSimfile(std::string path) {
 	simfile_ = Simfile::parse(path);
 	// play the song here for now
 	std::string soundpath = "assets/audio/" + simfile_->getData()->music_;
-	Audio::instance()->addSound("sim", soundpath, true, AudioType::OGG);
-	Audio::instance()->playSound("sim");
+	Audio::instance()->addSound("sim", soundpath, true, AudioType::OGG, simfile_->getData()->length_);
+	Audio::instance()->playSound("sim", simfile_->getData()->length_);
 }
 
 void PockyState::update() {
@@ -61,6 +61,7 @@ void PockyState::update() {
 	// dt in milliseconds
 	int dt = diff_time(lastUpdate_, current);
 	//LOGI("dt is %d", dt);
+	//Engine::instance()->lock();
 	for (std::vector<PockyGridCell *>::iterator i = activeCells_->begin();
 			i != activeCells_->end();) {
 		PockyGridCell *current = *i; //activeCells_->at(i);
@@ -89,9 +90,13 @@ void PockyState::update() {
 			// it should stay alive for DIFFICULTY_LIFE * msperbeat
 			// so it will decrease by 0.5/(DIFFICULTY_LIFE*msperbeat) * dt
 			current->life -= 0.5 / (EASY_LIFE * msperbeat) * dt;
+			if (current->life <= 0) {
+				// i didn't hit it yet so it's a miss
+				current->life = -1;
+			}
 		}
-		if (current->life <= 0) {
-			current->life -= 1.0 / msperbeat * dt;
+		if (current->life < 0) {
+			current->life -= 0.5 / msperbeat * dt;
 		}
 		if (current->life <= -1) {
 			//			LOGI("erasing");
@@ -104,56 +109,59 @@ void PockyState::update() {
 	if (simfile_->getPosition() == -1) {
 		return;
 	}
-	// check if we need to spawn new notes
-	bool spawning = true;
-	while (spawning) {
-		SimNote * next = simfile_->getNextNote();
-		double prog = Audio::instance()->getProgress("sim");
-		// want to spawn it a beat before its time
-		double leadtime = simfile_->getData()->msperbeat_;
-		if (prog > (next->time_ * 1000.0 - leadtime)) {
-			// spawn the note
-			if (next->x_ < 0) {
-				// random position
-				bool found = false;
-				while (!found) {
-					int idx = rand() % (ncellsx_ * ncellsy_);
-					if (cells_[idx].life <= -1 && activeCells_->size() < 50) {
-						cells_[idx].life = 1.0f;
-						activeCells_->push_back(&cells_[idx]);
-//						LOGI("spawn new cell at index %d with life %f", idx, cells_[idx].life);
-						found = true;
-					}
-				}
-			} else {
-				// set position
-				int idx = next->y_ * ncellsx_ + next->x_;
-				cells_[idx].life = 1.0f;
-				activeCells_->push_back(&cells_[idx]);
-			}
-			int newpos = simfile_->incrementPosition();
-			if (newpos == -1) {
-//				delete simfile_;
-//				simfile_ = 0;
-				spawning = false;
-				LOGI("end of simfile");
-			}
-		} else {
-			spawning = false;
-		}
 
-	}
+
+	 // check if we need to spawn new notes
+	 bool spawning = true;
+	 while (spawning) {
+	 SimNote * next = simfile_->getNextNote();
+	 double prog = Audio::instance()->getProgress("sim");
+	 // want to spawn it a beat before its time
+	 double leadtime = simfile_->getData()->msperbeat_;
+	 if (prog > (next->time_ * 1000.0 - leadtime)) {
+	 // spawn the note
+	 if (next->x_ < 0) {
+	 // random position
+	 bool found = false;
+	 while (!found) {
+	 int idx = rand() % (ncellsx_ * ncellsy_);
+	 if (cells_[idx].life <= -1 && activeCells_->size() < 50) {
+	 cells_[idx].life = 1.0f;
+	 activeCells_->push_back(&cells_[idx]);
+	 //						LOGI("spawn new cell at index %d with life %f", idx, cells_[idx].life);
+	 found = true;
+	 }
+	 }
+	 } else {
+	 // set position
+	 int idx = next->y_ * ncellsx_ + next->x_;
+	 cells_[idx].life = 1.0f;
+	 activeCells_->push_back(&cells_[idx]);
+	 }
+	 int newpos = simfile_->incrementPosition();
+	 if (newpos == -1) {
+	 //				delete simfile_;
+	 //				simfile_ = 0;
+	 spawning = false;
+	 LOGI("end of simfile");
+	 }
+	 } else {
+	 spawning = false;
+	 }
+
+	 }
 
 	// spawn another one?
-	//	for (int i = 0; i < ncellsx_ * ncellsy_; i++) {
-	//		if (cell_[i].life <= 0.f) {
-	//			while (true) {
-	//	int idx = rand() % (ncellsx_ * ncellsy_);
-	//	if (cells_[idx].life <= -1 && activeCells_->size() < 10) {
-	//		cells_[idx].life = 1.0f;
-	//		LOGI("spawn new cell at index %d with life %f", idx, cells_[idx].life);
-	//		activeCells_->push_back(&cells_[idx]);
-	//	}
+//	int idx = rand() % (ncellsx_ * ncellsy_);
+//	if (cells_[idx].life <= -1 && activeCells_->size() < 10) {
+//
+//		cells_[idx].life = 1.0f;
+//
+//		//			LOGI("spawn new cell at index %d with life %f", idx, cells_[idx].life);
+//		activeCells_->push_back(&cells_[idx]);
+//	}
+	//Engine::instance()->unlock();
+
 	lastUpdate_ = current;
 	//			}
 	//		}
@@ -174,7 +182,9 @@ void PockyState::touch(float x, float y) {
 	if (cells_[index].life > 0 && cells_[index].life < 0.5) {
 		// kill it
 		LOGI("killing cell %d", index);
-		cells_[index].life = 0;
+		cells_[index].life = -0.0000000001;
+		score_++;
+		game_->setScore(score_);
 	}
 	Engine::instance()->unlock();
 }

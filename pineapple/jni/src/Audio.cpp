@@ -47,7 +47,7 @@ char *bufferOgg(AudioObject &ao, OggVorbis_File *oggFile, size_t &buffersize) {
 	//LOGI("reading new bytes into buffer");
 	do {
 		// Read up to a buffer's worth of decoded sound data
-		//LOGI("bitstream is %d", ao.bitStream_);
+		LOGI("bitstream is %d", ao.bitStream_);
 #ifdef _DESKTOP
 		bytes = ov_read(oggFile, array, 32768, 0, 2, 1, &ao.bitStream_);
 #else
@@ -56,7 +56,8 @@ char *bufferOgg(AudioObject &ao, OggVorbis_File *oggFile, size_t &buffersize) {
 		if (bytes == 0) {
 			break;
 		}
-		//LOGI("read %d bytes", (int)bytes);
+		LOGI("read %d bytes", (int)bytes);
+
 		// Append to end of buffer
 		buffer->insert(buffer->end(), array, array + bytes);
 		total += bytes;
@@ -77,11 +78,8 @@ char *readOgg(AudioObject &ao, unsigned char *data, size_t &size,
 
 	vorbis_info *pInfo;
 	ao.file_ = new OggVorbis_File();
-#ifdef _DESKTOP
-	ov_fopen((char *)ao.filepath_.c_str(), ao.file_);
-#else
 	ov_open(0, ao.file_, (char *) data, size);
-#endif
+
 	pInfo = ov_info(ao.file_, -1);
 
 	LOGI("Channels: %d, %d", pInfo->channels, pInfo->rate);
@@ -90,8 +88,8 @@ char *readOgg(AudioObject &ao, unsigned char *data, size_t &size,
 	header->samplesPerSec = pInfo->rate;
 
 	// get the total length
-	ao.totalLength_ = ov_time_total(ao.file_, -1);
-	LOGI("total length of file %d", ao.totalLength_);
+//	ao.totalLength_ = ov_time_total(ao.file_, -1);
+//	LOGI("total length of file %d", ao.totalLength_);
 
 	char *toreturn = bufferOgg(ao, ao.file_, buffersize);
 	//ov_clear(&oggFile);
@@ -200,10 +198,11 @@ bool rebufferOgg(AudioObject &ao, unsigned char *data, size_t &size) {
 }
 
 void Audio::addSound(std::string name, std::string path, bool loadImmediate,
-		AudioType type) {
+		AudioType type, double length) {
 	LOGI("Loading music file at path %s", path.c_str());
 	// make a new audio object for this file
 	AudioObject *toadd = new AudioObject();
+	toadd->totalLength_=length;
 	toadd->filepath_ = path;
 	if (loadImmediate) {
 		size_t size;
@@ -212,7 +211,6 @@ void Audio::addSound(std::string name, std::string path, bool loadImmediate,
 				toadd->filepath_.c_str(), size);
 		char *actual = 0;
 		if (type == AudioType::WAV) {
-
 			BasicWAVEHeader header;
 			actual = readWAV(data, size, &header);
 			//free(data);
@@ -252,11 +250,11 @@ void Audio::addSound(std::string name, std::string path, bool loadImmediate,
 	}
 }
 
-bool Audio::playSound(std::string name) {
+bool Audio::playSound(std::string name, int length) {
 	AudioObject *toplay = sounds_[name];
 	if (toplay->buffers_.empty()) {
 		// load the sound
-		this->addSound(name, toplay->filepath_, true, toplay->type_);
+		this->addSound(name, toplay->filepath_, true, toplay->type_, length);
 	}
 
 //	alSourcei(toplay->source_id_, AL_BUFFER, toplay->buffer_);
@@ -294,6 +292,12 @@ double Audio::getProgress(std::string name) {
 	timespec diff = diff_time(ao->startTime_, end);
 	// convert to milliseconds
 	return diff.tv_sec * 1000 + (diff.tv_nsec / 1000000.0);
+}
+
+double Audio::getPercentComplete(std::string name){
+	double prog = getProgress(name) / 1000.0;
+	AudioObject *ao = sounds_[name];
+	return prog / ao->totalLength_;
 }
 
 void Audio::update() {

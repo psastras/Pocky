@@ -23,6 +23,7 @@
 #include <qgl.h>
 #endif
 #include <sstream>
+#include <iomanip>
 
 #define CELL(X, Y) cell_[(Y) * ncellsx_ + (X)]
 
@@ -79,10 +80,10 @@ void PockyGame::init() {
 
 	LOGI("[%f, %f, %f]", p1.x, p1.y, p1.z);
 	LOGI("[%f, %f, %f]", p2.x, p2.y, p2.z);
-//
+
 //	Audio::instance()->addSound("test", "assets/audio/short.ogg", true,
 //			AudioType::OGG);
-	//Audio::instance()->addSound("test", "assets/audio/technika2.wav", true, AudioType::WAV);
+//	//Audio::instance()->addSound("test", "assets/audio/technika2.wav", true, AudioType::WAV);
 //	Audio::instance()->playSound("test");
 }
 
@@ -147,6 +148,30 @@ void PockyGame::draw(int time) {
 			hexShader_->setUniformValue("tcOffset", tc);
 			square_->draw(hexShader_);
 			hexShader_->release();
+		} else if(cell_[i].life > -1.f && cell_[i].life <= 0.f && nLights < MAX_ACTIVE) {
+			lightPositions_[nLights].x = cell_[i].sspos.x;
+			lightPositions_[nLights].y = cell_[i].sspos.y;
+			lightPositions_[nLights].z = 20.f * (cell_[i].life + 1.5f);
+			nLights++;
+			GL::instance()->perspective(60.f, 0.01f, 1000.f,
+					GL::instance()->width(), GL::instance()->height());
+			VSML::instance()->translate(cell_[i].wspos.x, cell_[i].wspos.y,
+					0.f);
+			VSML::instance()->scale(MAX(-cell_[i].life + 1.f, 1.f)
+			, MAX(-cell_[i].life+1.f, 1.f), 1.f);
+
+			float2 tc(cell_[i].sspos.x / w, 1.f - cell_[i].sspos.y / h);
+			hexShader_->bind(VSML::instance());
+			glActiveTexture(GL_TEXTURE0);
+			framebuffer0_->bindsurface(0);
+			hexShader_->setUniformValue("tex", 0);
+			hexShader_->setUniformValue(
+						"life",
+						-((cell_[i].life - 0.5f) * (cell_[i].life - 0.5f))
+								+ 1.5f);
+			hexShader_->setUniformValue("tcOffset", tc);
+			square_->draw(hexShader_);
+			hexShader_->release();
 		}
 	}
 
@@ -169,12 +194,12 @@ void PockyGame::draw(int time) {
 	glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_ALPHA);
 	overlay_->bind(VSML::instance());
 	overlay_->setUniformValue("height", 1.f / 30.f);
-	overlay_->setUniformValue("progress", prog - (int) prog);
+	overlay_->setUniformValue("progress", (float) Audio::instance()->getPercentComplete("sim"));
 	topbar_->draw(overlay_);
 	overlay_->release();
 	glDisable(GL_BLEND);
 	std::stringstream ss;
-	ss << "FPS > " << (int) fps_; // << " <> " << progress;// << "\nRES > " << GL::instance()->width() << " X " << GL::instance()->height();
+	ss << std::setfill('0') << std::setw(9) << score_;//"FPS > " << (int) fps_; // << " <> " << progress;// << "\nRES > " << GL::instance()->width() << " X " << GL::instance()->height();
 	GL::instance()->renderText(ss.str(), Float3(2.f, -7.f, 0.f),
 			FONTS::FontLekton);
 //	glEnable(GL_BLEND);

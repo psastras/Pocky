@@ -11,7 +11,7 @@
 #include <pineapple/jni/extern/Float3.h>
 #include <pineapple/jni/extern/GL.h>
 
-#define MAX_ACTIVE 50 //if you change this make sure to change the shader as well
+#define MAX_ACTIVE 10 //if you change this make sure to change the shader as well
 
 namespace Pocky {
 
@@ -48,9 +48,13 @@ public:
 		return cell_;
 	}
 
+	void setScore(int s){
+		score_ = s;
+	}
+
 protected:
 
-
+	int score_;
 
 	float fps_;
 	int previousTime_; // holds the previous draw time

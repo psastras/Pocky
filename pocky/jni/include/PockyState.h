@@ -24,8 +24,11 @@ public:
 
 	void update();
 	void touch(float x, float y);
-        void loadSimfile(std::string path);
+	void loadSimfile(std::string path);
 
+	int getScore(){
+		return score_;
+	}
 protected:
 	PockyGame *game_;
 	PockyGridCell *cells_;
