@@ -10,16 +10,17 @@
 
 #include <pineapple/jni/extern/Float3.h>
 #include <pineapple/jni/extern/GL.h>
+#include "../include/PockyState.h"
 
 #define MAX_ACTIVE 50 //if you change this make sure to change the shader as well
 
-namespace Pocky {
 
+namespace Pocky {
 struct PockyGameParams
 {
 	int gridx, gridy;
 };
-
+class PockyState;
 struct PockyGridCell {
 	Float3 wspos; //world space position
 	float2 sspos; //screen space position
@@ -52,6 +53,8 @@ public:
 		score_ = s;
 	}
 
+        void setState(PockyState *s);
+
 protected:
 
 	int score_;
@@ -62,13 +65,15 @@ protected:
 	PockyGridCell *cell_;
 	int ncellsx_, ncellsy_;
 
-	GLPrimitive *quad_, *square_, *topbar_;
+        GLPrimitive *quad_, *square_, *topbar_, *touchprim_;
 	GLFramebufferObject *framebuffer0_, *framebuffer1_;
-	GLShaderProgram *texLight_, *hexShader_, *bg_, *overlay_, *id_;
+        GLShaderProgram *texLight_, *hexShader_, *bg_, *overlay_, *id_, *touch_;
 	Float3 lightPositions_[MAX_ACTIVE];
 	PockyGameParams params_;
 
 	int *ids_;
+
+        PockyState *state_;
 
 private:
 	void DrawGrid(int radx, int rady, bool solid);

@@ -112,8 +112,8 @@ GLAPI void APIENTRY glVertexAttribPointer (GLuint, GLint, GLenum, GLboolean, GLs
 #define  LOGI(...)  __android_log_print(ANDROID_LOG_INFO,LOG_TAG,__VA_ARGS__)
 #define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
 #else
-#define  LOGI(...)  printf(__VA_ARGS__); printf("\n");
-#define  LOGE(...)  printf(__VA_ARGS__); printf("\n");
+#define  LOGI(...)  printf(__VA_ARGS__); printf("\n");fflush(stdout);
+#define  LOGE(...)  printf(__VA_ARGS__); printf("\n");fflush(stdout);
 #endif
 
 #define  RELEASE(X) \

@@ -1,10 +1,9 @@
-#-------------------------------------------------
-#
+# -------------------------------------------------
 # Project created by QtCreator 2011-12-08T13:58:20
-#
-#-------------------------------------------------
-
-QT       += core gui opengl
+# -------------------------------------------------
+QT += core \
+    gui \
+    opengl
 DEFINES += _DESKTOP
 TARGET = Beatmap
 TEMPLATE = app
@@ -23,7 +22,7 @@ SOURCES += main.cpp \
     ../jni/src/PockyState.cpp \
     ../jni/src/PockyGame.cpp \
     ../../pineapple/jni/src/Audio.cpp
-HEADERS  += mainwindow.h \
+HEADERS += mainwindow.h \
     glwidget.h \
     ../../pineapple/jni/extern/GLShaderProgram.h \
     ../../pineapple/jni/extern/GLPrimitive.h \
@@ -37,6 +36,23 @@ HEADERS  += mainwindow.h \
     ../jni/include/PockyGame.h \
     ../../pineapple/jni/extern/Common.h \
     ../../pineapple/jni/extern/Audio.h
-FORMS    += mainwindow.ui
-LIBS += -lvorbis -lvorbisfile -logg -L/home/psastras/Downloads/openal-soft-1.13 -lopenal
+FORMS += mainwindow.ui
+LIBS += -lvorbis \
+    -lvorbisfile \
+    -logg \
+    -L/home/psastras/Downloads/openal-soft-1.13 \
+    -lopenal
 QMAKE_CXXFLAGS += -std=c++0x
+OTHER_FILES += ../assets/shaders/text.glsl \
+    ../assets/shaders/texmaplit.glsl \
+    ../assets/shaders/texmap.glsl \
+    ../assets/shaders/overlay.glsl \
+    ../assets/shaders/id.glsl \
+    ../assets/shaders/hex.glsl \
+    ../assets/shaders/default2.glsl \
+    ../assets/shaders/default.glsl \
+    ../assets/shaders/blur.glsl \
+    ../assets/shaders/bloom.glsl \
+    ../assets/shaders/background.glsl \
+    ../assets/shaders/alpha.glsl \
+    ../assets/shaders/touch.glsl
