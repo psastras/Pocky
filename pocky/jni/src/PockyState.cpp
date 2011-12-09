@@ -91,7 +91,7 @@ void PockyState::update() {
 			current->life -= 0.5 / (EASY_LIFE * msperbeat) * dt;
 		}
 		if (current->life <= 0) {
-			current->life -= 1.0 / msperbeat * dt;
+			current->life -= 0.5 / msperbeat * dt;
 		}
 		if (current->life <= -1) {
 			//			LOGI("erasing");
