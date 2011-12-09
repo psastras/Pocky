@@ -41,6 +41,7 @@ PockyGame::PockyGame(const PockyGameParams &params) {
 	for (int i = 0; i < (ncellsx_ * ncellsy_); i++) {
 		cell_[i].life = -1;
 	}
+	score_ = 0;
 }
 
 PockyGame::~PockyGame() {
