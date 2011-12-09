@@ -37,7 +37,7 @@ PockyGame::PockyGame(const PockyGameParams &params) {
 	cell_ = new PockyGridCell[(params.gridx * 2 + 1) * (params.gridy * 2 + 1)];
 	ncellsx_ = (params.gridx * 2 + 1);
 	ncellsy_ = (params.gridy * 2 + 1);
-	for(int i = 0; i < (ncellsx_*ncellsy_); i++){
+	for (int i = 0; i < (ncellsx_ * ncellsy_); i++) {
 		cell_[i].life = -1;
 	}
 }
@@ -45,7 +45,6 @@ PockyGame::PockyGame(const PockyGameParams &params) {
 PockyGame::~PockyGame() {
 	delete[] cell_;
 }
-
 
 GLFramebufferObject *fbo2;
 void PockyGame::init() {
@@ -80,11 +79,11 @@ void PockyGame::init() {
 
 	LOGI("[%f, %f, %f]", p1.x, p1.y, p1.z);
 	LOGI("[%f, %f, %f]", p2.x, p2.y, p2.z);
-/*
-	Audio::instance()->addSound("test", "assets/audio/short.ogg", true,
-			AudioType::OGG);
-	//Audio::instance()->addSound("test", "assets/audio/technika2.wav", true, AudioType::WAV);
-	Audio::instance()->playSound("test");*/
+	/*
+	 Audio::instance()->addSound("test", "assets/audio/short.ogg", true,
+	 AudioType::OGG);
+	 //Audio::instance()->addSound("test", "assets/audio/technika2.wav", true, AudioType::WAV);
+	 Audio::instance()->playSound("test");*/
 }
 
 float prog = 0.f;
@@ -93,7 +92,7 @@ void PockyGame::draw(int time) {
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	int dt = time - previousTime_;
-	if(dt > 0) {
+	if (dt > 0) {
 		fps_ = 0.99f * fps_ + 0.01f * (1000 / dt);
 		previousTime_ = time;
 	}
@@ -129,7 +128,7 @@ void PockyGame::draw(int time) {
 			GL::instance()->perspective(60.f, 0.01f, 1000.f,
 					GL::instance()->width(), GL::instance()->height());
 			VSML::instance()->scale(MAX(cell_[i].life + 0.5f, 1.f)
-					, MAX(cell_[i].life+0.5f, 1.f), 1.f);
+			, MAX(cell_[i].life+0.5f, 1.f), 1.f);
 			VSML::instance()->translate(cell_[i].wspos.x, cell_[i].wspos.y,
 					0.f);
 			float2 tc(cell_[i].sspos.x / w, 1.f - cell_[i].sspos.y / h);
@@ -137,12 +136,14 @@ void PockyGame::draw(int time) {
 			glActiveTexture(GL_TEXTURE0);
 			framebuffer0_->bindsurface(0);
 			hexShader_->setUniformValue("tex", 0);
-			float v = (cell_[i].life - 0.5f)*2.f;
-			if(cell_[i].life <= 0.45f)
-				hexShader_->setUniformValue("life",
-						-(v*v) + 1.5f);
-			else hexShader_->setUniformValue("life",
-										-((cell_[i].life - 0.5f) * (cell_[i].life - 0.5f)) + 0.7f);
+			float v = (cell_[i].life - 0.5f) * 2.f;
+			if (cell_[i].life <= 0.45f)
+				hexShader_->setUniformValue("life", -(v * v) + 1.5f);
+			else
+				hexShader_->setUniformValue(
+						"life",
+						-((cell_[i].life - 0.5f) * (cell_[i].life - 0.5f))
+								+ 0.7f);
 			hexShader_->setUniformValue("tcOffset", tc);
 			square_->draw(hexShader_);
 			hexShader_->release();
@@ -168,13 +169,14 @@ void PockyGame::draw(int time) {
 	glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_ALPHA);
 	overlay_->bind(VSML::instance());
 	overlay_->setUniformValue("height", 1.f / 30.f);
-	overlay_->setUniformValue("progress", prog - (int)prog);
+	overlay_->setUniformValue("progress", prog - (int) prog);
 	topbar_->draw(overlay_);
 	overlay_->release();
 	glDisable(GL_BLEND);
 	std::stringstream ss;
 	ss << "FPS > " << (int) fps_; // << " <> " << progress;// << "\nRES > " << GL::instance()->width() << " X " << GL::instance()->height();
-	GL::instance()->renderText(ss.str(), Float3(2.f, -7.f, 0.f), FONTS::FontLekton);
+	GL::instance()->renderText(ss.str(), Float3(2.f, -7.f, 0.f),
+			FONTS::FontLekton);
 //	glEnable(GL_BLEND);
 //	glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_ALPHA);
 //
@@ -191,12 +193,12 @@ void PockyGame::draw(int time) {
 }
 
 void IdxToRGB565(int idx, Float3 &rgb) {
-	int r = idx / (32*64);
-	int g = (idx - r*32*64) / 32;
-	int b = (idx - r*32*64-g*32);
-	rgb.x = r*8;
-	rgb.y = g*4;
-	rgb.z = b*8;
+	int r = idx / (32 * 64);
+	int g = (idx - r * 32 * 64) / 32;
+	int b = (idx - r * 32 * 64 - g * 32);
+	rgb.x = r * 8;
+	rgb.y = g * 4;
+	rgb.z = b * 8;
 	rgb /= 255.f;
 }
 
@@ -204,19 +206,19 @@ void PockyGame::DrawGrid(int radx, int rady, bool solid) {
 
 	GLPrimitive *square = new GLQuad(Float3(10, 10, 10), Float3(0.f, 0.f, -5.f),
 			Float3(1.f, 1.f, 1.f));
-	if(!solid) {
+	if (!solid) {
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_ONE, GL_ONE);
 	} else {
 		glDisable(GL_BLEND);
 	}
 	GLPrimitive *disc = new GLDisc(Float3(6, 1, 1), Float3(0.f, 0.f, -5.f),
-				Float3(1.f, 1.f, 1.f));
+			Float3(1.f, 1.f, 1.f));
 	float2 scale = { 1.f, 1.f };
 	for (int y = -rady, i = 0, j = 0; y <= rady; y++, i++) {
 		for (int x = -radx; x <= radx; x++, j++) {
 //			cell_[j].life = 0.f;
-			cell_[j].id = j+1;
+			cell_[j].id = j + 1;
 			GL::instance()->perspective(60.f, 0.01f, 1000.f,
 					GL::instance()->width(), GL::instance()->height());
 			if (i % 2 == 0) {
@@ -227,7 +229,7 @@ void PockyGame::DrawGrid(int radx, int rady, bool solid) {
 				VSML::instance()->translate(x * (1.05) + 0.5f, y * 0.95, 0.f);
 			}
 			cell_[j].sspos = GL::instance()->unproject(cell_[j].wspos);
-			if(solid) {
+			if (solid) {
 				GL::instance()->shader("id")->bind(VSML::instance());
 				//convert j=1...65535 to r5g6b5
 				//32 - 64 - 32
@@ -254,7 +256,6 @@ void PockyGame::DrawGrid(int radx, int rady, bool solid) {
 	delete square;
 	glDisable(GL_BLEND);
 }
-
 
 void PockyGame::generateAssets() {
 	GL::instance()->createShader("blur", "assets/shaders/blur.glsl");
@@ -312,24 +313,24 @@ void PockyGame::generateAssets() {
 	DrawGrid(params_.gridx, params_.gridy, true);
 
 #ifndef _DESKTOP
-	GLushort *texdata = new GLushort[GL::instance()->width() * GL::instance()->height()];
+	GLushort *texdata = new GLushort[GL::instance()->width()
+			* GL::instance()->height()];
 	ids_ = new int[GL::instance()->width() * GL::instance()->height()];
-	glReadPixels(0, 0, GL::instance()->width(), GL::instance()->height(), GL_RGB, GL_UNSIGNED_SHORT_5_6_5, texdata);
+	glReadPixels(0, 0, GL::instance()->width(), GL::instance()->height(),
+			GL_RGB, GL_UNSIGNED_SHORT_5_6_5, texdata);
 #else
 
 	GLbyte *texdata = new GLbyte[GL::instance()->width() * GL::instance()->height()*3];
 	ids_ = new int[GL::instance()->width() * GL::instance()->height()];
 	glReadPixels(0, 0, GL::instance()->width(), GL::instance()->height(), GL_RGB, GL_BYTE, texdata);
 #endif
-	for(int y=0, i=0;y<GL::instance()->height();y++)
-	{
-		for(int x=0;x<GL::instance()->width();x++,i++)
-		{
+	for (int y = 0, i = 0; y < GL::instance()->height(); y++) {
+		for (int x = 0; x < GL::instance()->width(); x++, i++) {
 #ifndef _DESKTOP
 			int r = (255 * ((texdata[i]) >> 11) + 15) / 31;
-			int g = (255 * ((texdata[i] & 0x7E0) >>  5) + 31) / 63;
+			int g = (255 * ((texdata[i] & 0x7E0) >> 5) + 31) / 63;
 			int b = (255 * ((texdata[i] & 0x01F)) + 15) / 31;
-			ids_[i] = (r*32*64/8+g*32/4+b/8)-1;
+			ids_[i] = (r * 32 * 64 / 8 + g * 32 / 4 + b / 8) - 1;
 #else
 			int r = texdata[i*3];
 			int g = texdata[i*3+1];
@@ -342,7 +343,6 @@ void PockyGame::generateAssets() {
 	}
 	delete[] texdata;
 
-
 	framebuffer1_->bind();
 	glClear(GL_COLOR_BUFFER_BIT);
 	GL::instance()->perspective(60.f, 0.01f, 1000.f, GL::instance()->width(),
@@ -353,7 +353,8 @@ void PockyGame::generateAssets() {
 
 	//begine active hex generation
 	framebuffer1_->releaseFramebuffer();
-	parms.width = 128;	parms.height = 128;
+	parms.width = 128;
+	parms.height = 128;
 	framebuffer0_ = new GLFramebufferObject(parms);
 	framebuffer0_->bind();
 	glClear(GL_COLOR_BUFFER_BIT);

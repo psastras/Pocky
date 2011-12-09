@@ -24,6 +24,7 @@ public:
 
 	void update();
 	void touch(float x, float y);
+        void loadSimfile(std::string path);
 
 protected:
 	PockyGame *game_;

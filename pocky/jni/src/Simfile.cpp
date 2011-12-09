@@ -43,13 +43,14 @@ Simfile* Simfile::parse(std::string filepath) {
 
 	char buffer[256];
 	stringstream sstm(actual);
+	string bufstring;
 
 	LOGI("loaded resource, starting parse");
 	while (!sstm.eof()) {
 		sstm.getline(buffer, 256);
 		bufstring = buffer;
-		LOGI("read line: %s", buffer);
-		if((buffer[0]) == '#'){
+		LOGI("read line: %c", buffer);
+		if ((buffer[0]) == '#') {
 			LOGI("comment, ignoring");
 			continue;
 		}
@@ -64,11 +65,17 @@ Simfile* Simfile::parse(std::string filepath) {
 				LOGI("looking for data line");
 				// reading data
 				// look for absolute coordinate data
-				double time;
+				float time;
 				int x, y;
-				int res = sscanf(buffer, "%f", &time);
-				LOGI("sscanf result = %d", res);
-				if (!sscanf(buffer, "%f", &time)) {
+				if (sscanf(buffer, "%f %d,%d", &time, &x, &y) == 3) {
+					SimNote ns;
+					ns.time_ = time;
+					ns.x_ = x;
+					ns.y_ = y;
+					newsim->notes_->push_back(ns);
+					LOGI(
+							"added note at time %f, position %d,%d", ns.time_, ns.x_, ns.y_);
+				} else if (sscanf(buffer, "%f", &time) == 1) {
 					// it's a rando
 					SimNote ns;
 					ns.time_ = time;
@@ -77,31 +84,22 @@ Simfile* Simfile::parse(std::string filepath) {
 					newsim->notes_->push_back(ns);
 					LOGI("added random note at time %f", ns.time_);
 
-				} else if (!sscanf(buffer, "%f %d,%d", &time, &x, &y)) {
-					SimNote ns;
-					ns.time_ = time;
-					ns.x_ = x;
-					ns.y_ = y;
-					newsim->notes_->push_back(ns);
-					LOGI(
-							"added note at time %f, position %d,%d", ns.time_, ns.x_, ns.y_);
 				} else {
 					//					LOGI("weird line in data");
 				}
 			} else {
-//				LOGI("checking for data tag");
+				//				LOGI("checking for data tag");
 				// check for the data tag
 				if (!strcmp(buffer, "[DATA]")) {
 					LOGI("found data tag");
 					data = true;
 					continue;
 				}
-//				LOGI("looking for header information");
+				//				LOGI("looking for header information");
 				// otherwise we're reading the header information
 				char key[32];
 				char value[32];
-				int res = sscanf(buffer, "%s %s", key, value);
-				if (res <= 0) {
+				if (sscanf(buffer, "%s %s", key, value) != 2) {
 					LOGI("found some gibberish");
 					continue;
 				}LOGI("scanning header data, key: %s, value: %s", key, value);
@@ -110,6 +108,8 @@ Simfile* Simfile::parse(std::string filepath) {
 					LOGI("title: %s", newsim->getData()->title_.c_str());
 				} else if (!strcmp(key, "BPM")) {
 					newsim->getData()->bpm_ = atof(value);
+					newsim->getData()->msperbeat_ = 1000.0
+							/ (newsim->getData()->bpm_ / 60.0);
 					LOGI("BPM: %f", newsim->getData()->bpm_);
 				} else if (!strcmp(key, "LENGTH")) {
 					newsim->getData()->length_ = atof(value);
@@ -117,12 +117,16 @@ Simfile* Simfile::parse(std::string filepath) {
 				} else if (!strcmp(key, "AUTHOR")) {
 					newsim->getData()->author_ = value;
 					LOGI("author: %s", newsim->getData()->author_.c_str());
+				} else if (!strcmp(key, "MUSIC")) {
+					newsim->getData()->music_ = value;
+					LOGI("music: %s", newsim->getData()->author_.c_str());
 				} else {
-//					LOGI("got a weird tag in the header");
+					//					LOGI("got a weird tag in the header");
 				}
 			}
 		}
 	}LOGI("finished parsing");
+	newsim->position_ = 0;
 	return newsim;
 }
 

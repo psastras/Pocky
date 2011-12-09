@@ -193,6 +193,7 @@ bool rebufferOgg(AudioObject &ao, unsigned char *data, size_t &size) {
 
 void Audio::addSound(std::string name, std::string path, bool loadImmediate,
 		AudioType type) {
+	LOGI("Loading music file at path %s", path.c_str());
 	// make a new audio object for this file
 	AudioObject *toadd = new AudioObject();
 	toadd->filepath_ = path;

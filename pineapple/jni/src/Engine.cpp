@@ -24,11 +24,11 @@ void* run(void*) {
 	while (gIsRunning) {
 #ifndef _DESKTOP
 		if (Pineapple::Audio::instance()) {
-		//	LOGI("audio update");
+			//	LOGI("audio update");
 			Pineapple::Audio::instance()->update();
 		}
 #endif
-	//	LOGI("before mutex");
+		//	LOGI("before mutex");
 		pthread_mutex_lock(&mutex);
 //		int res = pthread_mutex_trylock(&mutex);
 //
@@ -65,7 +65,6 @@ Engine::Engine() {
 	Pineapple::Audio::init();
 #endif
 }
-
 
 Engine::~Engine() {
 #ifndef _DESKTOP

@@ -11,17 +11,18 @@
 #include <string>
 #include <vector>
 
-namespace Pocky{
+namespace Pocky {
 
-struct SimData{
+struct SimData {
 	std::string title_;
 	double bpm_;
-	double length_;// seconds
+	double length_; // seconds
 	std::string author_;
-
+	std::string music_;
+	double msperbeat_;
 };
 
-struct SimNote{
+struct SimNote {
 	double time_;
 	int x_;
 	int y_;
@@ -34,7 +35,9 @@ public:
 
 	static Simfile* parse(std::string filepath);
 
-	SimData *getData() {return data_;}
+	SimData *getData() {
+		return data_;
+	}
 
 	SimNote *getNextNote();
 	void incrementPosition();
