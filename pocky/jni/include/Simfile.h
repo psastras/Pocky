@@ -40,7 +40,7 @@ public:
 	}
 
 	SimNote *getNextNote();
-	void incrementPosition();
+	int incrementPosition();
 
 protected:
 	SimData *data_;

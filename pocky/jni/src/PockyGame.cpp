@@ -79,11 +79,11 @@ void PockyGame::init() {
 
 	LOGI("[%f, %f, %f]", p1.x, p1.y, p1.z);
 	LOGI("[%f, %f, %f]", p2.x, p2.y, p2.z);
-
-	Audio::instance()->addSound("test", "assets/audio/short.ogg", true,
-			AudioType::OGG);
+//
+//	Audio::instance()->addSound("test", "assets/audio/short.ogg", true,
+//			AudioType::OGG);
 	//Audio::instance()->addSound("test", "assets/audio/technika2.wav", true, AudioType::WAV);
-	Audio::instance()->playSound("test");
+//	Audio::instance()->playSound("test");
 }
 
 float prog = 0.f;

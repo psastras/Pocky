@@ -21,6 +21,7 @@ PockyState::PockyState(PockyGame *pg) {
 	score_ = 0;
 	lastUpdate_.tv_sec = 0;
 	lastUpdate_.tv_nsec = 0;
+	simfile_ = NULL;
 
 	loadSimfile("assets/simfiles/test.sim");
 }
@@ -55,6 +56,9 @@ void PockyState::update() {
 		clock_gettime(CLOCK_MONOTONIC, &lastUpdate_);
 		return;
 	}
+	if(!simfile_){
+		return;
+	}
 	timespec current;
 	clock_gettime(CLOCK_MONOTONIC, &current);
 	// dt in milliseconds
@@ -86,8 +90,8 @@ void PockyState::update() {
 
 		if (current->life >= 0) {
 			// it should stay alive for DIFFICULTY_LIFE * msperbeat
-			// so it will decrease by 1.0/(DIFFICULTY_LIFE*msperbeat) * dt
-			current->life -= 1.0 / (EASY_LIFE * msperbeat) * dt;
+			// so it will decrease by 0.5/(DIFFICULTY_LIFE*msperbeat) * dt
+			current->life -= 0.5 / (EASY_LIFE * msperbeat) * dt;
 		}
 		if (current->life <= 0) {
 			current->life -= 1.0 / msperbeat * dt;
@@ -117,8 +121,7 @@ void PockyState::update() {
 					if (cells_[idx].life <= -1 && activeCells_->size() < 10) {
 						cells_[idx].life = 1.0f;
 						activeCells_->push_back(&cells_[idx]);
-						LOGI(
-								"spawn new cell at index %d with life %f", idx, cells_[idx].life);
+//						LOGI("spawn new cell at index %d with life %f", idx, cells_[idx].life);
 						found = true;
 					}
 				}
@@ -128,7 +131,12 @@ void PockyState::update() {
 				cells_[idx].life = 1.0f;
 				activeCells_->push_back(&cells_[idx]);
 			}
-			simfile_->incrementPosition();
+			int newpos = simfile_->incrementPosition();
+			if(newpos == -1){
+				delete simfile_;
+				simfile_ = 0;
+				spawning = false;
+			}
 		} else {
 			spawning = false;
 		}
@@ -155,21 +163,21 @@ void PockyState::touch(float x, float y) {
 	// get the cell id
 	lastTouch_.x = x;
 	lastTouch_.y = y;
-	int index = game_->getGridLocation((int) x, (int) y);
-	if (index < 0) {
-		return;
-	}
-	Engine::instance()->lock();
-	//	LOGI("touched cell %d", index);
-	LOGI("touched cell %d, life is %f", index, cells_[index].life);
-	if (cells_[index].life > 0 && cells_[index].life < 0.5) {
-		// kill it
-		LOGI("killing cell %d", index);
-		cells_[index].life = 0;
-	} else if (cells_[index].life < 0) {
-		cells_[index].life = 1.0f;
-		activeCells_->push_back(&cells_[index]);
-	}
-	Engine::instance()->unlock();
+//	int index = game_->getGridLocation((int) x, (int) y);
+//	if (index < 0) {
+//		return;
+//	}
+//	Engine::instance()->lock();
+//	//	LOGI("touched cell %d", index);
+//	LOGI("touched cell %d, life is %f", index, cells_[index].life);
+//	if (cells_[index].life > 0 && cells_[index].life < 0.5) {
+//		// kill it
+//		LOGI("killing cell %d", index);
+//		cells_[index].life = 0;
+//	} else if (cells_[index].life < 0) {
+//		cells_[index].life = 1.0f;
+//		activeCells_->push_back(&cells_[index]);
+//	}
+//	Engine::instance()->unlock();
 }
 }
