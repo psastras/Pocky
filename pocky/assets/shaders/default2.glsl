@@ -16,6 +16,6 @@ void main(void) {
 #ifdef _FRAGMENT_
 varying vec3 pass_TexCoord;
 void main() {
-   gl_FragColor = texture2D(tex, pass_TexCoord.st)+1.0;
+   gl_FragColor = texture2D(tex, pass_TexCoord.st)+10.0;
 }
 #endif 

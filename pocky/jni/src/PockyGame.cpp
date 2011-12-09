@@ -345,9 +345,9 @@ void PockyGame::generateAssets() {
 			GL_RGB, GL_UNSIGNED_SHORT_5_6_5, texdata);
 #else
 
-	GLbyte *texdata = new GLbyte[GL::instance()->width() * GL::instance()->height()*3];
+	GLbyte *texdata = new GLbyte[GL::instance()->width() * GL::instance()->height()*4];
 	ids_ = new int[GL::instance()->width() * GL::instance()->height()];
-	glReadPixels(0, 0, GL::instance()->width(), GL::instance()->height(), GL_RGB, GL_BYTE, texdata);
+	glReadPixels(0, 0, GL::instance()->width(), GL::instance()->height(), GL_RGBA, GL_BYTE, texdata);
 #endif
 	for (int y = 0, i = 0; y < GL::instance()->height(); y++) {
 		for (int x = 0; x < GL::instance()->width(); x++, i++) {
@@ -357,9 +357,9 @@ void PockyGame::generateAssets() {
 			int b = (255 * ((texdata[i] & 0x01F)) + 15) / 31;
 			ids_[i] = (r * 32 * 64 / 8 + g * 32 / 4 + b / 8) - 1;
 #else
-			int r = texdata[i*3];
-			int g = texdata[i*3+1];
-			int b = texdata[i*3+2];
+			int r = texdata[i*4];
+			int g = texdata[i*4+1];
+			int b = texdata[i*4+2];
 			ids_[i] = (r*32*64/8+g*32/4+b/8)-1;
 //			if(r!=0||g!=0||b!=0)
 //				qDebug() << "test:: " << r << ", " << g << ", " << b << ":::" << ids_[i];
