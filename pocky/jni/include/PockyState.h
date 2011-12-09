@@ -10,6 +10,7 @@
 
 #include "../include/PockyGame.h"
 #include <pineapple/jni/extern/Engine.h>
+#include "../include/Simfile.h"
 #include <sys/time.h>
 #include <sys/times.h>
 
@@ -25,6 +26,7 @@ public:
 	void touch(float x, float y);
 
 protected:
+	PockyGame *game_;
 	PockyGridCell *cells_;
 	int ncellsx_, ncellsy_;
 	std::vector<PockyGridCell *> *activeCells_;
@@ -34,6 +36,8 @@ protected:
 	int score_;
 
 	float2 lastTouch_;
+
+	Simfile *simfile_;
 
 };
 }

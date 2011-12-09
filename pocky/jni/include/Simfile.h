@@ -32,7 +32,7 @@ public:
 	Simfile();
 	virtual ~Simfile();
 
-	static void parse(std::string filepath);
+	static Simfile* parse(std::string filepath);
 
 	SimData *getData() {return data_;}
 
@@ -41,7 +41,7 @@ public:
 
 protected:
 	SimData *data_;
-	std::vector<SimNote *> *notes_;
+	std::vector<SimNote> *notes_;
 	int position_;
 };
 }

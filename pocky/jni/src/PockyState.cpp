@@ -10,11 +10,14 @@
 namespace Pocky {
 
 PockyState::PockyState(PockyGame *pg) {
+	game_ = pg;
 	cells_ = pg->getGrid(ncellsx_, ncellsy_);
 	activeCells_ = new std::vector<PockyGridCell *>();
 	score_ = 0;
 	lastUpdate_.tv_sec = 0;
 	lastUpdate_.tv_nsec = 0;
+
+	simfile_ = Simfile::parse("assets/simfiles/test.sim");
 }
 
 PockyState::~PockyState() {
@@ -44,8 +47,9 @@ void PockyState::update() {
 	// dt in milliseconds
 	int dt = diff_time(lastUpdate_, current);
 	//LOGI("dt is %d", dt);
-	for (std::vector<PockyGridCell *>::iterator i = activeCells_->begin(); i != activeCells_->end();) {
-		PockyGridCell *current = *i;//activeCells_->at(i);
+	for (std::vector<PockyGridCell *>::iterator i = activeCells_->begin();
+			i != activeCells_->end();) {
+		PockyGridCell *current = *i; //activeCells_->at(i);
 //		if (current->life > 0.5) {
 //			// it's coming in and we need to decrement
 //			current->life -= 0.0002 * dt;
@@ -59,29 +63,28 @@ void PockyState::update() {
 //			// remove from actives
 //			i = activeCells_->erase(i);
 //		}
-		if(current->life >= 0){
-			current->life -= 0.0003 * dt;
+		if (current->life >= -1) {
+			current->life -= 0.0002 * dt;
 
 		}
-		if(current -> life <= 0){
-			LOGI("erasing");
+		if (current->life <= -1) {
+//			LOGI("erasing");
 			i = activeCells_->erase(i);
 			continue;
 		}
 		i++;
-
 
 	}
 	// spawn another one?
 //	for (int i = 0; i < ncellsx_ * ncellsy_; i++) {
 //		if (cell_[i].life <= 0.f) {
 //			while (true) {
-	int idx = rand() % (ncellsx_ * ncellsy_);
-	if (cells_[idx].life <= 0 && activeCells_->size() < 10) {
-		LOGI("spawn new cell at index %d", idx);
-		cells_[idx].life = 1.f;
-		activeCells_->push_back(&cells_[idx]);
-	}
+//	int idx = rand() % (ncellsx_ * ncellsy_);
+//	if (cells_[idx].life <= -1 && activeCells_->size() < 10) {
+//		cells_[idx].life = 1.0f;
+//		LOGI("spawn new cell at index %d with life %f", idx, cells_[idx].life);
+//		activeCells_->push_back(&cells_[idx]);
+//	}
 	lastUpdate_ = current;
 //			}
 //		}
@@ -89,6 +92,24 @@ void PockyState::update() {
 }
 
 void PockyState::touch(float x, float y) {
-
+	// get the cell id
+	lastTouch_.x = x;
+	lastTouch_.y = y;
+	int index = game_->getGridLocation((int) x, (int) y);
+	if(index < 0){
+		return;
+	}
+	Engine::instance()->lock();
+//	LOGI("touched cell %d", index);
+	LOGI("touched cell %d, life is %f", index, cells_[index].life);
+	if(cells_[index].life > 0 && cells_[index].life < 0.5){
+		// kill it
+		LOGI("killing cell %d", index);
+		cells_[index].life = 0;
+	}else if(cells_[index].life < 0){
+		cells_[index].life = 1.0f;
+		activeCells_->push_back(&cells_[index]);
+	}
+	Engine::instance()->unlock();
 }
 }

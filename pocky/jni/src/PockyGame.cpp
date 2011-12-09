@@ -29,6 +29,9 @@ PockyGame::PockyGame(const PockyGameParams &params) {
 	cell_ = new PockyGridCell[(params.gridx * 2 + 1) * (params.gridy * 2 + 1)];
 	ncellsx_ = (params.gridx * 2 + 1);
 	ncellsy_ = (params.gridy * 2 + 1);
+	for(int i = 0; i < (ncellsx_*ncellsy_); i++){
+		cell_[i].life = -1;
+	}
 }
 
 PockyGame::~PockyGame() {
@@ -191,15 +194,15 @@ void PockyGame::DrawGrid(int radx, int rady, bool solid) {
 	float2 scale = { 1.f, 1.f };
 	for (int y = -rady, i = 0, j = 0; y <= rady; y++, i++) {
 		for (int x = -radx; x <= radx; x++, j++) {
-			cell_[j].life = 0.f;
+//			cell_[j].life = 0.f;
 			cell_[j].id = j+1;
 			GL::instance()->perspective(60.f, 0.01f, 1000.f,
 					GL::instance()->width(), GL::instance()->height());
 			if (i % 2 == 0) {
-				cell_[j].wspos = Float3(x * (1.05), y * 0.95, -5.f);
+				cell_[j].wspos = Float3(x * (1.05), -y * 0.95, -5.f);
 				VSML::instance()->translate(x * (1.05), y * 0.95, 0.f);
 			} else {
-				cell_[j].wspos = Float3(x * (1.05) + 0.5f, y * 0.95, -5.f);
+				cell_[j].wspos = Float3(x * (1.05) + 0.5f, -y * 0.95, -5.f);
 				VSML::instance()->translate(x * (1.05) + 0.5f, y * 0.95, 0.f);
 			}
 			cell_[j].sspos = GL::instance()->unproject(cell_[j].wspos);

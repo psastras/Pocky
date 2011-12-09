@@ -1,0 +1,14 @@
+[HEADER]
+# title is name of simfile
+TITLE test
+# bpm is beats per minute
+BPM 180
+# length is song length in seconds
+LENGTH 300
+# author
+AUTHOR me
+[DATA]
+# time(ms) gridpoint
+0.0
+1
+2
