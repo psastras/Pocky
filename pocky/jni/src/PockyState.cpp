@@ -23,7 +23,7 @@ PockyState::PockyState(PockyGame *pg) {
 	lastUpdate_.tv_nsec = 0;
 	simfile_ = NULL;
 
-	loadSimfile("assets/simfiles/test.sim");
+	loadSimfile("assets/simfiles/eternus.sim");
 }
 
 PockyState::~PockyState() {
@@ -118,7 +118,7 @@ void PockyState::update() {
 				bool found = false;
 				while (!found) {
 					int idx = rand() % (ncellsx_ * ncellsy_);
-					if (cells_[idx].life <= -1 && activeCells_->size() < 10) {
+					if (cells_[idx].life <= -1 && activeCells_->size() < 50) {
 						cells_[idx].life = 1.0f;
 						activeCells_->push_back(&cells_[idx]);
 //						LOGI("spawn new cell at index %d with life %f", idx, cells_[idx].life);
@@ -170,7 +170,7 @@ void PockyState::touch(float x, float y) {
 	}
 	Engine::instance()->lock();
 	//	LOGI("touched cell %d", index);
-	LOGI("touched cell %d, life is %f", index, cells_[index].life);
+//	LOGI("touched cell %d, life is %f", index, cells_[index].life);
 	if (cells_[index].life > 0 && cells_[index].life < 0.5) {
 		// kill it
 		LOGI("killing cell %d", index);

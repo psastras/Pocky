@@ -9,6 +9,7 @@ LENGTH 300
 AUTHOR me
 # music filepath
 MUSIC fine.ogg
+
 [DATA]
 # time(ms) gridpoint
 1.11

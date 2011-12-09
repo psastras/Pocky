@@ -135,7 +135,7 @@ SimNote* Simfile::getNextNote() {
 		LOGI("empty simfile, can't get next note");
 		return NULL;
 	}
-	LOGI("current position is %d, out of a total of %d", position_, notes_->size());
+//	LOGI("current position is %d, out of a total of %d", position_, notes_->size());
 	return &notes_->at(position_);
 }
 
