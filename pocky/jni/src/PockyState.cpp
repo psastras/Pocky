@@ -23,7 +23,7 @@ PockyState::PockyState(PockyGame *pg) {
 	lastUpdate_.tv_nsec = 0;
 	simfile_ = NULL;
 
-	loadSimfile("assets/simfiles/eternus.sim");
+	loadSimfile("assets/simfiles/pokemon.sim");
 }
 
 PockyState::~PockyState() {
@@ -116,6 +116,7 @@ void PockyState::update() {
 	 while (spawning) {
 	 SimNote * next = simfile_->getNextNote();
 	 double prog = Audio::instance()->getProgress("sim");
+	 game_->setScore(prog);
 	 // want to spawn it a beat before its time
 	 double leadtime = simfile_->getData()->msperbeat_;
 	 if (prog > (next->time_ * 1000.0 - leadtime)) {
@@ -184,7 +185,7 @@ void PockyState::touch(float x, float y) {
 		LOGI("killing cell %d", index);
 		cells_[index].life = -0.0000000001;
 		score_++;
-		game_->setScore(score_);
+		//game_->setScore(score_);
 	}
 	Engine::instance()->unlock();
 }
