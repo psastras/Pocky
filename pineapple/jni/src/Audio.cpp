@@ -48,7 +48,11 @@ char *bufferOgg(AudioObject &ao, OggVorbis_File *oggFile, size_t &buffersize) {
 	do {
 		// Read up to a buffer's worth of decoded sound data
 		//LOGI("bitstream is %d", ao.bitStream_);
-		bytes = ov_read(oggFile, array, 32768, &ao.bitStream_);
+#ifdef _DESKTOP
+		bytes = ov_read(oggFile, array, 32768, 0, 2, 1, &ao.bitStream_);
+#else
+		bytes = ov_read(oggFile, array, 32768,  &ao.bitStream_);
+#endif
 		if (bytes == 0) {
 			break;
 		}
@@ -73,7 +77,11 @@ char *readOgg(AudioObject &ao, unsigned char *data, size_t &size,
 
 	vorbis_info *pInfo;
 	ao.file_ = new OggVorbis_File();
+#ifdef _DESKTOP
+	ov_fopen((char *)ao.filepath_.c_str(), ao.file_);
+#else
 	ov_open(0, ao.file_, (char *) data, size);
+#endif
 	pInfo = ov_info(ao.file_, -1);
 
 	LOGI("Channels: %d, %d", pInfo->channels, pInfo->rate);

@@ -21,7 +21,8 @@ SOURCES += main.cpp \
     ../../pineapple/jni/src/Engine.cpp \
     ../jni/src/Simfile.cpp \
     ../jni/src/PockyState.cpp \
-    ../jni/src/PockyGame.cpp
+    ../jni/src/PockyGame.cpp \
+    ../../pineapple/jni/src/Audio.cpp
 HEADERS  += mainwindow.h \
     glwidget.h \
     ../../pineapple/jni/extern/GLShaderProgram.h \
@@ -34,7 +35,8 @@ HEADERS  += mainwindow.h \
     ../jni/include/Simfile.h \
     ../jni/include/PockyState.h \
     ../jni/include/PockyGame.h \
-    ../../pineapple/jni/extern/Common.h
+    ../../pineapple/jni/extern/Common.h \
+    ../../pineapple/jni/extern/Audio.h
 FORMS    += mainwindow.ui
-
+LIBS += -lvorbis -lvorbisfile -logg -L/home/psastras/Downloads/openal-soft-1.13 -lopenal
 QMAKE_CXXFLAGS += -std=c++0x
