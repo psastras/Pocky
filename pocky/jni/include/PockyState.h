@@ -41,6 +41,8 @@ public:
             return touchPoints_;
         }
 
+        float getBeat();
+
 protected:
 	PockyGame *game_;
 	PockyGridCell *cells_;

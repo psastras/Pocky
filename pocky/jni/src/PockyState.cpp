@@ -10,7 +10,9 @@
 #include "../include/Simfile.h"
 
 #define EASY_LIFE 4
-#define LATENCY 350
+// LATENCY is 500 for archos, 350 for htc evo, 200 for nexus s
+#define LATENCY 400
+#define TOUCH_LAG 100
 #define NUM_TOUCHPOINTS 20
 
 using namespace Pineapple;
@@ -30,7 +32,7 @@ PockyState::PockyState(PockyGame *pg) {
 
         pg->setState(this);
 
-	loadSimfile("assets/simfiles/eternus.sim");
+        loadSimfile("assets/simfiles/eternus.sim");
 }
 
 PockyState::~PockyState() {
@@ -59,11 +61,28 @@ void PockyState::loadSimfile(std::string path) {
 	Audio::instance()->playSound("sim", simfile_->getData()->length_);
 }
 
+float PockyState::getBeat(){
+    // get the progress of the simfile
+    double msprog = Audio::instance()->getProgress("sim") - LATENCY;
+    msprog -= simfile_->getData()->offset_ * 1000;
+    // get the remainder after dividing by the bpm time
+    double quot = msprog / simfile_->getData()->msperbeat_;
+    // round down to int
+    quot = floor(quot);
+    double offset = msprog - quot*simfile_->getData()->msperbeat_;
+    // it can be either early or late
+    double actual = MIN(offset, simfile_->getData()->msperbeat_ - offset);
+    // return ratio of total beat time
+    // the smaller the offset is, the better
+    return 1.0 - (2*actual / simfile_->getData()->msperbeat_);
+}
+
 void PockyState::update() {
 	if (lastUpdate_.tv_sec == 0 && lastUpdate_.tv_nsec == 0) {
 		clock_gettime(CLOCK_MONOTONIC, &lastUpdate_);
 		return;
 	}
+//        LOGI("goodness is %f", getBeat());
 	timespec current;
 	clock_gettime(CLOCK_MONOTONIC, &current);
 	// dt in milliseconds
@@ -191,24 +210,43 @@ void PockyState::touch(float x, float y) {
 	lastTouch_.y = y;
 	touchPoints_[nextfreetouch_].touchpoint_ = lastTouch_;
 	touchPoints_[nextfreetouch_].life_ = 1.0;
-        LOGI("setting touch point %d to life 1.0", nextfreetouch_);
+        //LOGI("setting touch point %d to life 1.0", nextfreetouch_);
         nextfreetouch_ = (nextfreetouch_ + 1) % NUM_TOUCHPOINTS;
 	int index = game_->getGridLocation((int) x, (int) y);
 	if (index < 0) {
 		return;
 	}
 	Engine::instance()->lock();
-	//	LOGI("touched cell %d", index);
+        double goodness = getBeat();
+
+                        goodness = (1.0-goodness) * simfile_->getData()->msperbeat_;
+                        LOGI("goodness = %f", goodness);
+        //	LOGI("touched cell %d", index);
 //	LOGI("touched cell %d, life is %f", index, cells_[index].life);
 	if (cells_[index].life > 0 && cells_[index].life < 0.5) {
 		// get the timing
 		// since it takes DIFFICULTY_LIFE beats to die, the closer you are to a multiple of 0.5/DIFFICULTY_LIFE the better your timing
-		double inc = 0.5 / EASY_LIFE;
-		double timing = cells_[index].life - ((int)(cells_[index].life / inc))*inc;
-		// timing will be between 0 and inc
-		double goodness = (inc - timing) / inc;
+//		double inc = 0.5 / EASY_LIFE;
+//                double timing = cells_[index].life - (floor(cells_[index].life / inc))*inc;
+//                timing = MIN(timing, inc - timing);
+//                // timing will be between 0 and inc / 2
+//                double goodness = 2 * timing / inc;
+
+
+            // get how close you are to a beat
+
+
+                // goodness is from 0 to 1, smaller is better
 		// kill it
-		LOGI("killing cell %d", index);
+                LOGI("killing cell %d", index);
+                if(goodness < 250){
+                cells_[index].judge = 0;
+                }else if(goodness <400){
+                cells_[index].judge = 1;
+            }else{
+                cells_[index].judge = 2;
+            }
+
 		cells_[index].life = -0.0000000001;
 		score_+= (int) (goodness * 1000);
 		game_->setScore(score_);

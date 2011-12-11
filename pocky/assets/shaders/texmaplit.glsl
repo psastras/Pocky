@@ -5,6 +5,7 @@ uniform mat4 modelviewMatrix;
 uniform mat4 projMatrix;
 uniform vec3 lightpositions[50];
 uniform int nLights;
+uniform float beat;
 #ifdef _VERTEX_
 attribute vec3 in_Position;
 attribute vec3 in_TexCoord;
@@ -29,8 +30,12 @@ void main(void) {
 varying vec3 pass_TexCoord;
 varying float pass_dL;
 void main() {
-   vec4 col = texture2D(tex, texScale*pass_TexCoord.st) * pass_dL ;
-   col.st *= pass_TexCoord.st;
-   gl_FragColor = col;
+   vec4 color = texture2D(tex, texScale*pass_TexCoord.st);
+   vec4 col = color * pass_dL ;
+   //col.st *= pass_TexCoord.st;
+   float beatintensity = beat*beat * 0.4 + 0.3;
+   float lightintensity = beat*beat*0.1 + 0.9;
+   gl_FragColor = (lightintensity*col + beatintensity*color);
+   gl_FragColor.st *= pass_TexCoord.st;
 }
 #endif 

@@ -26,6 +26,7 @@ struct PockyGridCell {
 	float2 sspos; //screen space position
 	int id;
 	float life;
+        int judge;
 };
 
 class PockyGame {
@@ -67,7 +68,7 @@ protected:
 
         GLPrimitive *quad_, *square_, *topbar_, *touchprim_;
 	GLFramebufferObject *framebuffer0_, *framebuffer1_;
-        GLShaderProgram *texLight_, *hexShader_, *bg_, *overlay_, *id_, *touch_;
+        GLShaderProgram *texLight_, *hexShader_, *bg_, *overlay_, *id_, *touch_, *hit_;
 	Float3 lightPositions_[MAX_ACTIVE];
 	PockyGameParams params_;
 

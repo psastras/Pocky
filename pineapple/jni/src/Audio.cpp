@@ -47,7 +47,7 @@ char *bufferOgg(AudioObject &ao, OggVorbis_File *oggFile, size_t &buffersize) {
 	//LOGI("reading new bytes into buffer");
 	do {
 		// Read up to a buffer's worth of decoded sound data
-		LOGI("bitstream is %d", ao.bitStream_);
+		//LOGI("bitstream is %d", ao.bitStream_);
 #ifdef _DESKTOP
 		bytes = ov_read(oggFile, array, 32768, 0, 2, 1, &ao.bitStream_);
 #else
@@ -56,7 +56,7 @@ char *bufferOgg(AudioObject &ao, OggVorbis_File *oggFile, size_t &buffersize) {
 		if (bytes == 0) {
 			break;
 		}
-		LOGI("read %d bytes", (int)bytes);
+		//LOGI("read %d bytes", (int)bytes);
 
 		// Append to end of buffer
 		buffer->insert(buffer->end(), array, array + bytes);

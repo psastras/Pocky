@@ -120,7 +120,9 @@ Simfile* Simfile::parse(std::string filepath) {
 				} else if (!strcmp(key, "MUSIC")) {
 					newsim->getData()->music_ = value;
 					LOGI("music: %s", newsim->getData()->author_.c_str());
-				} else {
+                                } else if (!strcmp(key, "OFFSET")) {
+                                        newsim->getData()->offset_ = atof(value);
+                                } else {
 					//					LOGI("got a weird tag in the header");
 				}
 			}

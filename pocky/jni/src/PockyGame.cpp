@@ -27,6 +27,7 @@
 
 #define CELL(X, Y) cell_[(Y) * ncellsx_ + (X)]
 #define NUM_TOUCHPOINTS 20
+#define SPAWN_SIZE 0.5
 
 using namespace Pineapple;
 namespace Pocky {
@@ -141,10 +142,11 @@ void PockyGame::draw(int time) {
 			nLights++;
 			GL::instance()->perspective(60.f, 0.01f, 1000.f,
 					GL::instance()->width(), GL::instance()->height());
-			VSML::instance()->scale(MAX(cell_[i].life + 0.5f, 1.f)
-			, MAX(cell_[i].life+0.5f, 1.f), 1.f);
-			VSML::instance()->translate(cell_[i].wspos.x, cell_[i].wspos.y,
-					0.f);
+                        VSML::instance()->translate(cell_[i].wspos.x, cell_[i].wspos.y,
+                                        0.f);
+                        VSML::instance()->scale(MIN(2*(SPAWN_SIZE-1)*cell_[i].life + 2 - SPAWN_SIZE, 1.f)
+                        ,  MIN(2*(SPAWN_SIZE-1)*cell_[i].life + 2 - SPAWN_SIZE, 1.f), 1.f);
+
 			float2 tc(cell_[i].sspos.x / w, 1.f - cell_[i].sspos.y / h);
 			hexShader_->bind(VSML::instance());
 			glActiveTexture(GL_TEXTURE0);
@@ -174,17 +176,27 @@ void PockyGame::draw(int time) {
 			, MAX(-cell_[i].life+1.f, 1.f), 1.f);
 
 			float2 tc(cell_[i].sspos.x / w, 1.f - cell_[i].sspos.y / h);
-			hexShader_->bind(VSML::instance());
+                        hit_->bind(VSML::instance());
 			glActiveTexture(GL_TEXTURE0);
 			framebuffer0_->bindsurface(0);
-			hexShader_->setUniformValue("tex", 0);
-			hexShader_->setUniformValue(
+                        hit_->setUniformValue("tex", 0);
+                        hit_->setUniformValue(
 						"life",
 						-((cell_[i].life - 0.5f) * (cell_[i].life - 0.5f))
                                                                 + 2.0f);
-			hexShader_->setUniformValue("tcOffset", tc);
-			square_->draw(hexShader_);
-			hexShader_->release();
+                        hit_->setUniformValue("tcOffset", tc);
+                        if(cell_[i].judge == 0){
+                            // good, so white
+                            hit_->setUniformValue("color", Float3(1.0f, 1.0f, 1.0f));
+                        }else if(cell_[i].judge == 1){
+                            // okay so green
+                            hit_->setUniformValue("color", Float3(0, 1.0f, 0));
+                        }else{
+                            // bad so red
+                            hit_->setUniformValue("color", Float3(1.0f, 0, 0));
+                        }
+                        square_->draw(hit_);
+                        hit_->release();
 		}
 	}
 
@@ -224,6 +236,9 @@ void PockyGame::draw(int time) {
         }
 
 	Engine::instance()->unlock();
+
+        // get the closeness to a beat
+
 	// draw background
 	GL::instance()->ortho();
 	float2 scale1 = { w / 1024.f, h / 1024.f };
@@ -231,6 +246,7 @@ void PockyGame::draw(int time) {
 	framebuffer1_->bindsurface(0);
 	texLight_->bind(VSML::instance());
 	texLight_->setUniformValue("tex", 0);
+        texLight_->setUniformValue("beat", state_->getBeat());
 	texLight_->setUniformValue("nLights", nLights);
 	texLight_->setUniformValue("lightpositions", lightPositions_, 10);
 	texLight_->setUniformValue("texScale", scale1);
@@ -468,6 +484,11 @@ void PockyGame::loadShaders() {
 
         GL::instance()->createShader("touch", "assets/shaders/touch.glsl");
         touch_ = GL::instance()->shader("touch");
+
+        GL::instance()->createShader("hit", "assets/shaders/hithex.glsl");
+        hit_ = GL::instance()->shader("hit");
+        
+        
 
 }
 

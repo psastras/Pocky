@@ -3,6 +3,7 @@ TITLE pokemon
 BPM 145.02
 LENGTH 60
 AUTHOR paul
+OFFSET -0.200
 MUSIC pokemon.ogg
 
 [DATA]

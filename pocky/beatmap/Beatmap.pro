@@ -55,4 +55,5 @@ OTHER_FILES += ../assets/shaders/text.glsl \
     ../assets/shaders/bloom.glsl \
     ../assets/shaders/background.glsl \
     ../assets/shaders/alpha.glsl \
-    ../assets/shaders/touch.glsl
+    ../assets/shaders/touch.glsl \
+    ../assets/shaders/hithex.glsl
