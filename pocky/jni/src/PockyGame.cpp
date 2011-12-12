@@ -68,7 +68,7 @@ void PockyGame::init() {
                 Float3(0,0, 0.f),
                 Float3(50, 50, 1.f));
 	//botbar_ = new GLQuad(Float3(1, 1, 1), Float3(w/2,h-10, 0.f), Float3(w, 20, 1.f), true);
-
+	button_ = new GLQuad(Float3(1,1,1), Float3(w/2,25, 0.f), Float3(w, 70, 1.f));
 	glViewport(0, 0, GL::instance()->width(), GL::instance()->height());
 
 //	CELL(5, 3).life = 1.f;
@@ -113,21 +113,15 @@ void PockyGame::draw(int time) {
 	int w = GL::instance()->width();
 	int h = GL::instance()->height();
 
-	//draw stuff behind the overlay
-	GL::instance()->perspective(60.f, 0.01f, 1000.f, GL::instance()->width(),
-			GL::instance()->height());
-	VSML::instance()->scale(9.6f, 5.97f, 1.f);
-	//VSML::instance()->rotate(time / 100.f, 0.f, 1.f, 0.f);
-//	bg_->bind(VSML::instance());
-//	glActiveTexture(GL_TEXTURE0);
-//	framebuffer1_->bindsurface(0);
-//	bg_->setUniformValue("tex", 0);
-//	float2 scale = {w / 1024.f, h / 1024.f};
-//	bg_->setUniformValue("translate", 0.001f);
-//	bg_->setUniformValue("texScale", scale);
-//	square_->draw(bg_);
-//	bg_->release();
 
+	//draw stuff behind the overlay
+
+
+	if(state_->state() == PLAY)
+	{
+		GL::instance()->perspective(60.f, 0.01f, 1000.f, GL::instance()->width(),
+				GL::instance()->height());
+	VSML::instance()->scale(9.6f, 5.97f, 1.f);;
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
 	int nLights = 0;
@@ -223,46 +217,122 @@ void PockyGame::draw(int time) {
             }
         }
 
-	Engine::instance()->unlock();
-	// draw background
-	GL::instance()->ortho();
-	float2 scale1 = { w / 1024.f, h / 1024.f };
-	glActiveTexture(GL_TEXTURE0);
-	framebuffer1_->bindsurface(0);
-	texLight_->bind(VSML::instance());
-	texLight_->setUniformValue("tex", 0);
-	texLight_->setUniformValue("nLights", nLights);
-	texLight_->setUniformValue("lightpositions", lightPositions_, 10);
-	texLight_->setUniformValue("texScale", scale1);
-	quad_->draw(texLight_);
-	texLight_->release();
+		Engine::instance()->unlock();
+		// draw background
+		GL::instance()->ortho();
+		float2 scale1 = { w / 1024.f, h / 1024.f };
+		glActiveTexture(GL_TEXTURE0);
+		framebuffer1_->bindsurface(0);
+		texLight_->bind(VSML::instance());
+		texLight_->setUniformValue("tex", 0);
+		texLight_->setUniformValue("nLights", nLights);
+		texLight_->setUniformValue("lightpositions", lightPositions_, 10);
+		texLight_->setUniformValue("texScale", scale1);
+		quad_->draw(texLight_);
+		texLight_->release();
 
-	//overlay
-	prog += dt / 100000.f;
-	glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_ALPHA);
-	overlay_->bind(VSML::instance());
-	overlay_->setUniformValue("height", 1.f / 30.f);
-	overlay_->setUniformValue("progress", (float) Audio::instance()->getPercentComplete("sim"));
-	topbar_->draw(overlay_);
-	overlay_->release();
-	glDisable(GL_BLEND);
-	std::stringstream ss;
-	ss << std::setfill('0') << std::setw(9) << score_;//"FPS > " << (int) fps_; // << " <> " << progress;// << "\nRES > " << GL::instance()->width() << " X " << GL::instance()->height();
-	GL::instance()->renderText(ss.str(), Float3(2.f, -7.f, 0.f),
-			FONTS::FontLekton);
-//	glEnable(GL_BLEND);
-//	glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_ALPHA);
-//
-//	overlay_->bind(VSML::instance());
-//	overlay_->setUniformValue("height", 0.f);
-//	overlay_->setUniformValue("progress", 50.f / (float)w);
-//	quad_->draw(overlay_);
-//	overlay_->release();
-//	GL::instance()->renderText("SONG SELECT", Float3(70.f, 5.f, 0.f), FONTS::FontLekton);
-//
-//	GL::instance()->renderText("I WANT TO BE THE VERY BEST\n> 3:00 / ASH KETCHUM", Float3(70.f, 55.f, 0.f), FONTS::FontLekton);
-//	GL::instance()->renderText("I WANT TO BE THE VERY BEST\n> 3:00 / ASH KETCHUM", Float3(70.f, 155.f, 0.f), FONTS::FontLekton);
-	//GL::instance()->renderText("P\nI\nD\nG\nE\nY", Float3(15.f, 5.f, 0.f), FONTS::FontLekton);
+		//overlay
+		prog += dt / 100000.f;
+		glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_ALPHA);
+		overlay_->bind(VSML::instance());
+		overlay_->setUniformValue("height", 1.f / 30.f);
+		overlay_->setUniformValue("progress", (float) Audio::instance()->getPercentComplete("sim"));
+		topbar_->draw(overlay_);
+		overlay_->release();
+		glDisable(GL_BLEND);
+		std::stringstream ss;
+		ss << std::setfill('0') << std::setw(9) << score_;//"FPS > " << (int) fps_; // << " <> " << progress;// << "\nRES > " << GL::instance()->width() << " X " << GL::instance()->height();
+		GL::instance()->renderText(ss.str(), Float3(2.f, -7.f, 0.f),
+				FONTS::FontLekton);
+
+
+	}
+	else if(state_->state() == MENU) {
+		GL::instance()->ortho();
+//		Float3 color;
+//		IdxToRGB565(cell_[j].id, color);
+//		id_->setUniformValue("id", color);
+//		disc->draw(id_);
+//		id_->release();
+
+//		VSML::instance()->translate(0.f, 55.f + offset.y, 0.f);
+//		buttonShader_->bind(VSML::instance());
+//		buttonShader_->setUniformValue("life", 0.5f);
+//		button_->draw(buttonShader_);
+//		buttonShader_->release();
+//		for(int i=0;i <9; i++) {
+//			VSML::instance()->translate(0.f, 80.f, 0.f);
+//			buttonShader_->bind(VSML::instance());
+//			buttonShader_->setUniformValue("life", 0.5f);
+//			button_->draw(buttonShader_);
+//			buttonShader_->release();
+//		}
+
+		#ifndef _DESKTOP
+			GLushort *texdata = new GLushort[GL::instance()->width()
+					* GL::instance()->height()];
+			ids_ = new int[GL::instance()->width() * GL::instance()->height()];
+			glReadPixels(0, 0, GL::instance()->width(), GL::instance()->height(),
+					GL_RGB, GL_UNSIGNED_SHORT_5_6_5, texdata);
+		#else
+
+			GLbyte *texdata = new GLbyte[GL::instance()->width() * GL::instance()->height()*4];
+			ids_ = new int[GL::instance()->width() * GL::instance()->height()];
+			glReadPixels(0, 0, GL::instance()->width(), GL::instance()->height(), GL_RGBA, GL_BYTE, texdata);
+		#endif
+			for (int y = 0, i = 0; y < GL::instance()->height(); y++) {
+				for (int x = 0; x < GL::instance()->width(); x++, i++) {
+		#ifndef _DESKTOP
+					int r = (255 * ((texdata[i]) >> 11) + 15) / 31;
+					int g = (255 * ((texdata[i] & 0x7E0) >> 5) + 31) / 63;
+					int b = (255 * ((texdata[i] & 0x01F)) + 15) / 31;
+					ids_[i] = (r * 32 * 64 / 8 + g * 32 / 4 + b / 8) - 1;
+		#else
+					int r = texdata[i*4];
+					int g = texdata[i*4+1];
+					int b = texdata[i*4+2];
+					ids_[i] = (r*32*64/8+g*32/4+b/8)-1;
+		//			if(r!=0||g!=0||b!=0)
+		//				qDebug() << "test:: " << r << ", " << g << ", " << b << ":::" << ids_[i];
+		#endif
+				}
+			}
+			delete[] texdata;
+
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_ALPHA);
+		overlay_->bind(VSML::instance());
+		overlay_->setUniformValue("height", 0.f);
+		overlay_->setUniformValue("progress", 50.f / (float)w);
+		quad_->draw(overlay_);
+		overlay_->release();
+
+		const float2 &offset = state_->dragOffset();
+
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_ALPHA);
+		VSML::instance()->translate(0.f, 55.f + offset.y, 0.f);
+		buttonShader_->bind(VSML::instance());
+		buttonShader_->setUniformValue("life", 0.5f);
+		button_->draw(buttonShader_);
+		buttonShader_->release();
+		for(int i=0;i <9; i++) {
+			VSML::instance()->translate(0.f, 80.f, 0.f);
+			buttonShader_->bind(VSML::instance());
+			buttonShader_->setUniformValue("life", 0.5f);
+			button_->draw(buttonShader_);
+			buttonShader_->release();
+		}
+
+		GL::instance()->renderText("SONG SELECT", Float3(70.f, 5.f+ offset.y, 0.f), FONTS::FontLekton, 0.6f);
+		for(int i=0;i<10; i++) {
+			GL::instance()->renderText("I WANT TO BE THE VERY BEST\n> 3:00 / ASH KETCHUM", Float3(70.f, 55.f + 80*i + offset.y, 0.f), FONTS::FontLekton, 0.5f);
+		}
+	/*	GL::instance()->renderText("I WANT TO BE THE VERY BEST\n> 3:00 / ASH KETCHUM", Float3(70.f, 135.f+ offset.y, 0.f), FONTS::FontLekton, 0.5f);*/
+		}
+	//	GL::instance()->renderText("P\nI\nD\nG\nE\nY", Float3(15.f, 5.f, 0.f), FONTS::FontLekton);
 }
 
 void IdxToRGB565(int idx, Float3 &rgb) {
@@ -303,16 +373,16 @@ void PockyGame::DrawGrid(int radx, int rady, bool solid) {
 			}
 			cell_[j].sspos = GL::instance()->unproject(cell_[j].wspos);
 			if (solid) {
-				GL::instance()->shader("id")->bind(VSML::instance());
+				id_->bind(VSML::instance());
 				//convert j=1...65535 to r5g6b5
 				//32 - 64 - 32
 				//r*32*64+g*32+b
 				//r = idx / (32*64), g = (idx - r*32*64) / 32, b=(idx - r*32*64-g*32)
 				Float3 color;
 				IdxToRGB565(cell_[j].id, color);
-				GL::instance()->shader("id")->setUniformValue("id", color);
-				disc->draw("id");
-				GL::instance()->shader("id")->release();
+				id_->setUniformValue("id", color);
+				disc->draw(id_);
+				id_->release();
 			} else {
 				GL::instance()->shader("texmap")->bind(VSML::instance());
 				glActiveTexture(GL_TEXTURE0);
@@ -456,8 +526,8 @@ void PockyGame::loadShaders() {
 	hexShader_ = GL::instance()->shader("hex");
 	GL::instance()->createShader("texlit", "assets/shaders/texmaplit.glsl");
 	texLight_ = GL::instance()->shader("texlit");
-	GL::instance()->createShader("bg", "assets/shaders/background.glsl");
-	bg_ = GL::instance()->shader("bg");
+//	GL::instance()->createShader("bg", "assets/shaders/background.glsl");
+//	bg_ = GL::instance()->shader("bg");
 //	GL::instance()->createShader("alpha", "assets/shaders/alpha.glsl");
 //	bg_ = GL::instance()->shader("alpha");
 	GL::instance()->createShader("overlay", "assets/shaders/overlay.glsl");
@@ -466,8 +536,11 @@ void PockyGame::loadShaders() {
 	GL::instance()->createShader("id", "assets/shaders/id.glsl");
 	id_ = GL::instance()->shader("id");
 
-        GL::instance()->createShader("touch", "assets/shaders/touch.glsl");
-        touch_ = GL::instance()->shader("touch");
+	GL::instance()->createShader("touch", "assets/shaders/touch.glsl");
+	touch_ = GL::instance()->shader("touch");
+
+	GL::instance()->createShader("button", "assets/shaders/button.glsl");
+	buttonShader_ = GL::instance()->shader("button");
 
 }
 

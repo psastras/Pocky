@@ -7,7 +7,7 @@
 
 #ifndef Float3_H_
 #define Float3_H_
-
+#include "Common.h"
 #include <cmath>
 
 struct Float3 {
@@ -139,8 +139,43 @@ struct float2 {
 	float data[2];
     };
 
+	inline float2& max(float v) { x = MAX(x, v); y = MAX(y, v); x = MAX(y, v); return *this; }
+	inline float2& min(float v) { x = MIN(x, v); y = MIN(y, v); x = MIN(y, v); return *this; }
+
+	void set(float xu, float yu) { x = xu; y = yu; }
+
     float2(float v0 = 0, float v1 = 0) : x(v0), y(v1){ }
     float2(float *data) { x = data[0]; y = data[1]; }
+
+	static inline float2 zero() { return float2(0,0); }
+	static inline float2 one() { return float2(1,1); }
+
+	#define VECOP_PCW(op) { x op rhs.x; y op rhs.y; return *this; }
+	#define VECOP_SCA(op) { x op rhs;   y op rhs  ; return *this; }
+
+	inline float2& operator  = (const float2& rhs) VECOP_PCW( =) /// equality assignment
+	inline float2& operator += (const float2& rhs) VECOP_PCW(+=) /// piecewise addition operator
+	inline float2& operator -= (const float2& rhs) VECOP_PCW(-=) /// piecewise subtraction operator
+	inline float2& operator *= (const float2& rhs) VECOP_PCW(*=) /// piecewise mult operator
+	inline float2& operator /= (const float2& rhs) VECOP_PCW(/=) /// piecewise div operator
+
+	inline float2  operator  + (const float2& rhs) const { return float2(*this) += rhs; } /// piecewise addition
+	inline float2  operator  - (const float2& rhs) const { return float2(*this) -= rhs; } /// piecewise subtraction
+	inline float2  operator  * (const float2& rhs) const { return float2(*this) *= rhs; } /// piecewise mult
+	inline float2  operator  / (const float2& rhs) const { return float2(*this) /= rhs; } /// piecewise div
+
+	inline float2& operator += (const float  rhs)  VECOP_SCA(+=) /// scalar addition operator
+	inline float2& operator -= (const float  rhs)  VECOP_SCA(-=) /// scalar subtraction operator
+	inline float2& operator *= (const float  rhs)  VECOP_SCA(*=) /// scalar multiplication operator
+	inline float2& operator /= (const float  rhs)  VECOP_SCA(/=) /// scalar division operator
+
+	inline float2  operator  + (const float  rhs) const { return float2(*this) += rhs; } /// piecewise addition
+	inline float2  operator  - (const float  rhs) const { return float2(*this) -= rhs; } /// piecewise subtraction
+	inline float2  operator  * (const float  rhs) const { return float2(*this) *= rhs; } /// piecewise multiplication
+	inline float2  operator  / (const float  rhs) const { return float2(*this) /= rhs; } /// piecewise multiplication
+
+	#undef VECOP_PCW
+	#undef VECOP_SCA
 };
 
 struct Float4 {

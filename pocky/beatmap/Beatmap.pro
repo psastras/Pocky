@@ -35,7 +35,8 @@ HEADERS += mainwindow.h \
     ../jni/include/PockyState.h \
     ../jni/include/PockyGame.h \
     ../../pineapple/jni/extern/Common.h \
-    ../../pineapple/jni/extern/Audio.h
+    ../../pineapple/jni/extern/Audio.h \
+    ../../pineapple/jni/include/Fonts.h
 FORMS += mainwindow.ui
 LIBS += -lvorbis \
     -lvorbisfile \
@@ -55,4 +56,5 @@ OTHER_FILES += ../assets/shaders/text.glsl \
     ../assets/shaders/bloom.glsl \
     ../assets/shaders/background.glsl \
     ../assets/shaders/alpha.glsl \
-    ../assets/shaders/touch.glsl
+    ../assets/shaders/touch.glsl \
+    ../assets/shaders/button.glsl

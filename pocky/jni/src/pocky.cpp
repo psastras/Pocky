@@ -80,7 +80,7 @@ JNIEXPORT void JNICALL Java_pocky_libs_Pocky_onTouch
 JNIEXPORT void JNICALL Java_pocky_libs_Pocky_onDrag
   (JNIEnv *, jclass, jfloat x , jfloat y) {
 //	LOGI("ID [%d, %d]: %d", (int)x, (int)y, g_Game->getGridLocation(x, y));
-	g_State->touch(x, y);
+	g_State->drag(x, y);
 }
 
 

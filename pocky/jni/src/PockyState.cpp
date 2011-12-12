@@ -10,7 +10,7 @@
 #include "../include/Simfile.h"
 
 #define EASY_LIFE 4
-#define LATENCY 350
+#define LATENCY 200
 #define NUM_TOUCHPOINTS 20
 
 using namespace Pineapple;
@@ -18,6 +18,7 @@ namespace Pocky {
 
 PockyState::PockyState(PockyGame *pg) {
 	game_ = pg;
+	curState_ = MENU;
 	cells_ = pg->getGrid(ncellsx_, ncellsy_);
 	activeCells_ = new std::vector<PockyGridCell *>();
 	score_ = 0;
@@ -30,7 +31,7 @@ PockyState::PockyState(PockyGame *pg) {
 
         pg->setState(this);
 
-	loadSimfile("assets/simfiles/eternus.sim");
+
 }
 
 PockyState::~PockyState() {
@@ -68,6 +69,9 @@ void PockyState::update() {
 	clock_gettime(CLOCK_MONOTONIC, &current);
 	// dt in milliseconds
 	int dt = diff_time(lastUpdate_, current);
+
+	if(curState_ == PLAY)
+	{
 	//LOGI("dt is %d", dt);
 	//Engine::instance()->lock();
 	double msperbeat = simfile_->getData()->msperbeat_;
@@ -167,6 +171,13 @@ void PockyState::update() {
 		}
 
 	}
+} else if(curState_ == MENU) {
+//	if(totalTouch_.y > 0) {
+//		totalTouch_.y -= 1.f * dt;
+//	}
+	//deltaTouch_ *= 0.5f;
+
+}
 
 	// spawn another one?
 //	int idx = rand() % (ncellsx_ * ncellsy_);
@@ -185,34 +196,64 @@ void PockyState::update() {
 	//	}
 }
 
+float2 PockyState::dragOffset() {
+	totalTouch_ = (totalTouch_).min(0.0);
+	return (totalTouch_ + deltaTouch_).min(0.0);
+}
+
+void PockyState::drag(float x, float y) {
+	if(curState_ == PLAY) {
+		this->touch(x, y);
+	} else if(curState_ == MENU) {
+		deltaTouch_ = float2(x,y)-firstTouch_;
+//		deltaTouch_.x += x;
+//		deltaTouch_.y += y;
+	}
+}
+
 void PockyState::touch(float x, float y) {
 	// get the cell id
-	lastTouch_.x = x;
-	lastTouch_.y = y;
-	touchPoints_[nextfreetouch_].touchpoint_ = lastTouch_;
-	touchPoints_[nextfreetouch_].life_ = 1.0;
-        LOGI("setting touch point %d to life 1.0", nextfreetouch_);
-        nextfreetouch_ = (nextfreetouch_ + 1) % NUM_TOUCHPOINTS;
-	int index = game_->getGridLocation((int) x, (int) y);
-	if (index < 0) {
-		return;
+	lastTouch_.set(x, y);
+
+	if(curState_ == PLAY) {
+		lastTouch_.x = x;
+		lastTouch_.y = y;
+		touchPoints_[nextfreetouch_].touchpoint_ = lastTouch_;
+		touchPoints_[nextfreetouch_].life_ = 1.0;
+			LOGI("setting touch point %d to life 1.0", nextfreetouch_);
+			nextfreetouch_ = (nextfreetouch_ + 1) % NUM_TOUCHPOINTS;
+		int index = game_->getGridLocation((int) x, (int) y);
+		if (index < 0) {
+			return;
+		}
+		Engine::instance()->lock();
+		//	LOGI("touched cell %d", index);
+	//	LOGI("touched cell %d, life is %f", index, cells_[index].life);
+		if (cells_[index].life > 0 && cells_[index].life < 0.5) {
+			// get the timing
+			// since it takes DIFFICULTY_LIFE beats to die, the closer you are to a multiple of 0.5/DIFFICULTY_LIFE the better your timing
+			double inc = 0.5 / EASY_LIFE;
+			double timing = cells_[index].life - ((int)(cells_[index].life / inc))*inc;
+			// timing will be between 0 and inc
+			double goodness = (inc - timing) / inc;
+			// kill it
+			LOGI("killing cell %d", index);
+			cells_[index].life = -0.0000000001;
+			score_+= (int) (goodness * 1000);
+			game_->setScore(score_);
+		}
+		Engine::instance()->unlock();
+	} else if(curState_ == MENU)
+	{
+//		loadSimfile("assets/simfiles/eternus.sim");
+//		curState_ = PLAY;
+		firstTouch_.set(x, y);
+		totalTouch_ += deltaTouch_;
+		deltaTouch_.set(0.f, 0.f);
+
+//		printf("%f --> %f" ,totalTouch_.y, deltaTouch_.y);
+//		fflush(stdout);
 	}
-	Engine::instance()->lock();
-	//	LOGI("touched cell %d", index);
-//	LOGI("touched cell %d, life is %f", index, cells_[index].life);
-	if (cells_[index].life > 0 && cells_[index].life < 0.5) {
-		// get the timing
-		// since it takes DIFFICULTY_LIFE beats to die, the closer you are to a multiple of 0.5/DIFFICULTY_LIFE the better your timing
-		double inc = 0.5 / EASY_LIFE;
-		double timing = cells_[index].life - ((int)(cells_[index].life / inc))*inc;
-		// timing will be between 0 and inc
-		double goodness = (inc - timing) / inc;
-		// kill it
-		LOGI("killing cell %d", index);
-		cells_[index].life = -0.0000000001;
-		score_+= (int) (goodness * 1000);
-		game_->setScore(score_);
-	}
-	Engine::instance()->unlock();
+
 }
 }

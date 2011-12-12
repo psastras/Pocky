@@ -107,14 +107,14 @@ namespace Pineapple {
 		return Float3(x, y, z);
 	}
 
-	void GL::renderText(const std::string &text, const Float3 &pos, FONTS font)
+	void GL::renderText(const std::string &text, const Float3 &pos, FONTS font, float Scale)
 	{
 		if(!fontTextures_[font]) this->loadFont(font);
 		FONTTABLE *tbl = GetFontTable(font);
-		float scale = 0.75f;
+		float scale = Scale;
 		glDisable(GL_DEPTH_TEST);
 		glEnable(GL_BLEND);
-		glBlendFunc (GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
+		glBlendFunc (GL_ONE, GL_ONE);
 		VSML::instance()->loadIdentity(VSML::PROJECTION);
 		VSML::instance()->ortho(0.f, (float)width_, 0.f, (float)height_);
 		VSML::instance()->loadIdentity(VSML::MODELVIEW);
