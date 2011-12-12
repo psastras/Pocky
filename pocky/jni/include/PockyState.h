@@ -13,7 +13,7 @@
 #include "../include/Simfile.h"
 #include <sys/time.h>
 #include <sys/times.h>
-
+#include <vector>
 
 
 //class PockyGame;
@@ -38,7 +38,7 @@ public:
 	void update();
 	void touch(float x, float y);
 	void drag(float x, float y);
-        void release();
+	void release(float x, float y);
 	void loadSimfile(std::string path);
 
 	int getScore(){
@@ -51,10 +51,9 @@ public:
 
 	float2 dragOffset();
 	PockyGameState state() {return curState_; }
-        float getBeat();
-        int getSwipes(){
-            return swipes_;
-        }
+	float getBeat();
+	std::vector<Simfile *> *headers() { return &headers_; }
+
 
 protected:
 	PockyGame *game_;
@@ -71,6 +70,8 @@ protected:
 	float2 lastTouch_, firstTouch_, deltaTouch_, totalTouch_;
 
 	Simfile *simfile_;
+
+	std::vector<Simfile *> headers_;
 
 	TouchTracker *touchPoints_;
 	int nextfreetouch_;

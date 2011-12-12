@@ -14,10 +14,10 @@
 namespace Pocky {
 
 struct SimData {
-	std::string title_;
+	std::string title_, filepath_;
 	double bpm_;
 	double length_; // seconds
-        double offset_;
+	double offset_;
 	std::string author_;
 	std::string music_;
 	double msperbeat_;
@@ -34,7 +34,7 @@ public:
 	Simfile();
 	virtual ~Simfile();
 
-	static Simfile* parse(std::string filepath);
+	static Simfile* parse(std::string filepath, bool data = true);
 
 	SimData *getData() {
 		return data_;

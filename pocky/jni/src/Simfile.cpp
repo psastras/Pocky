@@ -28,10 +28,9 @@ Simfile::~Simfile() {
 	delete notes_;
 }
 
-Simfile* Simfile::parse(std::string filepath) {
-	LOGI("parsing simfile at %s", filepath.c_str());
+Simfile* Simfile::parse(std::string filepath, bool getdata) {
 	Simfile *newsim = new Simfile();
-
+	newsim->data_->filepath_ = filepath;
 	size_t size;
 	unsigned char *raw = Pineapple::Engine::instance()->readResourceFromAPK(
 			filepath.c_str(), size);
@@ -45,13 +44,12 @@ Simfile* Simfile::parse(std::string filepath) {
 	stringstream sstm(actual);
 	string bufstring;
 
-	LOGI("loaded resource, starting parse");
 	while (!sstm.eof()) {
 		sstm.getline(buffer, 256);
 		bufstring = buffer;
-		LOGI("read line: %c", buffer);
+	//	LOGI("read line: %c", buffer);
 		if ((buffer[0]) == '#') {
-			LOGI("comment, ignoring");
+		//	LOGI("comment, ignoring");
 			continue;
 		}
 		if (!header) {
@@ -62,7 +60,7 @@ Simfile* Simfile::parse(std::string filepath) {
 		} else {
 			// past the header
 			if (data) {
-				LOGI("looking for data line");
+			//	LOGI("looking for data line");
 				// reading data
 				// look for absolute coordinate data
 				float time;
@@ -73,8 +71,8 @@ Simfile* Simfile::parse(std::string filepath) {
 					ns.x_ = x;
 					ns.y_ = y;
 					newsim->notes_->push_back(ns);
-					LOGI(
-							"added note at time %f, position %d,%d", ns.time_, ns.x_, ns.y_);
+			//	LOGI(
+			//				"added note at time %f, position %d,%d", ns.time_, ns.x_, ns.y_);
 				} else if (sscanf(buffer, "%f", &time) == 1) {
 					// it's a rando
 					SimNote ns;
@@ -82,7 +80,7 @@ Simfile* Simfile::parse(std::string filepath) {
 					ns.x_ = -1;
 					ns.y_ = -1;
 					newsim->notes_->push_back(ns);
-					LOGI("added random note at time %f", ns.time_);
+				//	LOGI("added random note at time %f", ns.time_);
 
 				} else {
 					//					LOGI("weird line in data");
@@ -90,8 +88,8 @@ Simfile* Simfile::parse(std::string filepath) {
 			} else {
 				//				LOGI("checking for data tag");
 				// check for the data tag
-				if (!strcmp(buffer, "[DATA]")) {
-					LOGI("found data tag");
+				if (!strcmp(buffer, "[DATA]") && getdata) {
+			//		LOGI("found data tag");
 					data = true;
 					continue;
 				}
@@ -100,9 +98,9 @@ Simfile* Simfile::parse(std::string filepath) {
 				char key[32];
 				char value[32];
 				if (sscanf(buffer, "%s %s", key, value) != 2) {
-					LOGI("found some gibberish");
+				//	LOGI("found some gibberish");
 					continue;
-				}LOGI("scanning header data, key: %s, value: %s", key, value);
+				}//LOGI("scanning header data, key: %s, value: %s", key, value);
 				if (!strcmp(key, "TITLE")) {
 					newsim->getData()->title_ = value;
 					LOGI("title: %s", newsim->getData()->title_.c_str());
@@ -110,16 +108,16 @@ Simfile* Simfile::parse(std::string filepath) {
 					newsim->getData()->bpm_ = atof(value);
 					newsim->getData()->msperbeat_ = 1000.0
 							/ (newsim->getData()->bpm_ / 60.0);
-					LOGI("BPM: %f", newsim->getData()->bpm_);
+			//		LOGI("BPM: %f", newsim->getData()->bpm_);
 				} else if (!strcmp(key, "LENGTH")) {
 					newsim->getData()->length_ = atof(value);
-					LOGI("length: %f", newsim->getData()->length_);
+			//		LOGI("length: %f", newsim->getData()->length_);
 				} else if (!strcmp(key, "AUTHOR")) {
 					newsim->getData()->author_ = value;
-					LOGI("author: %s", newsim->getData()->author_.c_str());
+				//	LOGI("author: %s", newsim->getData()->author_.c_str());
 				} else if (!strcmp(key, "MUSIC")) {
 					newsim->getData()->music_ = value;
-					LOGI("music: %s", newsim->getData()->author_.c_str());
+				//	LOGI("music: %s", newsim->getData()->author_.c_str());
                                 } else if (!strcmp(key, "OFFSET")) {
                                         newsim->getData()->offset_ = atof(value);
                                 } else {
@@ -127,7 +125,7 @@ Simfile* Simfile::parse(std::string filepath) {
 				}
 			}
 		}
-	}LOGI("finished parsing");
+	}
 	newsim->position_ = 0;
 	return newsim;
 }

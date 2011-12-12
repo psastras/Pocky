@@ -68,6 +68,6 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event) {
 }
 
 void GLWidget::mouseReleaseEvent(QMouseEvent *event) {
-
+	g_State->release(event->x(), event->y());
 }
 

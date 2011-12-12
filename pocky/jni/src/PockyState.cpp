@@ -15,27 +15,49 @@
 #define TOUCH_LAG 100
 #define NUM_TOUCHPOINTS 100
 #define TOUCH_INC 16
-
+#include <sstream>
 using namespace Pineapple;
 namespace Pocky {
 
 PockyState::PockyState(PockyGame *pg) {
 	game_ = pg;
-        curState_ = PLAY;
+	curState_ = MENU;
 	cells_ = pg->getGrid(ncellsx_, ncellsy_);
 	activeCells_ = new std::vector<PockyGridCell *>();
+
+	//read the music data
+
+	size_t size;
+	unsigned char *data = Engine::instance()->readResourceFromAPK("assets/music.cfg", size);
+	std::string str = (const char *)data;
+	str = str.substr(0, size);
+	char buffer[100];
+	std::stringstream ss(str);
+	while (!ss.eof()) {
+		ss.getline(buffer, 100);
+		std::stringstream fileloc;
+		fileloc << "assets/simfiles/" << buffer;
+		Simfile *sfile = Simfile::parse(fileloc.str(), false);
+		printf("%s -- > title: %s\n",fileloc.str().c_str(), sfile->getData()->title_.c_str());
+		fflush(stdout);
+		headers_.push_back(sfile);
+	}
+
+
 	score_ = 0;
         swipes_ = 0;
 	lastUpdate_.tv_sec = 0;
 	lastUpdate_.tv_nsec = 0;
 	simfile_ = NULL;
 
-        touchPoints_ = new TouchTracker[NUM_TOUCHPOINTS];
+
+
+	touchPoints_ = new TouchTracker[NUM_TOUCHPOINTS];
 	nextfreetouch_ = 0;
 
-        pg->setState(this);
+	pg->setState(this);
 
-		loadSimfile("assets/simfiles/virtual.sim");
+	loadSimfile("assets/simfiles/virtual.sim");
 }
 
 PockyState::~PockyState() {
@@ -372,8 +394,9 @@ void PockyState::touch(float x, float y) {
 		*/
 }
 
-void PockyState::release(){
+void PockyState::release(float x, float y){
     // we want to evaluate the touchpoints the player has so far accumulated
+	if(curState_ == PLAY) {
     Engine::instance()->lock();
     for(int i = 0; i < NUM_TOUCHPOINTS; i++){
         TouchTracker current = touchPoints_[i];
@@ -391,6 +414,15 @@ void PockyState::release(){
     }
     swipes_++;
     Engine::instance()->unlock();
-}
+} else if(curState_ == MENU)
+{
+	if(firstTouch_.x == x && firstTouch_.y == y) {
 
+		int idx = (y - dragOffset().y + 40.f) / 80.f;
+		printf("rouch menu %d --> %d\n", (int)y, idx);
+		fflush(stdout);
+		}
+	}
+
+}
 }
