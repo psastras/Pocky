@@ -363,10 +363,13 @@ void PockyGame::draw(int time) {
 
 		GL::instance()->renderText("SONG SELECT", Float3(70.f, 5.f+ offset.y, 0.f), FONTS::FontLekton, 0.6f);
 		for(int i=0;i<state_->headers()->size(); i++) {
-			GL::instance()->renderText(state_->headers()->at(i)->getData()->title_, Float3(70.f, 55.f + 80*i + offset.y, 0.f), FONTS::FontLekton, 0.5f);
+			std::stringstream ss;
+			double seconds = state_->headers()->at(i)->getData()->length_;
+			int minutes = seconds / 60;
+			int secondsr = seconds - minutes*60;
+			ss << state_->headers()->at(i)->getData()->title_ << "\n" <<minutes << ":" << std::setfill('0') << std::setw(2) << secondsr;
+			GL::instance()->renderText(ss.str(), Float3(70.f, 55.f + 80*i + offset.y, 0.f), FONTS::FontLekton, 0.5f);
 		}
-
-
 		}
 	//	GL::instance()->renderText("P\nI\nD\nG\nE\nY", Float3(15.f, 5.f, 0.f), FONTS::FontLekton);
         else if(state_->state() == SCORE){

@@ -418,9 +418,11 @@ void PockyState::release(float x, float y){
 {
 	if(firstTouch_.x == x && firstTouch_.y == y) {
 
-		int idx = (y - dragOffset().y + 40.f) / 80.f;
-		printf("rouch menu %d --> %d\n", (int)y, idx);
-		fflush(stdout);
+			int idx = (y - dragOffset().y + 40.f) / 80.f;
+			printf("rouch menu %d --> %d\n", (int)y, idx);
+			fflush(stdout);
+			loadSimfile(headers_.at(idx - 1)->getData()->filepath_);
+			curState_ = PLAY;
 		}
 	}
 
