@@ -19,7 +19,6 @@ varying vec3 pass_TexCoord;
 void main() {
    gl_FragColor = texture2D(tex, pass_TexCoord.st)*life;
    gl_FragColor.st *= tcOffset;
-   
    gl_FragColor.w = 0.5;
 }
 #endif 

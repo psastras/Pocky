@@ -17,6 +17,7 @@ struct SimData {
 	std::string title_;
 	double bpm_;
 	double length_; // seconds
+        double offset_;
 	std::string author_;
 	std::string music_;
 	double msperbeat_;

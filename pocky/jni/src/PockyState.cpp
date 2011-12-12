@@ -10,15 +10,18 @@
 #include "../include/Simfile.h"
 
 #define EASY_LIFE 4
-#define LATENCY 200
-#define NUM_TOUCHPOINTS 20
+// LATENCY is 500 for archos, 350 for htc evo, 200 for nexus s
+#define LATENCY 400
+#define TOUCH_LAG 100
+#define NUM_TOUCHPOINTS 100
+#define TOUCH_INC 16
 
 using namespace Pineapple;
 namespace Pocky {
 
 PockyState::PockyState(PockyGame *pg) {
 	game_ = pg;
-	curState_ = MENU;
+	curState_ = PLAY;
 	cells_ = pg->getGrid(ncellsx_, ncellsy_);
 	activeCells_ = new std::vector<PockyGridCell *>();
 	score_ = 0;
@@ -31,7 +34,7 @@ PockyState::PockyState(PockyGame *pg) {
 
         pg->setState(this);
 
-
+		loadSimfile("assets/simfiles/virtual.sim");
 }
 
 PockyState::~PockyState() {
@@ -60,11 +63,28 @@ void PockyState::loadSimfile(std::string path) {
 	Audio::instance()->playSound("sim", simfile_->getData()->length_);
 }
 
+float PockyState::getBeat(){
+    // get the progress of the simfile
+    double msprog = Audio::instance()->getProgress("sim") - LATENCY;
+    msprog -= simfile_->getData()->offset_ * 1000;
+    // get the remainder after dividing by the bpm time
+    double quot = msprog / simfile_->getData()->msperbeat_;
+    // round down to int
+    quot = floor(quot);
+    double offset = msprog - quot*simfile_->getData()->msperbeat_;
+    // it can be either early or late
+    double actual = MIN(offset, simfile_->getData()->msperbeat_ - offset);
+    // return ratio of total beat time
+    // the smaller the offset is, the better
+    return 1.0 - (2*actual / simfile_->getData()->msperbeat_);
+}
+
 void PockyState::update() {
 	if (lastUpdate_.tv_sec == 0 && lastUpdate_.tv_nsec == 0) {
 		clock_gettime(CLOCK_MONOTONIC, &lastUpdate_);
 		return;
 	}
+//        LOGI("goodness is %f", getBeat());
 	timespec current;
 	clock_gettime(CLOCK_MONOTONIC, &current);
 	// dt in milliseconds
@@ -123,7 +143,7 @@ void PockyState::update() {
         for(int i = 0; i < NUM_TOUCHPOINTS; i++){
 		TouchTracker *cur = &touchPoints_[i];
 		if(cur->life_ > 0){
-			cur->life_ -= 1.0 / msperbeat * dt;
+                        cur->life_ -= 1.0 / (msperbeat) * dt;
 		}
 	}
 	if (simfile_->getPosition() == -1) {
@@ -213,36 +233,47 @@ void PockyState::drag(float x, float y) {
 
 void PockyState::touch(float x, float y) {
 	// get the cell id
+
 	lastTouch_.set(x, y);
 
 	if(curState_ == PLAY) {
-		lastTouch_.x = x;
-		lastTouch_.y = y;
-		touchPoints_[nextfreetouch_].touchpoint_ = lastTouch_;
+		// get the line between the last touch point and this one
+		float2 line;
+		float slope;
+		float2 start;
+
+		int prevtouch = (nextfreetouch_ == 0) ? (NUM_TOUCHPOINTS - 1) : nextfreetouch_ - 1;
+		TouchTracker prev = touchPoints_[prevtouch];
+		if(prev.life_> 0){
+//            LOGI("previous touchpoint %d at %f, %f", prevtouch, prev.touchpoint_.x, prev.touchpoint_.y);
+		line.y = y - prev.touchpoint_.y;
+		line.x = x - prev.touchpoint_.x;
+		slope = line.y / line.x;
+		LOGI("slope of %f", slope);
+		start = prev.touchpoint_;
+	}else{
+		line = float2(0,0);
+		slope = 0;
+		start = float2(x, y);
+	}
+
+	float samplerate = sqrt(line.y*line.y - line.x*line.x);
+	int divisions = 1;
+	while(samplerate > 5){
+		divisions++;
+		samplerate /= 2;
+	}
+
+	line.x /= divisions;
+	line.y /= divisions;
+	for(int i = 0; i < divisions; i++){
+		start.x += line.x;
+		start.y += line.y;
+		touchPoints_[nextfreetouch_].touchpoint_ = start;
 		touchPoints_[nextfreetouch_].life_ = 1.0;
-			LOGI("setting touch point %d to life 1.0", nextfreetouch_);
-			nextfreetouch_ = (nextfreetouch_ + 1) % NUM_TOUCHPOINTS;
-		int index = game_->getGridLocation((int) x, (int) y);
-		if (index < 0) {
-			return;
-		}
-		Engine::instance()->lock();
-		//	LOGI("touched cell %d", index);
-	//	LOGI("touched cell %d, life is %f", index, cells_[index].life);
-		if (cells_[index].life > 0 && cells_[index].life < 0.5) {
-			// get the timing
-			// since it takes DIFFICULTY_LIFE beats to die, the closer you are to a multiple of 0.5/DIFFICULTY_LIFE the better your timing
-			double inc = 0.5 / EASY_LIFE;
-			double timing = cells_[index].life - ((int)(cells_[index].life / inc))*inc;
-			// timing will be between 0 and inc
-			double goodness = (inc - timing) / inc;
-			// kill it
-			LOGI("killing cell %d", index);
-			cells_[index].life = -0.0000000001;
-			score_+= (int) (goodness * 1000);
-			game_->setScore(score_);
-		}
-		Engine::instance()->unlock();
+//        LOGI("setting touch point %d at %f, %f", nextfreetouch_, start.x, start.y);
+		nextfreetouch_ = (nextfreetouch_ + 1) % NUM_TOUCHPOINTS;
+	}
 	} else if(curState_ == MENU)
 	{
 //		loadSimfile("assets/simfiles/eternus.sim");
@@ -255,5 +286,93 @@ void PockyState::touch(float x, float y) {
 //		fflush(stdout);
 	}
 
+
+//	lastTouch_.x = x;
+//	lastTouch_.y = y;
+
+
+
+    /*
+
+        // now fill in the line in between
+//        float2 start = lastTouch_;
+        while(start.x <= x && start.y <= y){
+            // make a thing
+            touchPoints_[nextfreetouch_].touchpoint_ = start;
+            touchPoints_[nextfreetouch_].life_ = 1.0;
+
+//            LOGI("setting touch point %d to life 1.0", nextfreetouch_);
+            nextfreetouch_ = (nextfreetouch_ + 1) % NUM_TOUCHPOINTS;
+            start.x += 100;
+            start.y += slope * 100;
+        }
+        */
+
+//        lastTouch_.x = x;
+//        lastTouch_.y = y;
+
+        /*
+	int index = game_->getGridLocation((int) x, (int) y);
+	if (index < 0) {
+		return;
+	}
+	Engine::instance()->lock();
+        double goodness = getBeat();
+
+                        goodness = (1.0-goodness) * simfile_->getData()->msperbeat_;
+                        LOGI("goodness = %f", goodness);
+        //	LOGI("touched cell %d", index);
+//	LOGI("touched cell %d, life is %f", index, cells_[index].life);
+	if (cells_[index].life > 0 && cells_[index].life < 0.5) {
+		// get the timing
+		// since it takes DIFFICULTY_LIFE beats to die, the closer you are to a multiple of 0.5/DIFFICULTY_LIFE the better your timing
+//		double inc = 0.5 / EASY_LIFE;
+//                double timing = cells_[index].life - (floor(cells_[index].life / inc))*inc;
+//                timing = MIN(timing, inc - timing);
+//                // timing will be between 0 and inc / 2
+//                double goodness = 2 * timing / inc;
+
+
+            // get how close you are to a beat
+
+
+                // goodness is from 0 to 1, smaller is better
+		// kill it
+                LOGI("killing cell %d", index);
+                if(goodness < 250){
+                cells_[index].judge = 0;
+                }else if(goodness <400){
+                cells_[index].judge = 1;
+            }else{
+                cells_[index].judge = 2;
+            }
+
+		cells_[index].life = -0.0000000001;
+		score_+= (int) (goodness * 1000);
+		game_->setScore(score_);
+	}
+	Engine::instance()->unlock();
+		*/
 }
+
+void PockyState::release(){
+    // we want to evaluate the touchpoints the player has so far accumulated
+    Engine::instance()->lock();
+    for(int i = 0; i < NUM_TOUCHPOINTS; i++){
+        TouchTracker current = touchPoints_[i];
+        int index = game_->getGridLocation(current.touchpoint_.x, current.touchpoint_.y);
+        if(index < 0 || current.life_ <= 0){
+            continue;
+        }
+        if(cells_[index].life > 0 && cells_[index].life < 0.5){
+            // kill it
+            cells_[index].judge = 1;
+            cells_[index].life = -0.0000000001;
+            score_ += 1;
+            game_->setScore(score_);
+        }
+    }
+    Engine::instance()->unlock();
+}
+
 }

@@ -45,7 +45,7 @@ while(my $line = <FILE>){
     }
   }elsif($line =~ m/NOTES/ && !$notes){
       # we're done, so write the header
-      print("[HEADER]\nTITLE \nBPM \nLENGTH \nAUTHOR \nMUSIC $music\n\n[DATA]\n");
+      print("[HEADER]\nTITLE \nBPM \nLENGTH \nOFFSET $offset\nAUTHOR \nMUSIC $music\n\n[DATA]\n");
       # start note parsing
       $notes = 1;
   }else{

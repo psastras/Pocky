@@ -38,6 +38,7 @@ public:
 	void update();
 	void touch(float x, float y);
 	void drag(float x, float y);
+        void release();
 	void loadSimfile(std::string path);
 
 	int getScore(){
@@ -50,6 +51,8 @@ public:
 
 	float2 dragOffset();
 	PockyGameState state() {return curState_; }
+        float getBeat();
+
 protected:
 	PockyGame *game_;
 	PockyGridCell *cells_;
