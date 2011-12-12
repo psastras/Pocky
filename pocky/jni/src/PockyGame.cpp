@@ -388,10 +388,6 @@ void PockyGame::draw(int time) {
 
 
 
-}
-
-
-
 void PockyGame::DrawGrid(int radx, int rady, bool solid) {
 
 	GLPrimitive *square = new GLQuad(Float3(10, 10, 10), Float3(0.f, 0.f, -5.f),

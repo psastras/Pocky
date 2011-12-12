@@ -52,6 +52,10 @@ public:
 	float2 dragOffset();
 	PockyGameState state() {return curState_; }
 	float getBeat();
+        int getSwipes(){
+            return swipes_;
+        }
+
 	std::vector<Simfile *> *headers() { return &headers_; }
 
 
