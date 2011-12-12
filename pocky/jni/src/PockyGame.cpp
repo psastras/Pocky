@@ -354,7 +354,21 @@ void PockyGame::draw(int time) {
 	/*	GL::instance()->renderText("I WANT TO BE THE VERY BEST\n> 3:00 / ASH KETCHUM", Float3(70.f, 135.f+ offset.y, 0.f), FONTS::FontLekton, 0.5f);*/
 		}
 	//	GL::instance()->renderText("P\nI\nD\nG\nE\nY", Float3(15.f, 5.f, 0.f), FONTS::FontLekton);
+        else if(state_->state() == SCORE){
+            // render the score screen
+            GL::instance()->renderText("YOUR RATING", Float3(70.f, 5.f, 0.f), FONTS::FontLekton, 0.6f);
+            std::stringstream sstm;
+            sstm << ((float) score_) / ((float) state_->getSwipes());
+            GL::instance()->renderText(sstm.str(), Float3(70.f, 50.f, 0.f), FONTS::FontLekton, 1.0f);
 
+            GL::instance()->renderText("MENU", Float3(500.f, 300.f, 0.f), FONTS::FontLekton, 1.0f);
+            VSML::instance()->translate(552.f, 150.f, 0.f);
+            VSML::instance()->scale(2.8f, 2.8f, 0.0f);
+            touch_->bind(VSML::instance());
+            touch_->setUniformValue("life", 1.0f);
+            touchprim_->draw(touch_);
+            touch_->release();
+        }
 }
 
 void IdxToRGB565(int idx, Float3 &rgb) {

@@ -21,7 +21,7 @@ using namespace Pineapple;
 namespace Pocky {
 
 	enum PockyGameState {
-		PLAY, MENU
+                PLAY, MENU, SCORE
 	};
 
 struct TouchTracker {
@@ -52,6 +52,9 @@ public:
 	float2 dragOffset();
 	PockyGameState state() {return curState_; }
         float getBeat();
+        int getSwipes(){
+            return swipes_;
+        }
 
 protected:
 	PockyGame *game_;
@@ -63,6 +66,7 @@ protected:
 	struct timespec lastUpdate_;
 
 	int score_;
+        int swipes_;
 
 	float2 lastTouch_, firstTouch_, deltaTouch_, totalTouch_;
 

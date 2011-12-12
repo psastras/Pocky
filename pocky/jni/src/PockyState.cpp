@@ -21,10 +21,11 @@ namespace Pocky {
 
 PockyState::PockyState(PockyGame *pg) {
 	game_ = pg;
-	curState_ = PLAY;
+        curState_ = PLAY;
 	cells_ = pg->getGrid(ncellsx_, ncellsy_);
 	activeCells_ = new std::vector<PockyGridCell *>();
 	score_ = 0;
+        swipes_ = 0;
 	lastUpdate_.tv_sec = 0;
 	lastUpdate_.tv_nsec = 0;
 	simfile_ = NULL;
@@ -147,6 +148,9 @@ void PockyState::update() {
 		}
 	}
 	if (simfile_->getPosition() == -1) {
+            if(activeCells_->empty()){
+             curState_ = SCORE;
+            }
 		return;
 	}
 
@@ -179,16 +183,22 @@ void PockyState::update() {
 				activeCells_->push_back(&cells_[idx]);
 			}
 			int newpos = simfile_->incrementPosition();
-			if (newpos == -1) {
+                        if (newpos == -1) {
 				//				delete simfile_;
 				//				simfile_ = 0;
 				spawning = false;
 				LOGI("end of simfile");
-				exit(0);
+                                if(activeCells_->empty()){
+                                curState_ = SCORE;
+                            }
 			}
 		} else {
 			spawning = false;
-		}
+                        if(simfile_->getPosition() == -1 && activeCells_->empty()){
+                            LOGI("shifting to score");
+                            curState_ = SCORE;
+                        }
+                    }
 
 	}
 } else if(curState_ == MENU) {
@@ -196,6 +206,8 @@ void PockyState::update() {
 //		totalTouch_.y -= 1.f * dt;
 //	}
 	//deltaTouch_ *= 0.5f;
+
+} else if (curState_ == SCORE){
 
 }
 
@@ -233,7 +245,7 @@ void PockyState::drag(float x, float y) {
 
 void PockyState::touch(float x, float y) {
 	// get the cell id
-
+//        LOGI("touch at %f, %f", x, y);
 	lastTouch_.set(x, y);
 
 	if(curState_ == PLAY) {
@@ -249,7 +261,7 @@ void PockyState::touch(float x, float y) {
 		line.y = y - prev.touchpoint_.y;
 		line.x = x - prev.touchpoint_.x;
 		slope = line.y / line.x;
-		LOGI("slope of %f", slope);
+//		LOGI("slope of %f", slope);
 		start = prev.touchpoint_;
 	}else{
 		line = float2(0,0);
@@ -285,6 +297,11 @@ void PockyState::touch(float x, float y) {
 //		printf("%f --> %f" ,totalTouch_.y, deltaTouch_.y);
 //		fflush(stdout);
 	}
+        else if (curState_ == SCORE){
+            if(x < 600 && x > 500 && y < 400 && y > 275){
+                curState_ = MENU;
+            }
+        }
 
 
 //	lastTouch_.x = x;
@@ -372,6 +389,7 @@ void PockyState::release(){
             game_->setScore(score_);
         }
     }
+    swipes_++;
     Engine::instance()->unlock();
 }
 

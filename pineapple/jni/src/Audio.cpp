@@ -284,6 +284,9 @@ timespec diff_time(timespec start, timespec end){
 }
 
 double Audio::getProgress(std::string name) {
+    if(sounds_.count(name) <=0){
+     return 0;
+    }
 	AudioObject *ao = sounds_[name];
 //	float pos = 0;
 //	alGetSourcef(ao->source_id_, AL_SEC_OFFSET, &pos);
@@ -296,6 +299,9 @@ double Audio::getProgress(std::string name) {
 
 double Audio::getPercentComplete(std::string name){
 	double prog = getProgress(name) / 1000.0;
+        if(sounds_.count(name) <= 0){
+            return 1.0;
+        }
 	AudioObject *ao = sounds_[name];
 	return prog / ao->totalLength_;
 }
@@ -306,6 +312,9 @@ void Audio::update() {
 //		LOGI("inside sound update loop");
 //		LOGI(("checking sound " + iter->first).c_str());
 		AudioObject *ao = iter->second;
+                if(!ao){
+                    continue;
+                }
 		int sourceState;
 		alGetSourcei(ao->source_id_, AL_SOURCE_STATE, &sourceState);
 
@@ -318,9 +327,8 @@ void Audio::update() {
 			alDeleteSources(1, &ao->source_id_);
 //			alDeleteBuffers(1, &ao->buffer_);
 			if (!ao->keepLoaded_) {
-				for (auto itertwo = ao->buffers_.begin();
-						itertwo != ao->buffers_.end(); itertwo++) {
-					LOGI("trying delete %d", itertwo->first);
+                                for (auto itertwo = ao->buffers_.begin(); itertwo != ao->buffers_.end(); itertwo++) {
+//					LOGI("trying delete %d", itertwo->first);
 					alDeleteBuffers(1, &itertwo->first);
 					delete[] itertwo->second;
 					LOGI("removed buffer %d", itertwo->first);
