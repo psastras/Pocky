@@ -13,7 +13,8 @@
 // LATENCY is 500 for archos, 350 for htc evo, 200 for nexus s
 #define LATENCY 400
 #define TOUCH_LAG 100
-#define NUM_TOUCHPOINTS 20
+#define NUM_TOUCHPOINTS 100
+#define TOUCH_INC 16
 
 using namespace Pineapple;
 namespace Pocky {
@@ -32,7 +33,7 @@ PockyState::PockyState(PockyGame *pg) {
 
         pg->setState(this);
 
-        loadSimfile("assets/simfiles/eternus.sim");
+        loadSimfile("assets/simfiles/virtual.sim");
 }
 
 PockyState::~PockyState() {
@@ -138,7 +139,7 @@ void PockyState::update() {
         for(int i = 0; i < NUM_TOUCHPOINTS; i++){
 		TouchTracker *cur = &touchPoints_[i];
 		if(cur->life_ > 0){
-			cur->life_ -= 1.0 / msperbeat * dt;
+                        cur->life_ -= 1.0 / (msperbeat) * dt;
 		}
 	}
 	if (simfile_->getPosition() == -1) {
@@ -206,12 +207,67 @@ void PockyState::update() {
 
 void PockyState::touch(float x, float y) {
 	// get the cell id
-	lastTouch_.x = x;
-	lastTouch_.y = y;
-	touchPoints_[nextfreetouch_].touchpoint_ = lastTouch_;
-	touchPoints_[nextfreetouch_].life_ = 1.0;
-        //LOGI("setting touch point %d to life 1.0", nextfreetouch_);
+//	lastTouch_.x = x;
+//	lastTouch_.y = y;
+
+        // get the line between the last touch point and this one
+        float2 line;
+        float slope;
+        float2 start;
+
+        int prevtouch = (nextfreetouch_ == 0) ? (NUM_TOUCHPOINTS - 1) : nextfreetouch_ - 1;
+        TouchTracker prev = touchPoints_[prevtouch];
+        if(prev.life_> 0){
+//            LOGI("previous touchpoint %d at %f, %f", prevtouch, prev.touchpoint_.x, prev.touchpoint_.y);
+        line.y = y - prev.touchpoint_.y;
+        line.x = x - prev.touchpoint_.x;
+        slope = line.y / line.x;
+        LOGI("slope of %f", slope);
+        start = prev.touchpoint_;
+    }else{
+        line = float2(0,0);
+        slope = 0;
+        start = float2(x, y);
+    }
+
+    float samplerate = sqrt(line.y*line.y - line.x*line.x);
+    int divisions = 1;
+    while(samplerate > 5){
+        divisions++;
+        samplerate /= 2;
+    }
+
+    line.x /= divisions;
+    line.y /= divisions;
+    for(int i = 0; i < divisions; i++){
+        start.x += line.x;
+        start.y += line.y;
+        touchPoints_[nextfreetouch_].touchpoint_ = start;
+        touchPoints_[nextfreetouch_].life_ = 1.0;
+//        LOGI("setting touch point %d at %f, %f", nextfreetouch_, start.x, start.y);
         nextfreetouch_ = (nextfreetouch_ + 1) % NUM_TOUCHPOINTS;
+    }
+
+    /*
+
+        // now fill in the line in between
+//        float2 start = lastTouch_;
+        while(start.x <= x && start.y <= y){
+            // make a thing
+            touchPoints_[nextfreetouch_].touchpoint_ = start;
+            touchPoints_[nextfreetouch_].life_ = 1.0;
+
+//            LOGI("setting touch point %d to life 1.0", nextfreetouch_);
+            nextfreetouch_ = (nextfreetouch_ + 1) % NUM_TOUCHPOINTS;
+            start.x += 100;
+            start.y += slope * 100;
+        }
+        */
+
+        lastTouch_.x = x;
+        lastTouch_.y = y;
+
+        /*
 	int index = game_->getGridLocation((int) x, (int) y);
 	if (index < 0) {
 		return;
@@ -252,5 +308,27 @@ void PockyState::touch(float x, float y) {
 		game_->setScore(score_);
 	}
 	Engine::instance()->unlock();
+        */
 }
+
+void PockyState::release(){
+    // we want to evaluate the touchpoints the player has so far accumulated
+    Engine::instance()->lock();
+    for(int i = 0; i < NUM_TOUCHPOINTS; i++){
+        TouchTracker current = touchPoints_[i];
+        int index = game_->getGridLocation(current.touchpoint_.x, current.touchpoint_.y);
+        if(index < 0 || current.life_ <= 0){
+            continue;
+        }
+        if(cells_[index].life > 0 && cells_[index].life < 0.5){
+            // kill it
+            cells_[index].judge = 1;
+            cells_[index].life = -0.0000000001;
+            score_ += 1;
+            game_->setScore(score_);
+        }
+    }
+    Engine::instance()->unlock();
+}
+
 }

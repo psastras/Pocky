@@ -26,7 +26,7 @@
 #include <iomanip>
 
 #define CELL(X, Y) cell_[(Y) * ncellsx_ + (X)]
-#define NUM_TOUCHPOINTS 20
+#define NUM_TOUCHPOINTS 100
 #define SPAWN_SIZE 0.5
 
 using namespace Pineapple;
@@ -68,6 +68,9 @@ void PockyGame::init() {
                 Float3(6, 10, 10),
                 Float3(0,0, 0.f),
                 Float3(50, 50, 1.f));
+        touchfill_ = new GLDisc( Float3(6, 10, 10),
+                                 Float3(0,0, 0.f),
+                                 Float3(50, 50, 1.f));
 	//botbar_ = new GLQuad(Float3(1, 1, 1), Float3(w/2,h-10, 0.f), Float3(w, 20, 1.f), true);
 
 	glViewport(0, 0, GL::instance()->width(), GL::instance()->height());
@@ -172,8 +175,8 @@ void PockyGame::draw(int time) {
 					GL::instance()->width(), GL::instance()->height());
 			VSML::instance()->translate(cell_[i].wspos.x, cell_[i].wspos.y,
 					0.f);
-			VSML::instance()->scale(MAX(-cell_[i].life + 1.f, 1.f)
-			, MAX(-cell_[i].life+1.f, 1.f), 1.f);
+                        VSML::instance()->scale(MAX((-cell_[i].life + 1.f)*0.75, 1.f)
+                        , MAX((-cell_[i].life+1.f)*0.75, 1.f), 1.f);
 
 			float2 tc(cell_[i].sspos.x / w, 1.f - cell_[i].sspos.y / h);
                         hit_->bind(VSML::instance());
@@ -231,6 +234,7 @@ void PockyGame::draw(int time) {
                 touch_->bind(VSML::instance());
                 touch_->setUniformValue("life", current.life_);
                         touchprim_->draw(touch_);
+                        touchfill_->draw(touch_);
                 touch_->release();
             }
         }

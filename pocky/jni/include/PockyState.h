@@ -31,6 +31,7 @@ public:
 
 	void update();
 	void touch(float x, float y);
+        void release();
 	void loadSimfile(std::string path);
 
 	int getScore(){
