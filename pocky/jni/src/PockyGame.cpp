@@ -72,7 +72,7 @@ void PockyGame::init() {
                                  Float3(0,0, 0.f),
                                  Float3(50, 50, 1.f));
 	//botbar_ = new GLQuad(Float3(1, 1, 1), Float3(w/2,h-10, 0.f), Float3(w, 20, 1.f), true);
-	button_ = new GLQuad(Float3(1,1,1), Float3(w/2,25, 0.f), Float3(w, 70, 1.f));
+	button_ = new GLQuad(Float3(1,1,1), Float3(w/2,0.f, 0.f), Float3(w, 70, 1.f));
 	glViewport(0, 0, GL::instance()->width(), GL::instance()->height());
 
 //	CELL(5, 3).life = 1.f;
@@ -105,7 +105,15 @@ void PockyGame::setState(PockyState *s){
     state_= s;
 
 }
-
+void IdxToRGB565(int idx, Float3 &rgb) {
+	int r = idx / (32 * 64);
+	int g = (idx - r * 32 * 64) / 32;
+	int b = (idx - r * 32 * 64 - g * 32);
+	rgb.x = r * 8;
+	rgb.y = g * 4;
+	rgb.z = b * 8;
+	rgb /= 255.f;
+}
 void PockyGame::draw(int time) {
 	glClear(GL_COLOR_BUFFER_BIT);
 
@@ -269,18 +277,15 @@ void PockyGame::draw(int time) {
 
 	}
 	else if(state_->state() == MENU) {
-		GL::instance()->ortho();
+		const float2 &offset = state_->dragOffset();
+
 //		Float3 color;
 //		IdxToRGB565(cell_[j].id, color);
 //		id_->setUniformValue("id", color);
 //		disc->draw(id_);
 //		id_->release();
 
-//		VSML::instance()->translate(0.f, 55.f + offset.y, 0.f);
-//		buttonShader_->bind(VSML::instance());
-//		buttonShader_->setUniformValue("life", 0.5f);
-//		button_->draw(buttonShader_);
-//		buttonShader_->release();
+
 //		for(int i=0;i <9; i++) {
 //			VSML::instance()->translate(0.f, 80.f, 0.f);
 //			buttonShader_->bind(VSML::instance());
@@ -289,57 +294,64 @@ void PockyGame::draw(int time) {
 //			buttonShader_->release();
 //		}
 
-		#ifndef _DESKTOP
-			GLushort *texdata = new GLushort[GL::instance()->width()
-					* GL::instance()->height()];
-			ids_ = new int[GL::instance()->width() * GL::instance()->height()];
-			glReadPixels(0, 0, GL::instance()->width(), GL::instance()->height(),
-					GL_RGB, GL_UNSIGNED_SHORT_5_6_5, texdata);
-		#else
+//		#ifndef _DESKTOP
+//			GLushort *texdata = new GLushort[GL::instance()->width()
+//					* GL::instance()->height()];
+//			ids_ = new int[GL::instance()->width() * GL::instance()->height()];
+//			glReadPixels(0, 0, GL::instance()->width(), GL::instance()->height(),
+//					GL_RGB, GL_UNSIGNED_SHORT_5_6_5, texdata);
+//		#else
 
-			GLbyte *texdata = new GLbyte[GL::instance()->width() * GL::instance()->height()*4];
-			ids_ = new int[GL::instance()->width() * GL::instance()->height()];
-			glReadPixels(0, 0, GL::instance()->width(), GL::instance()->height(), GL_RGBA, GL_BYTE, texdata);
-		#endif
-			for (int y = 0, i = 0; y < GL::instance()->height(); y++) {
-				for (int x = 0; x < GL::instance()->width(); x++, i++) {
-		#ifndef _DESKTOP
-					int r = (255 * ((texdata[i]) >> 11) + 15) / 31;
-					int g = (255 * ((texdata[i] & 0x7E0) >> 5) + 31) / 63;
-					int b = (255 * ((texdata[i] & 0x01F)) + 15) / 31;
-					ids_[i] = (r * 32 * 64 / 8 + g * 32 / 4 + b / 8) - 1;
-		#else
-					int r = texdata[i*4];
-					int g = texdata[i*4+1];
-					int b = texdata[i*4+2];
-					ids_[i] = (r*32*64/8+g*32/4+b/8)-1;
-		//			if(r!=0||g!=0||b!=0)
-		//				qDebug() << "test:: " << r << ", " << g << ", " << b << ":::" << ids_[i];
-		#endif
-				}
-			}
-			delete[] texdata;
+//			GLbyte *texdata = new GLbyte[GL::instance()->width() * GL::instance()->height()*4];
+//			ids_ = new int[GL::instance()->width() * GL::instance()->height()];
+//			glReadPixels(0, 0, GL::instance()->width(), GL::instance()->height(), GL_RGBA, GL_BYTE, texdata);
+//		#endif
+//			for (int y = 0, i = 0; y < GL::instance()->height(); y++) {
+//				for (int x = 0; x < GL::instance()->width(); x++, i++) {
+//		#ifndef _DESKTOP
+//					int r = (255 * ((texdata[i]) >> 11) + 15) / 31;
+//					int g = (255 * ((texdata[i] & 0x7E0) >> 5) + 31) / 63;
+//					int b = (255 * ((texdata[i] & 0x01F)) + 15) / 31;
+//					ids_[i] = (r * 32 * 64 / 8 + g * 32 / 4 + b / 8) - 1;
+//		#else
+//					int r = texdata[i*4];
+//					int g = texdata[i*4+1];
+//					int b = texdata[i*4+2];
+//					ids_[i] = (r*32*64/8+g*32/4+b/8)-1;
+//		//			if(r!=0||g!=0||b!=0)
+//		//				qDebug() << "test:: " << r << ", " << g << ", " << b << ":::" << ids_[i];
+//		#endif
+//				}
+//			}
+//			delete[] texdata;
 
 		glClear(GL_COLOR_BUFFER_BIT);
-
+		GL::instance()->ortho();
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_ALPHA);
+
+
+//		glClear(GL_COLOR_BUFFER_BIT);
+//		GL::instance()->ortho();
+//		Float3 color;
+//		IdxToRGB565(1, color);
+//		VSML::instance()->translate(0.f, 55.f + offset.y, 0.f);
+//		id_->bind(VSML::instance());
+//		id_->setUniformValue("id", 0.5f);
+//		button_->draw(id_);
+//		id_->release();
+
 		overlay_->bind(VSML::instance());
 		overlay_->setUniformValue("height", 0.f);
 		overlay_->setUniformValue("progress", 50.f / (float)w);
 		quad_->draw(overlay_);
 		overlay_->release();
 
-		const float2 &offset = state_->dragOffset();
 
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_ALPHA);
-		VSML::instance()->translate(0.f, 55.f + offset.y, 0.f);
-		buttonShader_->bind(VSML::instance());
-		buttonShader_->setUniformValue("life", 0.5f);
-		button_->draw(buttonShader_);
-		buttonShader_->release();
-		for(int i=0;i <9; i++) {
+
+		VSML::instance()->translate(0.f,offset.y, 0.f);
+
+		for(int i=0;i <state_->headers()->size(); i++) {
 			VSML::instance()->translate(0.f, 80.f, 0.f);
 			buttonShader_->bind(VSML::instance());
 			buttonShader_->setUniformValue("life", 0.5f);
@@ -347,25 +359,21 @@ void PockyGame::draw(int time) {
 			buttonShader_->release();
 		}
 
+
+
 		GL::instance()->renderText("SONG SELECT", Float3(70.f, 5.f+ offset.y, 0.f), FONTS::FontLekton, 0.6f);
-		for(int i=0;i<10; i++) {
-			GL::instance()->renderText("I WANT TO BE THE VERY BEST\n> 3:00 / ASH KETCHUM", Float3(70.f, 55.f + 80*i + offset.y, 0.f), FONTS::FontLekton, 0.5f);
+		for(int i=0;i<state_->headers()->size(); i++) {
+			GL::instance()->renderText(state_->headers()->at(i)->getData()->title_, Float3(70.f, 55.f + 80*i + offset.y, 0.f), FONTS::FontLekton, 0.5f);
 		}
-	/*	GL::instance()->renderText("I WANT TO BE THE VERY BEST\n> 3:00 / ASH KETCHUM", Float3(70.f, 135.f+ offset.y, 0.f), FONTS::FontLekton, 0.5f);*/
+
+
 		}
-	//	GL::instance()->renderText("P\nI\nD\nG\nE\nY", Float3(15.f, 5.f, 0.f), FONTS::FontLekton);
+
+
 
 }
 
-void IdxToRGB565(int idx, Float3 &rgb) {
-	int r = idx / (32 * 64);
-	int g = (idx - r * 32 * 64) / 32;
-	int b = (idx - r * 32 * 64 - g * 32);
-	rgb.x = r * 8;
-	rgb.y = g * 4;
-	rgb.z = b * 8;
-	rgb /= 255.f;
-}
+
 
 void PockyGame::DrawGrid(int radx, int rady, bool solid) {
 

@@ -85,8 +85,8 @@ JNIEXPORT void JNICALL Java_pocky_libs_Pocky_onDrag
 
 
 JNIEXPORT void JNICALL Java_pocky_libs_Pocky_onRelease
-  (JNIEnv *, jclass, jfloat, jfloat) {
-	g_State->release();
+  (JNIEnv *, jclass, jfloat x, jfloat y) {
+	g_State->release(x, y);
 	//LOGI("Release");
 }
 
