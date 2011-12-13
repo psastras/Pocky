@@ -45,6 +45,9 @@ public:
 	void lock();
 	void unlock();
 
+        void lockaudio();
+        void unlockaudio();
+
 protected:
 	zip* s_APKArchive;
 	EngineUpdatable *updatable_;

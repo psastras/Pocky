@@ -376,7 +376,7 @@ void PockyGame::draw(int time) {
             // render the score screen
             GL::instance()->renderText("YOUR RATING", Float3(70.f, 5.f, 0.f), FONTS::FontLekton, 0.6f);
             std::stringstream sstm;
-            sstm << ((float) score_) / ((float) state_->getSwipes());
+            sstm << ((float) score_ * score_) / ((float) state_->getSwipes());
             GL::instance()->renderText(sstm.str(), Float3(70.f, 50.f, 0.f), FONTS::FontLekton, 1.0f);
 
             GL::instance()->renderText("MENU", Float3(500.f, 300.f, 0.f), FONTS::FontLekton, 1.0f);
@@ -386,6 +386,32 @@ void PockyGame::draw(int time) {
             touch_->setUniformValue("life", 1.0f);
             touchprim_->draw(touch_);
             touch_->release();
+        }
+        else if(state_->state() == TITLE){
+            // draw background
+            GL::instance()->ortho();
+            float2 scale1 = { w / 1024.f, h / 1024.f };
+            glActiveTexture(GL_TEXTURE0);
+            framebuffer1_->bindsurface(0);
+            texLight_->bind(VSML::instance());
+            texLight_->setUniformValue("tex", 0);
+                    texLight_->setUniformValue("beat", state_->getBeat());
+            texLight_->setUniformValue("nLights", 0);
+            texLight_->setUniformValue("lightpositions", lightPositions_, 10);
+            texLight_->setUniformValue("texScale", scale1);
+            quad_->draw(texLight_);
+            texLight_->release();
+
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_ALPHA);
+            id_->bind(VSML::instance());
+            id_->setUniformValue("id", Float3(0.2f, 0.2f, 0.2f));
+            quad_->draw(id_);
+            id_->release();
+
+            // render the title screen
+            GL::instance()->renderText("CUPCAKE SHADER EDITOR", Float3(100.f, 20.f, 0.f), FONTS::FontLekton, 1.0f);
+            GL::instance()->renderText("TOUCH ANYWHERE TO START", Float3(200.f, 300.f, 0.f), FONTS::FontLekton, 0.6f);
         }
 }
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="hello">Hello World, PockyActivity!</string>
-    <string name="app_name">Pocky</string>
+    <string name="hello">Cupcake</string>
+    <string name="app_name">Cupcake Shader Editor</string>
 
 </resources>

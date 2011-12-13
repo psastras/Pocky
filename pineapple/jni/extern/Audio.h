@@ -91,6 +91,8 @@ public:
 	void addSound2(const char *name);
 	bool playSound(std::string name, int length);
 	bool stopSound(std::string name);
+        bool stopAll();
+        bool removeSound(std::string name);
 	double getProgress(std::string name);
 	double getPercentComplete(std::string name);
 	void update();

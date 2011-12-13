@@ -21,7 +21,7 @@ using namespace Pineapple;
 namespace Pocky {
 
 	enum PockyGameState {
-                PLAY, MENU, SCORE
+                PLAY, MENU, SCORE, TITLE
 	};
 
 struct TouchTracker {

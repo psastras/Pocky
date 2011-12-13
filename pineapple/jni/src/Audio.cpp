@@ -266,8 +266,46 @@ bool Audio::playSound(std::string name, int length) {
 }
 
 bool Audio::stopSound(std::string name) {
+    if(sounds_.count(name) > 0){
 	AudioObject *tostop = sounds_[name];
 	alSourceStop(tostop->source_id_);
+        return true;
+    }
+    return false;
+}
+
+bool Audio::stopAll(){
+    for (auto iter = sounds_.begin(); iter != sounds_.end(); iter++) {
+//		LOGI("inside sound update loop");
+//		LOGI(("checking sound " + iter->first).c_str());
+            AudioObject *ao = iter->second;
+            if(!ao){
+                continue;
+            }
+      alSourceStop(ao->source_id_);
+        }
+    }
+
+bool Audio::removeSound(std::string name){
+    if(sounds_.count(name) > 0){
+    AudioObject *ao = sounds_[name];
+    for (auto itertwo = ao->buffers_.begin(); itertwo != ao->buffers_.end(); itertwo++) {
+//					LOGI("trying delete %d", itertwo->first);
+            alDeleteBuffers(1, &itertwo->first);
+            delete[] itertwo->second;
+            LOGI("removed buffer %d", itertwo->first);
+//					ao->buffers_.erase(itertwo->first);
+    }
+    ao->buffers_.clear();
+    std::string m = "removing sound " + name + " from map";
+    LOGI(m.c_str());
+    sounds_.erase(name);
+    ov_clear(ao->file_);
+    delete ao;
+return true;
+}
+    return false;
+//				LOGI("finished deleting");
 }
 
 timespec diff_time(timespec start, timespec end){

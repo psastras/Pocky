@@ -11,7 +11,7 @@
 
 #define EASY_LIFE 4
 // LATENCY is 500 for archos, 350 for htc evo, 200 for nexus s
-#define LATENCY 400
+#define LATENCY 500
 #define TOUCH_LAG 100
 #define NUM_TOUCHPOINTS 100
 #define TOUCH_INC 16
@@ -21,7 +21,7 @@ namespace Pocky {
 
 PockyState::PockyState(PockyGame *pg) {
 	game_ = pg;
-	curState_ = MENU;
+        curState_ = TITLE;
 	cells_ = pg->getGrid(ncellsx_, ncellsy_);
 	activeCells_ = new std::vector<PockyGridCell *>();
 
@@ -35,6 +35,10 @@ PockyState::PockyState(PockyGame *pg) {
 	std::stringstream ss(str);
 	while (!ss.eof()) {
 		ss.getline(buffer, 100);
+                std::string buf = buffer;
+                if(buf.length() <= 0){
+                    continue;
+                }
 		std::stringstream fileloc;
 		fileloc << "assets/simfiles/" << buffer;
 		Simfile *sfile = Simfile::parse(fileloc.str(), false);
@@ -53,11 +57,14 @@ PockyState::PockyState(PockyGame *pg) {
 
 
 	touchPoints_ = new TouchTracker[NUM_TOUCHPOINTS];
+        for(int i = 0; i < NUM_TOUCHPOINTS; i++){
+            touchPoints_[i].life_ = 0;
+        }
 	nextfreetouch_ = 0;
 
 	pg->setState(this);
 
-	loadSimfile("assets/simfiles/virtual.sim");
+        loadSimfile("assets/simfiles/virtual.sim");
 }
 
 PockyState::~PockyState() {
@@ -78,12 +85,20 @@ int diff_time(timespec start, timespec end) {
 }
 
 void PockyState::loadSimfile(std::string path) {
+    Pineapple::Engine::instance()->lockaudio();
+    if(simfile_){
+        Audio::instance()->stopSound("sim");
+        Audio::instance()->removeSound("sim");
+     delete simfile_;
+     simfile_ = 0;
+    }
 	simfile_ = Simfile::parse(path);
 	// play the song here for now
 	std::string soundpath = "assets/audio/" + simfile_->getData()->music_;
 	Audio::instance()->addSound("sim", soundpath, true, AudioType::OGG,
 			simfile_->getData()->length_);
 	Audio::instance()->playSound("sim", simfile_->getData()->length_);
+        Pineapple::Engine::instance()->unlockaudio();
 }
 
 float PockyState::getBeat(){
@@ -172,6 +187,11 @@ void PockyState::update() {
 	if (simfile_->getPosition() == -1) {
             if(activeCells_->empty()){
              curState_ = SCORE;
+             Pineapple::Engine::instance()->lockaudio();
+             Audio::instance()->stopSound("sim");
+             Audio::instance()->addSound("score", "assets/audio/party.ogg", true, AudioType::OGG, 55);
+             Audio::instance()->playSound("score", 55);
+             Pineapple::Engine::instance()->unlockaudio();
             }
 		return;
 	}
@@ -231,7 +251,6 @@ void PockyState::update() {
 
 } else if (curState_ == SCORE){
 
-}
 
 	// spawn another one?
 //	int idx = rand() % (ncellsx_ * ncellsy_);
@@ -244,10 +263,14 @@ void PockyState::update() {
 //	}
 	//Engine::instance()->unlock();
 
-	lastUpdate_ = current;
+
 	//			}
 	//		}
 	//	}
+    } else if(curState_ == TITLE){
+
+    }
+    lastUpdate_ = current;
 }
 
 float2 PockyState::dragOffset() {
@@ -293,7 +316,7 @@ void PockyState::touch(float x, float y) {
 
 	float samplerate = sqrt(line.y*line.y - line.x*line.x);
 	int divisions = 1;
-	while(samplerate > 5){
+        while(samplerate > 4){
 		divisions++;
 		samplerate /= 2;
 	}
@@ -322,7 +345,28 @@ void PockyState::touch(float x, float y) {
         else if (curState_ == SCORE){
             if(x < 600 && x > 500 && y < 400 && y > 275){
                 curState_ = MENU;
+//                loadSimfile("assets/simfiles/virtual.sim");
+                score_ = 0;
+                swipes_ = 0;
+                Pineapple::Engine::instance()->lockaudio();
+                Audio::instance()->stopSound("score");
+                Audio::instance()->removeSound("score");
+                Audio::instance()->addSound("menu", "assets/audio/fine.ogg", true, AudioType::OGG, 55);
+                Audio::instance()->playSound("menu", 55);
+                Pineapple::Engine::instance()->unlockaudio();
             }
+        }else if (curState_ == TITLE){
+            curState_ = MENU;
+            Pineapple::Engine::instance()->lock();
+            if(simfile_){
+                Audio::instance()->stopSound("sim");
+                Audio::instance()->removeSound("sim");
+             delete simfile_;
+             simfile_ = 0;
+            }
+            Audio::instance()->addSound("menu", "assets/audio/fine.ogg", true, AudioType::OGG, 55);
+            Audio::instance()->playSound("menu", 55);
+            Pineapple::Engine::instance()->unlock();
         }
 
 
@@ -417,7 +461,10 @@ void PockyState::release(float x, float y){
 } else if(curState_ == MENU)
 {
 	if(firstTouch_.x == x && firstTouch_.y == y) {
-
+            Pineapple::Engine::instance()->lockaudio();
+            Audio::instance()->stopSound("menu");
+            Audio::instance()->removeSound("menu");
+            Pineapple::Engine::instance()->unlockaudio();
 			int idx = (y - dragOffset().y + 40.f) / 80.f;
 			printf("rouch menu %d --> %d\n", (int)y, idx);
 			fflush(stdout);

@@ -3,6 +3,7 @@ package pocky.main;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+import pineapple.libs.PineappleLib;
 import pineapple.main.PineappleActivity;
 import pineapple.main.TouchEventHandler;
 import pocky.libs.Pocky;

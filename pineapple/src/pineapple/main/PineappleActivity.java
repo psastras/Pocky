@@ -40,6 +40,7 @@ public abstract class PineappleActivity extends Activity {
 
 	@Override
 	protected void onPause() {
+		System.out.println("PAUZE");
 		PineappleLib.stop();
 		super.onPause();
 	}

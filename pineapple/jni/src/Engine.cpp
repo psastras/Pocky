@@ -16,6 +16,7 @@ bool gIsRunning = false;
 pthread_t thread_ = 0;
 pthread_t audiothread_ = 0;
 pthread_mutex_t mutex;
+pthread_mutex_t audio_mutex;
 
 struct timespec sleepTime;
 struct timespec returnTime;
@@ -55,11 +56,12 @@ void* run(void*) {
 
 void* runAudio(void*) {
 
-	while (gIsRunning) {
-
+        while (gIsRunning) {
 		if (Pineapple::Audio::instance()) {
 			//	LOGI("audio update");
+                    Pineapple::Engine::instance()->lockaudio();
 			Pineapple::Audio::instance()->update();
+                        Pineapple::Engine::instance()->unlockaudio();
 		}
 
 		nanosleep(&sleepTime, &returnTime);
@@ -193,12 +195,14 @@ unsigned char *Engine::readResourceFromAPK(const char* filename, size_t &size) {
 
 void Engine::start() {
 	pthread_mutex_init(&mutex, 0);
-	this->stop();
+        pthread_mutex_init(&audio_mutex, 0);
+        //this->stop();
 	gIsRunning = true;
 	pthread_create(&thread_, 0, run, 0);
 	pthread_create(&audiothread_, 0, runAudio, 0);
 	LOGI("Engine Thread Started");
 	pthread_mutex_unlock(&mutex);
+        pthread_mutex_unlock(&audio_mutex);
 
 //	int res = pthread_mutex_trylock(&mutex);
 //	if(res != 0){
@@ -216,18 +220,31 @@ void Engine::unlock() {
 	pthread_mutex_unlock(&mutex);
 }
 
+void Engine::lockaudio(){
+        pthread_mutex_lock(&audio_mutex);
+}
+
+void Engine::unlockaudio(){
+        pthread_mutex_unlock(&audio_mutex);
+}
+
 void Engine::stop() {
-	if (gIsRunning) {
-		if (thread_)
-			pthread_join(thread_, 0);
-		if (audiothread_)
-					pthread_join(audiothread_, 0);
+    LOGI("ENGINE STOP");
+//        if (gIsRunning) {
+//                if (thread_)
+//                        pthread_join(thread_, 0);
+//                if (audiothread_)
+//                                        pthread_join(audiothread_, 0);
+//
+//                gIsRunning = false;
+//                thread_ = 0;
+//        }
+        Audio::instance()->stopAll();
 
-		gIsRunning = false;
-		thread_ = 0;
-	}
-
-	pthread_mutex_destroy(&mutex);
+        pthread_mutex_destroy(&mutex);
+        pthread_mutex_destroy(&audio_mutex);
+        LOGI("EXITING");
+        exit(0);
 }
 
 } /* namespace Pineapple */

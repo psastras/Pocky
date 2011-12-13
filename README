@@ -5,6 +5,24 @@ Authors
 Paul Sastrasinh (psastras@cs.brown.edu)
 Justin Kim (jhk2@cs.brown.edu)
 
+To compile on department machines:
+
+ Startup /contrib/projects/eclipse-android-ndk/eclipse/eclipse
+
+ Add pineapple and pocky to your workspace
+
+ If you want, change the LATENCY variable in the PockyState.cpp, depending on your device.
+
+ Hit the green button.
+
+ If the compile fails, hit the green button again, it might take two tries -
+ there seems to be a Makefile dependency issue somewhere.
+
+ If eclipse gives build errors and refuses to build, select all the build errors
+ and hit delete and build again.
+
+ Uploading might take a little while (1 min) because of APK size.
+
 Pineapple
 
 Pineapple is a C++ game engine library written for Android (specifically 

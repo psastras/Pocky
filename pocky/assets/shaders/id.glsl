@@ -14,6 +14,6 @@ void main(void) {
 #ifdef _FRAGMENT_
 
 void main() {
-    gl_FragColor = vec4(id.x, id.y, id.z, 1.0);
+    gl_FragColor = vec4(id.x, id.y, id.z, 0.7);
 }
 #endif
