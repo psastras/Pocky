@@ -376,7 +376,7 @@ void PockyGame::draw(int time) {
             // render the score screen
             GL::instance()->renderText("YOUR RATING", Float3(70.f, 5.f, 0.f), FONTS::FontLekton, 0.6f);
             std::stringstream sstm;
-            sstm << ((float) score_ * score_) / ((float) state_->getSwipes());
+            sstm << ((state_->getSwipes() > 0) ? (((float) score_ * score_) / ((float) state_->getSwipes())) : 0);
             GL::instance()->renderText(sstm.str(), Float3(70.f, 50.f, 0.f), FONTS::FontLekton, 1.0f);
 
             GL::instance()->renderText("MENU", Float3(500.f, 300.f, 0.f), FONTS::FontLekton, 1.0f);

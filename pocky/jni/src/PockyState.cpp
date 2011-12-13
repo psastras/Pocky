@@ -11,7 +11,7 @@
 
 #define EASY_LIFE 4
 // LATENCY is 500 for archos, 350 for htc evo, 200 for nexus s
-#define LATENCY 500
+#define LATENCY 400
 #define TOUCH_LAG 100
 #define NUM_TOUCHPOINTS 100
 #define TOUCH_INC 16
@@ -347,6 +347,7 @@ void PockyState::touch(float x, float y) {
                 curState_ = MENU;
 //                loadSimfile("assets/simfiles/virtual.sim");
                 score_ = 0;
+                game_->setScore(0);
                 swipes_ = 0;
                 Pineapple::Engine::instance()->lockaudio();
                 Audio::instance()->stopSound("score");
